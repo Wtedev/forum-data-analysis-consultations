@@ -76,9 +76,9 @@ export function ConsultationsTable({
   const openCount = initialStats.total - (initialStats.byStatus.CLOSED ?? 0);
 
   return (
-    <div className="space-y-6">
+    <div className={iconTools ? "space-y-5" : "space-y-6"}>
       {iconTools ? (
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 items-stretch gap-2.5 sm:gap-3">
           <DeskStat label="جميع الاستشارات" value={initialStats.total} />
           <DeskStat label="استشاراتي" value={initialStats.mine ?? 0} />
           <DeskStat label="الاستشارات غير المسندة" value={initialStats.unassigned ?? 0} />
@@ -117,7 +117,7 @@ export function ConsultationsTable({
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
           {heading ? (
-            <h1 className={iconTools ? "min-w-0 text-2xl font-bold text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
+            <h1 className={iconTools ? "min-w-0 text-[1.65rem] font-bold leading-none text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
               {heading}
             </h1>
           ) : (
@@ -243,7 +243,9 @@ export function ConsultationsTable({
 
       <div className={iconTools ? "space-y-3" : "space-y-3 md:hidden"}>
         {initialData.length === 0 ? (
-          <div className="rounded-3xl border border-[#eceef2] bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#9ca3af]">
+          <div className={iconTools
+            ? "rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#8b93ab] shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]"
+            : "rounded-3xl border border-[#eceef2] bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#9ca3af]"}>
             {emptyMessage}
           </div>
         ) : iconTools ? (
@@ -371,12 +373,12 @@ function ConsultantRequestCard({
   const canTake = canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo;
 
   return (
-    <article className="flex min-w-0 items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 shadow-[0_8px_24px_rgba(62,76,134,0.06)]">
-      <div className="min-w-0 text-start">
-        <h2 className="truncate text-base font-bold text-[#3e4c86]" title={row.question}>
+    <article className="flex min-w-0 items-center gap-3 rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+      <div className="min-w-0 flex-1 text-start">
+        <h2 className="line-clamp-2 text-[15px] font-bold leading-6 text-[#3e4c86]" title={row.question}>
           {row.question}
         </h2>
-        <p className="mt-0.5 truncate text-sm text-[#8b93ab]">{row.fullName}</p>
+        <p className="mt-1 truncate text-[13px] leading-5 text-[#8b93ab]">{row.fullName}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
@@ -386,7 +388,7 @@ function ConsultantRequestCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="تواصل واتساب"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#3dcb8c] text-white transition hover:bg-[#34b87e]"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3dcb8c] text-white transition hover:bg-[#34b87e]"
           >
             <WhatsAppIcon className="h-5 w-5" />
           </a>
@@ -394,7 +396,7 @@ function ConsultantRequestCard({
         <Link
           href={`${basePath}/consultations/${row.id}`}
           aria-label="اطلع على التفاصيل"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#354272]"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#354272]"
         >
           <ArrowLeft className="h-5 w-5" aria-hidden />
         </Link>
@@ -444,9 +446,9 @@ function ConsultationActions({
 
 function DeskStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex min-w-0 flex-col items-center rounded-2xl bg-white px-2 py-4 text-center shadow-[0_8px_24px_rgba(62,76,134,0.05)]">
-      <p className="text-2xl font-bold text-[#3e4c86]">{value}</p>
-      <p className="mt-2 text-[11px] font-medium leading-5 text-[#8b93ab] sm:text-xs">{label}</p>
+    <div className="flex h-full min-w-0 flex-col items-center rounded-2xl bg-white px-2 py-4 text-center shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+      <p className="text-[1.65rem] font-bold leading-none tabular-nums text-[#3e4c86]">{value}</p>
+      <p className="mt-3 flex min-h-8 items-start justify-center text-center text-[11px] font-medium leading-4 text-[#8b93ab] sm:text-xs">{label}</p>
     </div>
   );
 }
@@ -515,10 +517,10 @@ function ToolIconButton({
       aria-pressed={pressed}
       onClick={onClick}
       className={clsx(
-        "relative inline-flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition",
+        "relative inline-flex h-11 w-11 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 transition",
         pressed
-          ? "border-[#e6e8ec] bg-[#f4f5f7] text-[#1c1c1c]"
-          : "border-[#eceef2] bg-white text-[#6b7280] hover:bg-[#f7f8fa]",
+          ? "bg-[#f4f5f8] text-[#3e4c86] ring-[#e4e7f0]"
+          : "bg-white text-[#6d7588] ring-[#eef0f6] hover:bg-[#f7f8fb]",
       )}
     >
       {children}

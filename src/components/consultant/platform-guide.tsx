@@ -57,7 +57,7 @@ export function PlatformGuide({ tone = "default" }: { tone?: "default" | "onDark
         }}
         className={
           tone === "onDark"
-            ? "inline-flex items-center gap-1.5 text-sm font-medium text-white/90 transition hover:text-white"
+            ? "inline-flex items-center gap-1.5 text-[13px] font-medium leading-none text-white/85 transition hover:text-white"
             : "inline-flex items-center gap-1 text-sm font-semibold text-[#335382] transition hover:text-[#2a446c]"
         }
         dir="ltr"
@@ -65,7 +65,7 @@ export function PlatformGuide({ tone = "default" }: { tone?: "default" | "onDark
         <span
           className={
             tone === "onDark"
-              ? "inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/80 text-xs leading-none"
+              ? "inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-white/75 text-[11px] leading-none"
               : "text-sm leading-none"
           }
           aria-hidden="true"
