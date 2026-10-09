@@ -11,18 +11,32 @@ export type ConsultantOption = {
 };
 
 export async function listPublicConsultantOptions(): Promise<ConsultantOption[]> {
-  const accounts = await getPrisma().adminUser.findMany({
-    where: { role: "CONSULTANT", consultantKey: { not: null } },
-    select: { consultantKey: true, name: true },
-    orderBy: { name: "asc" },
-  });
+  const now = new Date();
+  const [accounts, invites] = await Promise.all([
+    getPrisma().adminUser.findMany({
+      where: { role: "CONSULTANT", consultantKey: { not: null } },
+      select: { consultantKey: true, name: true, email: true },
+    }),
+    getPrisma().consultantInvite.findMany({
+      where: { acceptedAt: null, expiresAt: { gt: now } },
+      select: { consultantKey: true, name: true, email: true },
+    }),
+  ]);
 
-  return [
-    NO_PREFERENCE_CHOICE,
+  const activeEmails = new Set(accounts.map((account) => account.email));
+  const activeKeys = new Set(accounts.flatMap((account) => (account.consultantKey ? [account.consultantKey] : [])));
+  const options = [
     ...accounts.flatMap((account) =>
       account.consultantKey ? [{ id: account.consultantKey, label: account.name }] : [],
     ),
-  ];
+    ...invites.flatMap((invite) =>
+      !activeEmails.has(invite.email) && !activeKeys.has(invite.consultantKey)
+        ? [{ id: invite.consultantKey, label: invite.name }]
+        : [],
+    ),
+  ].sort((a, b) => a.label.localeCompare(b.label, "ar"));
+
+  return [NO_PREFERENCE_CHOICE, ...options];
 }
 
 export async function resolveConsultantChoice(label: string) {
@@ -33,8 +47,15 @@ export async function resolveConsultantChoice(label: string) {
     where: { role: "CONSULTANT", name: normalized, consultantKey: { not: null } },
     select: { consultantKey: true },
   });
+  if (account?.consultantKey) return account.consultantKey;
 
-  return account?.consultantKey ?? null;
+  const invite = await getPrisma().consultantInvite.findFirst({
+    where: { name: normalized, acceptedAt: null, expiresAt: { gt: new Date() } },
+    select: { consultantKey: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return invite?.consultantKey ?? null;
 }
 
 export function consultantKeyForInvite() {
@@ -49,8 +70,21 @@ export async function consultantNamesByKey(keys: string[]) {
     where: { consultantKey: { in: unique } },
     select: { consultantKey: true, name: true },
   });
-
-  return Object.fromEntries(
+  const names = Object.fromEntries(
     accounts.flatMap((account) => (account.consultantKey ? [[account.consultantKey, account.name]] : [])),
   ) as Record<string, string>;
+
+  const missing = unique.filter((key) => !names[key]);
+  if (missing.length === 0) return names;
+
+  const invites = await getPrisma().consultantInvite.findMany({
+    where: { consultantKey: { in: missing } },
+    select: { consultantKey: true, name: true },
+    orderBy: { createdAt: "desc" },
+  });
+  for (const invite of invites) {
+    if (!names[invite.consultantKey]) names[invite.consultantKey] = invite.name;
+  }
+
+  return names;
 }
