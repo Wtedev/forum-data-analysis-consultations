@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
-import { ArrowLeft, Eye, Phone } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
-import { WhatsAppLink } from "@/components/admin/whatsapp-link";
+import { WhatsAppIcon, WhatsAppLink } from "@/components/admin/whatsapp-link";
 import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
@@ -388,7 +388,7 @@ function ConsultantRequestCard({
             aria-label="تواصل واتساب"
             className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#3dcb8c] text-white transition hover:bg-[#34b87e]"
           >
-            <Phone className="h-5 w-5" aria-hidden />
+            <WhatsAppIcon className="h-5 w-5" />
           </a>
         ) : null}
         <Link
