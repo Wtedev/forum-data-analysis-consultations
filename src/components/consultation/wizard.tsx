@@ -124,24 +124,15 @@ export function ConsultationWizard() {
   }
 
   const formFooter = (
-    <div className="mt-8 flex flex-col-reverse gap-3 border-t border-white/[0.08] pt-6 sm:flex-row sm:justify-between lg:flex-row lg:gap-3">
+    <div className="mt-8 flex w-full gap-3 border-t border-white/[0.08] pt-6">
       {currentStep > 1 ? (
-        <SecondaryButton
-          onClick={goBack}
-          disabled={submitting}
-          className="w-full sm:w-auto lg:flex-1"
-        >
+        <SecondaryButton onClick={goBack} disabled={submitting} className="min-w-0 flex-1">
           السابق
         </SecondaryButton>
-      ) : (
-        <span className="hidden lg:block lg:flex-1" />
-      )}
+      ) : null}
 
       {currentStep < 4 ? (
-        <PrimaryButton
-          onClick={goNext}
-          className="w-full sm:min-w-[140px] lg:flex-1"
-        >
+        <PrimaryButton onClick={goNext} className="min-w-0 flex-1">
           التالي
         </PrimaryButton>
       ) : (
@@ -149,7 +140,7 @@ export function ConsultationWizard() {
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full sm:min-w-[180px] lg:flex-1"
+          className="min-w-0 flex-1"
         >
           {submitting ? "جاري الإرسال..." : "إرسال طلب الاستشارة"}
         </PrimaryButton>
@@ -159,17 +150,14 @@ export function ConsultationWizard() {
 
   const mobileFooter = !isSuccess && (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-[#0a0f1d]/90 px-4 py-4 backdrop-blur-md lg:hidden">
-      <div className={currentStep > 1 ? "flex gap-3" : ""}>
+      <div className="flex w-full gap-3">
         {currentStep > 1 ? (
-          <SecondaryButton onClick={goBack} disabled={submitting} className="flex-1">
+          <SecondaryButton onClick={goBack} disabled={submitting} className="min-w-0 flex-1">
             السابق
           </SecondaryButton>
         ) : null}
         {currentStep < 4 ? (
-          <PrimaryButton
-            onClick={goNext}
-            className={currentStep > 1 ? "flex-1" : "w-full"}
-          >
+          <PrimaryButton onClick={goNext} className="min-w-0 flex-1">
             التالي
           </PrimaryButton>
         ) : (
@@ -177,7 +165,7 @@ export function ConsultationWizard() {
             type="button"
             onClick={handleSubmit}
             disabled={submitting}
-            className={currentStep > 1 ? "flex-1" : "w-full"}
+            className="min-w-0 flex-1"
           >
             {submitting ? "جاري الإرسال..." : "إرسال الطلب"}
           </PrimaryButton>
