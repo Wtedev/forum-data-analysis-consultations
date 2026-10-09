@@ -38,12 +38,13 @@ export function AdminHeader({
   }
 
   return (
+    <>
+    {showGuide ? (
+      <div className="mb-3 flex justify-end">
+        <PlatformGuide />
+      </div>
+    ) : null}
     <header className="mb-6 flex flex-col gap-3 rounded-2xl bg-[var(--kf-bg)] px-4 py-4 text-[#e6edf8] shadow-[0_8px_24px_rgba(10,15,29,0.16)] sm:mb-8 sm:px-6 sm:py-5">
-      {showGuide ? (
-        <div className="flex justify-end">
-          <PlatformGuide />
-        </div>
-      ) : null}
       <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
         <p className="text-xs font-semibold text-[#cfe3ff]/80">ملتقى تحليل البيانات ٢</p>
@@ -80,5 +81,6 @@ export function AdminHeader({
       </div>
       </div>
     </header>
+    </>
   );
 }

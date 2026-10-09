@@ -55,7 +55,7 @@ export function PlatformGuide() {
           setStep(0);
           setOpen(true);
         }}
-        className="inline-flex items-center gap-1 text-xs font-medium text-[#cfe3ff] transition hover:text-white"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-[#335382] transition hover:text-[#2a446c]"
         dir="ltr"
       >
         <span className="text-sm leading-none" aria-hidden="true">
