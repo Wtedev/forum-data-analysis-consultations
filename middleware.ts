@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
 
   const needsSession =
     (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) ||
-    pathname.startsWith("/consultant");
+    (pathname.startsWith("/consultant") && !pathname.startsWith("/consultant/invite"));
 
   if (needsSession && !hasSessionCookie) {
     const loginUrl = new URL("/admin/login", request.url);

@@ -44,3 +44,11 @@ export function consultantShortLabel(id: string): string {
   }
   return id;
 }
+
+export const ASSIGNABLE_CONSULTANTS = CONSULTANTS.filter((item) => item.id !== "NO_PREFERENCE");
+
+export type AssignableConsultantId = (typeof ASSIGNABLE_CONSULTANTS)[number]["id"];
+
+export function isAssignableConsultant(id: string): id is AssignableConsultantId {
+  return ASSIGNABLE_CONSULTANTS.some((item) => item.id === id);
+}

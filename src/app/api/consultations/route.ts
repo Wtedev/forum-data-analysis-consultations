@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { notifyConsultationCreated } from "@/lib/consultation-mail";
 import { mapConsultant } from "@/lib/consultants";
 import {
   mapConsultationType,
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   try {
-    const referenceCode = await getPrisma().$transaction(async (tx) => {
+    const created = await getPrisma().$transaction(async (tx) => {
       const code = await generateReferenceCode(tx);
 
       const consultation = await tx.consultation.create({
@@ -82,12 +83,21 @@ export async function POST(request: Request) {
         },
       });
 
-      return code;
+      return consultation;
+    });
+
+    await notifyConsultationCreated({
+      id: created.id,
+      referenceCode: created.referenceCode,
+      fullName: created.fullName,
+      email: created.email,
+      consultationType: created.consultationType,
+      preferredConsultant: created.preferredConsultant,
     });
 
     return NextResponse.json({
       success: true,
-      referenceCode,
+      referenceCode: created.referenceCode,
     });
   } catch (error) {
     console.error("Failed to create consultation:", error);

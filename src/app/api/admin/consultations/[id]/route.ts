@@ -3,6 +3,7 @@ import type { ConsultationStatus, Priority } from "@prisma/client";
 import { z } from "zod";
 
 import { ALL_PRIORITIES, ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
+import { notifyStatusChanged } from "@/lib/consultation-mail";
 import { canAccessConsultation } from "@/lib/admin-auth";
 import { badRequest, notFound, requireAdminApi, serverError } from "@/lib/admin-api";
 import { consultationDetailInclude } from "@/lib/admin-queries";
@@ -119,6 +120,20 @@ export async function PATCH(request: Request, context: RouteContext) {
 
       return updated;
     });
+
+    if (parsed.data.status && parsed.data.status !== existing.status) {
+      await notifyStatusChanged(
+        {
+          id: consultation.id,
+          referenceCode: consultation.referenceCode,
+          fullName: consultation.fullName,
+          email: consultation.email,
+          consultationType: consultation.consultationType,
+          preferredConsultant: consultation.preferredConsultant,
+        },
+        parsed.data.status,
+      );
+    }
 
     return NextResponse.json({
       success: true,

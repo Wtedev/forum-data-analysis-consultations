@@ -5,15 +5,11 @@ import { badRequest, serverError } from "@/lib/admin-api";
 import {
   getAdminCredentialsFromEnv,
   INVALID_CREDENTIALS_MESSAGE,
-  passwordsMatch,
   setSessionCookie,
   signSession,
   verifyAdminCredentials,
 } from "@/lib/admin-auth";
-import {
-  consultantLoginConfigured,
-  findConsultantAccount,
-} from "@/lib/consultant-accounts";
+import { verifyPassword } from "@/lib/password";
 import { getPrisma } from "@/lib/prisma";
 
 const loginSchema = z.object({
@@ -25,11 +21,6 @@ const PLACEHOLDER_PASSWORD_HASH =
   "$2a$10$000000000000000000000000000000000000000000000000000000";
 
 export async function POST(request: Request) {
-  if (!getAdminCredentialsFromEnv() && !consultantLoginConfigured()) {
-    console.error("Staff login is not configured");
-    return serverError("تعذر تسجيل الدخول");
-  }
-
   let body: unknown;
 
   try {
@@ -83,29 +74,43 @@ export async function POST(request: Request) {
       });
     }
 
-    const account = findConsultantAccount(email);
-    if (!account || !passwordsMatch(password, account.password)) {
-      return badRequest(INVALID_CREDENTIALS_MESSAGE);
+    const normalizedEmail = email.trim().toLowerCase();
+    const consultant = await getPrisma().adminUser.findUnique({
+      where: { email: normalizedEmail },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        consultantKey: true,
+        passwordHash: true,
+      },
+    });
+
+    let passwordOk = false;
+    if (consultant) {
+      try {
+        passwordOk = await verifyPassword(password, consultant.passwordHash);
+      } catch {
+        passwordOk = false;
+      }
     }
 
-    const consultant = await getPrisma().adminUser.upsert({
-      where: { email: account.email },
-      update: { name: account.name, role: "CONSULTANT" },
-      create: {
-        email: account.email,
-        name: account.name,
-        passwordHash: PLACEHOLDER_PASSWORD_HASH,
-        role: "CONSULTANT",
-      },
-      select: { id: true, name: true, email: true, role: true },
-    });
+    if (
+      !consultant ||
+      !passwordOk ||
+      consultant.role !== "CONSULTANT" ||
+      !consultant.consultantKey
+    ) {
+      return badRequest(INVALID_CREDENTIALS_MESSAGE);
+    }
 
     const token = signSession({
       sub: consultant.id,
       email: consultant.email,
       name: consultant.name,
       role: consultant.role,
-      consultantId: account.id,
+      consultantId: consultant.consultantKey,
     });
 
     await setSessionCookie(token);
@@ -118,7 +123,7 @@ export async function POST(request: Request) {
         name: consultant.name,
         email: consultant.email,
         role: consultant.role,
-        consultantId: account.id,
+        consultantId: consultant.consultantKey,
       },
     });
   } catch (error) {
