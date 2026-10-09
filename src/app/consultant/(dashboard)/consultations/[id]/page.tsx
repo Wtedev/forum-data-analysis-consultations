@@ -30,7 +30,12 @@ export default async function ConsultantConsultationDetailPage({ params }: PageP
       >
         ← العودة إلى طلباتك
       </Link>
-      <ConsultationDetailPanel initialData={consultation} mode="consultant" />
+      <ConsultationDetailPanel
+        initialData={
+          consultation.assignedTo ? consultation : { ...consultation, phone: "" }
+        }
+        mode="consultant"
+      />
     </div>
   );
 }

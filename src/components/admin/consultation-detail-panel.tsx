@@ -166,15 +166,20 @@ export function ConsultationDetailPanel({
         <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">بيانات المتقدم</h2>
           <dl className="space-y-3 text-sm">
+            {mode === "consultant" && !data.assignedTo ? null : (
             <DetailRow
               label="الجوال"
               value={
                 <span className="flex flex-wrap items-center gap-2">
                   <span dir="ltr">{data.phone}</span>
-                  <WhatsAppLink href={whatsappUrl(data.phone)} />
+                  <WhatsAppLink
+                    href={whatsappUrl(data.phone)}
+                    label={mode === "consultant" ? "تواصل واتساب" : "واتساب"}
+                  />
                 </span>
               }
             />
+            )}
             <DetailRow label="البريد" value={data.email ?? "—"} dir="ltr" />
             <DetailRow label="الجنس" value={data.genderLabel} />
             <DetailRow label="صفة المستفيد" value={data.currentStageLabel} />

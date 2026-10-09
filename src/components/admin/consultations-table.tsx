@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
+import { Eye, Tag, UserRound } from "lucide-react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
@@ -224,11 +225,15 @@ export function ConsultationsTable({
         </div>
       ) : null}
 
-      <div className="space-y-3 md:hidden">
+      <div className={iconTools ? "space-y-3" : "space-y-3 md:hidden"}>
         {initialData.length === 0 ? (
           <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#6b7280] shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
             {emptyMessage}
           </div>
+        ) : iconTools ? (
+          initialData.map((row) => (
+            <ConsultantRequestCard key={row.id} row={row} basePath={basePath} canClaim={canClaim} />
+          ))
         ) : (
           initialData.map((row) => (
             <article
@@ -260,7 +265,7 @@ export function ConsultationsTable({
         )}
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] md:block">
+      <div className={clsx("hidden overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] md:block", iconTools && "md:hidden")}>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-[#f7f8fa] text-[#6b7280]">
@@ -337,7 +342,7 @@ export function ConsultationsTable({
   );
 }
 
-function ConsultationActions({
+function ConsultantRequestCard({
   row,
   basePath,
   canClaim,
@@ -346,17 +351,70 @@ function ConsultationActions({
   basePath: string;
   canClaim: boolean;
 }) {
+  const collected = Boolean(row.assignedTo);
+
+  return (
+    <article className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#111827] px-3 py-1 text-sm font-bold text-white">
+          <UserRound className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="truncate">{row.fullName}</span>
+        </span>
+        {row.status === "NEW" ? (
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#157a43]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#157a43]" aria-hidden />
+            جديد
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-2 text-xs font-semibold text-[#6b7280]">{row.referenceCode}</p>
+      <span className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#eef3f8] px-3 py-1 text-sm font-semibold text-[#335382]">
+        <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span className="truncate">{row.consultationTypeLabel}</span>
+      </span>
+      <div className="mt-4">
+        <ConsultationActions
+          row={row}
+          basePath={basePath}
+          canClaim={canClaim}
+          showWhatsApp={collected}
+          whatsAppLabel="تواصل واتساب"
+          detailsLabel="اطلع على التفاصيل"
+        />
+      </div>
+    </article>
+  );
+}
+
+function ConsultationActions({
+  row,
+  basePath,
+  canClaim,
+  showWhatsApp = true,
+  whatsAppLabel = "واتساب",
+  detailsLabel = "عرض",
+}: {
+  row: ConsultationListItem;
+  basePath: string;
+  canClaim: boolean;
+  showWhatsApp?: boolean;
+  whatsAppLabel?: string;
+  detailsLabel?: string;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <WhatsAppLink href={whatsappUrl(row.phone)} />
+      {showWhatsApp && row.phone ? (
+        <WhatsAppLink href={whatsappUrl(row.phone)} label={whatsAppLabel} />
+      ) : null}
       {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
         <ClaimConsultationButton consultationId={row.id} />
       ) : null}
       <Link
         href={`${basePath}/consultations/${row.id}`}
-        className="inline-flex rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
       >
-        عرض
+        {detailsLabel === "اطلع على التفاصيل" ? <Eye className="h-4 w-4" aria-hidden /> : null}
+        {detailsLabel}
       </Link>
     </div>
   );

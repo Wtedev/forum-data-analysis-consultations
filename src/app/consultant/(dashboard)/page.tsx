@@ -49,7 +49,7 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
         iconTools
         showSearchButton={false}
         emptyMessage="لا توجد طلبات الآن. عندما يصل طلب موجه إليك، أو طلب بلا تفضيل، سيظهر هنا."
-        initialData={result.data}
+        initialData={result.data.map((row) => (row.assignedTo ? row : { ...row, phone: "" }))}
         initialStats={result.stats}
         initialQuery={q}
         initialStatus={status ?? ""}

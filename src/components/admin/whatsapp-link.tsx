@@ -1,4 +1,4 @@
-export function WhatsAppLink({ href }: { href: string }) {
+export function WhatsAppLink({ href, label = "واتساب" }: { href: string; label?: string }) {
   return (
     <a
       href={href}
@@ -7,7 +7,7 @@ export function WhatsAppLink({ href }: { href: string }) {
       className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f7ee] px-3.5 py-1.5 text-sm font-semibold text-[#1b8a4a] transition hover:bg-[#d9f3e4]"
     >
       <WhatsAppIcon />
-      واتساب
+      {label}
     </a>
   );
 }
