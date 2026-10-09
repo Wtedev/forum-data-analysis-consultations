@@ -367,11 +367,11 @@ function ConsultantRequestCard({
         ) : null}
       </div>
       <p className="mt-2 text-xs font-medium text-[#9ca3af]">{row.referenceCode}</p>
-      <p className="mt-3 inline-flex text-[#9ca3af]" title={row.consultationTypeLabel}>
+      <p className="mt-3 flex text-[#9ca3af]" title={row.consultationTypeLabel}>
         <Tag className="h-4 w-4" aria-hidden />
         <span className="sr-only">{row.consultationTypeLabel}</span>
       </p>
-      <p className="mt-2 inline-flex max-w-full items-center gap-1.5 text-sm font-semibold text-[#1c1c1c]">
+      <p className="mt-2 flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1c1c1c]">
         <UserRound className="h-4 w-4 shrink-0 text-[#9ca3af]" aria-hidden />
         <span className="truncate">{row.fullName}</span>
       </p>
