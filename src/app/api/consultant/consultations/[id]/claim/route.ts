@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { badRequest, notFound, requireAdminApi, serverError } from "@/lib/admin-api";
+import { notifyBeneficiaryConsultantAssigned } from "@/lib/consultation-mail";
 import { getPrisma } from "@/lib/prisma";
 
 type RouteContext = {
@@ -43,6 +44,19 @@ export async function POST(_request: Request, context: RouteContext) {
         description: `اختار ${auth.session.name} الطلب`,
       },
     });
+
+    const consultation = await getPrisma().consultation.findUnique({
+      where: { id },
+      select: { email: true, fullName: true, referenceCode: true },
+    });
+    if (consultation) {
+      await notifyBeneficiaryConsultantAssigned({
+        email: consultation.email,
+        fullName: consultation.fullName,
+        referenceCode: consultation.referenceCode,
+        consultantName: auth.session.name,
+      });
+    }
 
     return NextResponse.json({
       success: true,

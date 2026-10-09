@@ -204,9 +204,9 @@ async function sendStaffNewRequest(consultation: ConsultationMailContext, typeLa
     if (recipient.pool && recipient.deskPath === "/admin") {
       return sendEmail({
         to: recipient.email,
-        subject: "إشعار: طلب استشارة بلا تفضيل مستشار",
+        subject: "استشارة جديدة بلا مستشار مفضل",
         html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-          <p>وصل طلب جديد بلا تفضيل مستشار. أُرسل إشعار بالبريد إلى كل المستشارين، ويظهر لهم حتى يأخذه أحدهم.</p>
+          <p>وصلت استشارة جديدة ولم يحدد المستفيد مستشاراً مفضلاً. أُرسلت دعوة الاستلام إلى كل المستشارين، وتبقى ظاهرة لهم حتى يستلمها أحدهم.</p>
           ${details}
           ${inviteButton(deskUrl, "فتح إدارة الطلبات", "primary")}`),
       });
@@ -215,11 +215,12 @@ async function sendStaffNewRequest(consultation: ConsultationMailContext, typeLa
     if (recipient.pool) {
       return sendEmail({
         to: recipient.email,
-        subject: "إشعار: طلب استشارة جديد بلا تفضيل",
+        subject: "دعوة لاستلام استشارة جديدة",
         html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-          <p>وصل طلب استشارة بلا تفضيل مستشار، وهو ظاهر لك ولبقية المستشارين. إذا أخذته يصبح لك ويختفي من البقية.</p>
+          <p>وصلت استشارة جديدة، ولم يحدد المستفيد مستشاراً مفضلاً.</p>
+          <p>ندعوك لاستلامها من المنصة إن كانت مناسبة لك. من يستلمها يصبح المسؤول عنها، ولا تعود ظاهرة لبقية المستشارين.</p>
           ${details}
-          ${inviteButton(deskUrl, "فتح الطلب", "primary")}`),
+          ${inviteButton(deskUrl, "استلام الاستشارة", "primary")}`),
       });
     }
 
@@ -291,6 +292,29 @@ async function sendStaffStatus(consultation: ConsultationMailContext, status: Co
   }));
 }
 
+export async function notifyBeneficiaryConsultantAssigned(input: {
+  email: string | null;
+  fullName: string;
+  referenceCode: string;
+  consultantName: string;
+}) {
+  if (!input.email) return;
+
+  try {
+    const consultantName = escapeHtml(input.consultantName);
+    await sendEmail({
+      to: input.email,
+      subject: `تم تعيين المستشار ${input.consultantName}`,
+      html: layout(`<p>مرحباً ${escapeHtml(input.fullName)}،</p>
+        <p>تم تعيين المستشار ${consultantName} لمتابعة استشارتك.</p>
+        <p>رقم الاستشارة: ${escapeHtml(input.referenceCode)}</p>
+        <p>سيتواصل معك المستشار عبر وسيلة التواصل التي اخترتها.</p>`),
+    });
+  } catch (error) {
+    console.error("Failed to email the beneficiary about the assigned consultant", error);
+  }
+}
+
 export async function notifyConsultationAssigned(consultation: ConsultationMailContext) {
   if (!consultation.assignedToId) return;
 
@@ -299,14 +323,22 @@ export async function notifyConsultationAssigned(consultation: ConsultationMailC
     const assignee = recipients.find((recipient) => recipient.deskPath.startsWith("/consultant"));
     if (!assignee) return;
 
-    await sendEmail({
-      to: assignee.email,
-      subject: `أُسند إليك الطلب ${consultation.referenceCode}`,
-      html: layout(`<p>مرحباً ${escapeHtml(assignee.name)}،</p>
+    await Promise.all([
+      sendEmail({
+        to: assignee.email,
+        subject: `أُسند إليك الطلب ${consultation.referenceCode}`,
+        html: layout(`<p>مرحباً ${escapeHtml(assignee.name)}،</p>
         <p>أُسند إليك طلب ${escapeHtml(consultation.fullName)}، الرقم المرجعي ${escapeHtml(consultation.referenceCode)}.</p>
         <p>لن يظهر هذا الطلب لبقية المستشارين.</p>
         <p><a href="${escapeHtml(`${appUrl()}${assignee.deskPath}`)}">فتح الطلب</a></p>`),
-    });
+      }),
+      notifyBeneficiaryConsultantAssigned({
+        email: consultation.email,
+        fullName: consultation.fullName,
+        referenceCode: consultation.referenceCode,
+        consultantName: assignee.name,
+      }),
+    ]);
   } catch (error) {
     console.error("Failed to send assignment email", error);
   }
