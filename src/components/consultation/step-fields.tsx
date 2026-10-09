@@ -1,5 +1,8 @@
 "use client";
 
+import { Phone, Users } from "lucide-react";
+
+import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
 import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 import {
   CONSULTATION_TYPE_LABELS,
@@ -303,6 +306,7 @@ export function StepFields({
                 name="preferredContactMethod"
                 value={option}
                 label={option}
+                icon={<ContactMethodIcon method={option} />}
                 checked={form.preferredContactMethod === option}
                 onChange={() => onChange("preferredContactMethod", option)}
               />
@@ -317,4 +321,11 @@ export function StepFields({
   }
 
   return null;
+}
+
+function ContactMethodIcon({ method }: { method: string }) {
+  const className = "h-4 w-4 shrink-0";
+  if (method === "واتساب") return <WhatsAppIcon className={className} />;
+  if (method === "مكالمة") return <Phone className={className} aria-hidden />;
+  return <Users className={className} aria-hidden />;
 }

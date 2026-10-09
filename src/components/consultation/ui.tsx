@@ -60,19 +60,21 @@ export function RadioOption({
   name,
   value,
   label,
+  icon,
   checked,
   onChange,
 }: {
   name: string;
   value: string;
   label: string;
+  icon?: ReactNode;
   checked: boolean;
   onChange: () => void;
 }) {
   return (
     <label
       className={clsx(
-        "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-medium leading-snug transition",
+        "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-3 text-center text-sm font-medium leading-snug transition",
         checked
           ? "border-forum-primary/70 bg-forum-primary/15 text-white ring-1 ring-forum-primary/40"
           : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-forum-primary/40 hover:bg-forum-primary/5",
@@ -86,6 +88,7 @@ export function RadioOption({
         onChange={onChange}
         className="sr-only"
       />
+      {icon}
       {label}
     </label>
   );

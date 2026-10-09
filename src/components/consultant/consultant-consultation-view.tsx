@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Phone, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -197,10 +197,11 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
                     key={option}
                     className={
                       selected
-                        ? "inline-flex h-9 items-center rounded-full bg-[#3e4c86] px-3 text-[13px] font-bold text-white"
-                        : "inline-flex h-9 items-center rounded-full bg-[#eef1f8] px-3 text-[13px] font-semibold text-[#8b93ab]"
+                        ? "inline-flex h-9 items-center gap-1.5 rounded-full bg-[#3e4c86] px-3 text-[13px] font-bold text-white"
+                        : "inline-flex h-9 items-center gap-1.5 rounded-full bg-[#eef1f8] px-3 text-[13px] font-semibold text-[#8b93ab]"
                     }
                   >
+                    <ContactChoiceIcon method={option} />
                     {option}
                   </span>
                 );
@@ -287,6 +288,13 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
       </ul>
     </div>
   );
+}
+
+function ContactChoiceIcon({ method }: { method: string }) {
+  const className = "h-3.5 w-3.5 shrink-0";
+  if (method === "واتساب") return <WhatsAppIcon className={className} />;
+  if (method === "مكالمة") return <Phone className={className} aria-hidden />;
+  return <Users className={className} aria-hidden />;
 }
 
 function Info({ label, value, dir }: { label: string; value: string; dir?: "ltr" | "rtl" }) {
