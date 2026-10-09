@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 
-import { PrimaryButton, staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
+import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
 
@@ -109,20 +109,25 @@ export function ConsultationsTable({
             />
           </div>
           <div className="flex gap-2">
-            <PrimaryButton type="button" onClick={() => applyFilters(1)} className="w-full sm:w-auto">
-              بحث
-            </PrimaryButton>
-            <StaffSecondaryButton
+            <button
               type="button"
-              disabled={!filtersActive && !q && !status}
-              onClick={() => {
-                setQ("");
-                setStatus("");
-                router.push(basePath);
-              }}
+              onClick={() => applyFilters(1)}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#034f52] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#04656a] focus:outline-none focus:ring-[3px] focus:ring-[#034f52]/30 sm:w-auto"
             >
-              إعادة ضبط
-            </StaffSecondaryButton>
+              بحث
+            </button>
+            {filtersActive ? (
+              <StaffSecondaryButton
+                type="button"
+                onClick={() => {
+                  setQ("");
+                  setStatus("");
+                  router.push(basePath);
+                }}
+              >
+                إعادة ضبط
+              </StaffSecondaryButton>
+            ) : null}
           </div>
         </div>
 
@@ -156,7 +161,7 @@ export function ConsultationsTable({
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600">
+            <thead className="bg-slate-100 text-slate-800">
               <tr>
                 <th className="px-4 py-3 text-start font-medium">المرجع</th>
                 <th className="px-4 py-3 text-start font-medium">الاسم</th>
@@ -170,30 +175,30 @@ export function ConsultationsTable({
             <tbody>
               {initialData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-10 text-center font-medium text-slate-700">
                     {emptyMessage}
                   </td>
                 </tr>
               ) : (
                 initialData.map((row) => (
-                  <tr key={row.id} className="border-t border-slate-100 transition hover:bg-slate-50">
-                    <td className="px-4 py-3 text-xs font-medium text-slate-600">{row.referenceCode}</td>
+                  <tr key={row.id} className="border-t border-slate-200 transition hover:bg-slate-50">
+                    <td className="px-4 py-3 text-xs font-semibold text-slate-800">{row.referenceCode}</td>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-900">{row.fullName}</p>
-                      <p className="mt-0.5 text-xs text-slate-500" dir="ltr">
+                      <p className="font-bold text-slate-950">{row.fullName}</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-700" dir="ltr">
                         {row.phone}
                       </p>
                     </td>
-                    <td className="px-4 py-3">{row.consultationTypeLabel}</td>
-                    <td className="px-4 py-3">{row.preferredConsultantLabel}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{row.consultationTypeLabel}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{row.preferredConsultantLabel}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={row.status} label={row.statusLabel} />
                     </td>
-                    <td className="px-4 py-3 text-slate-500">{row.createdAtLabel}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">{row.createdAtLabel}</td>
                     <td className="px-4 py-3">
                       <Link
                         href={`${basePath}/consultations/${row.id}`}
-                        className="inline-flex rounded-lg bg-[#056b6f]/10 px-3 py-1.5 text-sm font-semibold text-[#056b6f] transition hover:bg-[#056b6f]/15"
+                        className="inline-flex rounded-lg bg-[#034f52] px-3 py-1.5 text-sm font-bold text-white transition hover:bg-[#04656a]"
                       >
                         عرض
                       </Link>
@@ -247,15 +252,14 @@ function StatCard({
   const className = clsx(
     "rounded-2xl px-5 py-4 text-start shadow-sm ring-1 transition",
     accent
-      ? "bg-forum-primary text-white ring-forum-primary/30"
-      : "bg-white text-slate-800 ring-slate-200",
-    onClick && "hover:brightness-[0.98]",
-    active && !accent && "ring-2 ring-[#056b6f]",
-    active && accent && "ring-2 ring-[#056b6f]",
+      ? "bg-[#034f52] text-white ring-[#034f52]"
+      : "bg-white text-slate-950 ring-slate-300",
+    onClick && "hover:brightness-95",
+    active && "ring-2 ring-[#034f52]",
   );
   const body = (
     <>
-      <p className={clsx("text-sm", accent ? "text-white/80" : "text-slate-500")}>{label}</p>
+      <p className={clsx("text-sm font-semibold", accent ? "text-[#d8f4ef]" : "text-slate-700")}>{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </>
   );
@@ -290,13 +294,13 @@ function StatusChip({
       className={clsx(
         "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition",
         active
-          ? "bg-[#056b6f] text-white"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200",
+          ? "bg-[#034f52] text-white"
+          : "border border-slate-400 bg-white text-slate-900 hover:border-[#034f52] hover:bg-slate-50",
       )}
     >
       {label}
       {typeof count === "number" ? (
-        <span className={clsx("text-xs", active ? "text-white/80" : "text-slate-500")}>{count}</span>
+        <span className={clsx("text-xs font-bold", active ? "text-[#d8f4ef]" : "text-slate-700")}>{count}</span>
       ) : null}
     </button>
   );
@@ -306,13 +310,13 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-medium",
-        status === "NEW" && "bg-amber-100 text-amber-800",
-        status === "IN_REVIEW" && "bg-blue-100 text-blue-800",
-        status === "CONTACTED" && "bg-violet-100 text-violet-800",
-        status === "ANSWERED" && "bg-emerald-100 text-emerald-800",
-        status === "NEEDS_FOLLOW_UP" && "bg-orange-100 text-orange-800",
-        status === "CLOSED" && "bg-slate-200 text-slate-700",
+        "inline-flex rounded-full px-2.5 py-1 text-xs font-bold",
+        status === "NEW" && "bg-amber-200 text-amber-950",
+        status === "IN_REVIEW" && "bg-blue-200 text-blue-950",
+        status === "CONTACTED" && "bg-violet-200 text-violet-950",
+        status === "ANSWERED" && "bg-emerald-200 text-emerald-950",
+        status === "NEEDS_FOLLOW_UP" && "bg-orange-200 text-orange-950",
+        status === "CLOSED" && "bg-slate-300 text-slate-950",
       )}
     >
       {label}

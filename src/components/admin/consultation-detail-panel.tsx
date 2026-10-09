@@ -109,9 +109,9 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
           <span
             className={clsx(
               "rounded-full px-3 py-1 text-sm font-medium",
-              data.status === "NEW" && "bg-amber-100 text-amber-800",
-              data.status === "CLOSED" && "bg-slate-200 text-slate-700",
-              data.status !== "NEW" && data.status !== "CLOSED" && "bg-forum-primary/10 text-forum-primary",
+              data.status === "NEW" && "bg-amber-200 text-amber-950",
+              data.status === "CLOSED" && "bg-slate-300 text-slate-950",
+              data.status !== "NEW" && data.status !== "CLOSED" && "bg-[#d8f4ef] text-[#034f52]",
             )}
           >
             {data.statusLabel}
@@ -262,7 +262,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex flex-wrap justify-between gap-2 border-b border-slate-50 pb-2 last:border-0">
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="font-medium text-slate-700">{label}</dt>
       <dd className="font-medium text-slate-800" dir={dir}>
         {value}
       </dd>
