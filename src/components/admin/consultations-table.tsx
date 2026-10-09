@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
-import { Eye, Tag, UserRound } from "lucide-react";
+import { ArrowLeft, Eye, Phone } from "lucide-react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
@@ -106,7 +106,13 @@ export function ConsultationsTable({
 
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
-          {heading ? <h1 className="min-w-0 text-lg font-semibold text-[#1c1c1c]">{heading}</h1> : <span />}
+          {heading ? (
+            <h1 className={iconTools ? "min-w-0 text-2xl font-bold text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
+              {heading}
+            </h1>
+          ) : (
+            <span />
+          )}
           {iconTools ? (
             <div className="flex items-center gap-2">
               <ToolIconButton
@@ -352,38 +358,36 @@ function ConsultantRequestCard({
   canClaim: boolean;
 }) {
   const collected = Boolean(row.assignedTo);
+  const canTake = canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo;
 
   return (
-    <article className="min-w-0 rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="line-clamp-2 min-w-0 break-words text-base font-bold leading-6 text-[#1c1c1c]" title={row.question}>
+    <article className="flex min-w-0 items-center justify-between gap-3 rounded-2xl bg-white px-3 py-3 shadow-[0_8px_24px_rgba(62,76,134,0.06)]">
+      <div className="min-w-0 text-start">
+        <h2 className="truncate text-base font-bold text-[#3e4c86]" title={row.question}>
           {row.question}
         </h2>
-        {row.status === "NEW" ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-[#3d9a62]">
-            <span className="h-2 w-2 rounded-full bg-[#3d9a62]" aria-hidden />
-            جديد
-          </span>
-        ) : null}
+        <p className="mt-0.5 truncate text-sm text-[#8b93ab]">{row.fullName}</p>
       </div>
-      <p className="mt-2 text-xs font-medium text-[#9ca3af]">{row.referenceCode}</p>
-      <p className="mt-3 flex text-[#9ca3af]" title={row.consultationTypeLabel}>
-        <Tag className="h-4 w-4" aria-hidden />
-        <span className="sr-only">{row.consultationTypeLabel}</span>
-      </p>
-      <p className="mt-2 flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1c1c1c]">
-        <UserRound className="h-4 w-4 shrink-0 text-[#9ca3af]" aria-hidden />
-        <span className="truncate">{row.fullName}</span>
-      </p>
-      <div className="mt-4">
-        <ConsultationActions
-          row={row}
-          basePath={basePath}
-          canClaim={canClaim}
-          showWhatsApp={collected}
-          whatsAppLabel="تواصل واتساب"
-          detailsLabel="اطلع على التفاصيل"
-        />
+      <div className="flex shrink-0 items-center gap-2">
+        {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
+        {collected && row.phone ? (
+          <a
+            href={whatsappUrl(row.phone)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="تواصل واتساب"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#3dcb8c] text-white transition hover:bg-[#34b87e]"
+          >
+            <Phone className="h-5 w-5" aria-hidden />
+          </a>
+        ) : null}
+        <Link
+          href={`${basePath}/consultations/${row.id}`}
+          aria-label="اطلع على التفاصيل"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#354272]"
+        >
+          <ArrowLeft className="h-5 w-5" aria-hidden />
+        </Link>
       </div>
     </article>
   );
