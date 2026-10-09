@@ -1,3 +1,4 @@
+import { DeleteConsultantButton } from "@/components/admin/delete-consultant-button";
 import { InviteConsultantForm } from "@/components/admin/invite-consultant-form";
 import { getPrisma } from "@/lib/prisma";
 
@@ -47,12 +48,13 @@ export default async function ConsultantsPage() {
               <th className="px-4 py-3 text-start font-medium">البريد</th>
               <th className="px-4 py-3 text-start font-medium">الحالة</th>
               <th className="px-4 py-3 text-start font-medium">الاستشارات</th>
+              <th className="px-4 py-3 text-start font-medium">إجراء</th>
             </tr>
           </thead>
           <tbody>
             {consultants.length === 0 && waiting.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center font-medium text-[#6b7280]">
+                <td colSpan={5} className="px-4 py-10 text-center font-medium text-[#6b7280]">
                   لا يوجد مستشارون بعد
                 </td>
               </tr>
@@ -74,6 +76,9 @@ export default async function ConsultantsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 font-bold text-[#111827]">{count}</td>
+                      <td className="px-4 py-3">
+                        <DeleteConsultantButton id={consultant.id} name={consultant.name} kind="account" />
+                      </td>
                     </tr>
                   );
                 })}
@@ -89,6 +94,9 @@ export default async function ConsultantsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 font-medium text-[#6b7280]">—</td>
+                    <td className="px-4 py-3">
+                      <DeleteConsultantButton id={invite.id} name={invite.name} kind="invite" />
+                    </td>
                   </tr>
                 ))}
               </>
