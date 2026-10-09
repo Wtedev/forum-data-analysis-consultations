@@ -135,7 +135,7 @@ async function staffRecipients(consultation: ConsultationMailContext): Promise<S
     const recipients: StaffRecipient[] = consultants.map((consultant) => ({
       email: consultant.email,
       name: consultant.name,
-      deskPath: "/consultant",
+      deskPath: `/consultant/consultations/${consultation.id}`,
       pool: true,
     }));
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
@@ -197,27 +197,29 @@ async function sendStaffNewRequest(consultation: ConsultationMailContext, typeLa
   const safeRef = escapeHtml(consultation.referenceCode);
   const missingAccount = consultation.preferredConsultant !== "NO_PREFERENCE" && recipients.every((item) => item.deskPath === "/admin");
 
-  await Promise.all(recipients.map((recipient) => {
+  const results = await Promise.all(recipients.map((recipient) => {
     const deskUrl = `${appUrl()}${recipient.deskPath}`;
+    const details = `<p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>`;
+
     if (recipient.pool && recipient.deskPath === "/admin") {
       return sendEmail({
         to: recipient.email,
-        subject: "طلب استشارة بدون تفضيل مستشار",
+        subject: "إشعار: طلب استشارة بلا تفضيل مستشار",
         html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-          <p>وصل طلب جديد بلا تفضيل مستشار، ويظهر لكل المستشارين حتى يختاره أحدهم أو تسنده الإدارة.</p>
-          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-          <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
+          <p>وصل طلب جديد بلا تفضيل مستشار. أُرسل إشعار بالبريد إلى كل المستشارين، ويظهر لهم حتى يأخذه أحدهم.</p>
+          ${details}
+          ${inviteButton(deskUrl, "فتح إدارة الطلبات", "primary")}`),
       });
     }
 
     if (recipient.pool) {
       return sendEmail({
         to: recipient.email,
-        subject: "طلب استشارة متاح للاختيار",
+        subject: "إشعار: طلب استشارة جديد بلا تفضيل",
         html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-          <p>وصل طلب بلا تفضيل مستشار. يمكنك اختياره من واجهتك، ويختفي عندها من بقية المستشارين.</p>
-          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-          <p><a href="${escapeHtml(deskUrl)}">فتح واجهة المستشار</a></p>`),
+          <p>وصل طلب استشارة بلا تفضيل مستشار، وهو ظاهر لك ولبقية المستشارين. إذا أخذته يصبح لك ويختفي من البقية.</p>
+          ${details}
+          ${inviteButton(deskUrl, "فتح الطلب", "primary")}`),
       });
     }
 
@@ -225,23 +227,28 @@ async function sendStaffNewRequest(consultation: ConsultationMailContext, typeLa
       const label = escapeHtml(consultantShortLabel(consultation.preferredConsultant));
       return sendEmail({
         to: recipient.email,
-        subject: "طلب استشارة بانتظار حساب المستشار",
+        subject: "إشعار: طلب استشارة بانتظار حساب المستشار",
         html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
           <p>وصل طلب يفضّل ${label}، ولا يوجد حساب مفعّل لهذا المستشار بعد.</p>
-          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-          <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
+          ${details}
+          ${inviteButton(deskUrl, "فتح إدارة الطلبات", "primary")}`),
       });
     }
 
     return sendEmail({
       to: recipient.email,
-      subject: "طلب استشارة جديد",
+      subject: "إشعار: وصلتك استشارة جديدة",
       html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-        <p>وصل طلب استشارة جديد يفضّلك مستشاراً.</p>
-        <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-        <p><a href="${escapeHtml(deskUrl)}">فتح الطلب</a></p>`),
+        <p>وصل طلب استشارة جديد واختاروك مستشاراً له. هذا الإشعار لك وحدك.</p>
+        ${details}
+        ${inviteButton(deskUrl, "فتح الطلب", "primary")}`),
     });
   }));
+
+  const failed = results.filter((result) => !result.ok).length;
+  if (failed > 0) {
+    console.error(`Consultation ${consultation.referenceCode}: ${failed} of ${results.length} notification emails failed`);
+  }
 }
 
 export async function notifyStatusChanged(consultation: ConsultationMailContext, status: ConsultationStatus) {
