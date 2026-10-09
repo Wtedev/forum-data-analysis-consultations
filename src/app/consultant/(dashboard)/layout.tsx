@@ -26,7 +26,13 @@ export default async function ConsultantDashboardLayout({
   return (
     <main className="min-h-dvh bg-[#f4f6f8] px-4 py-6 text-[#111827] sm:px-6 lg:py-10">
       <div className="mx-auto max-w-6xl">
-        <AdminHeader adminName={session.name} title="واجهة المستشار" homeHref="/consultant" />
+        <AdminHeader
+          adminName={session.name}
+          title={`مرحباً ${session.name}`}
+          subtitle="تجد طلباتك هنا"
+          showName={false}
+          homeHref="/consultant"
+        />
         {children}
       </div>
     </main>

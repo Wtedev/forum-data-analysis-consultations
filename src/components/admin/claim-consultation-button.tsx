@@ -29,7 +29,7 @@ export function ClaimConsultationButton({
       };
 
       if (!response.ok || !result.success || !result.assignedTo) {
-        setError(result.message ?? "تعذر اختيار الطلب");
+        setError(result.message ?? "تعذر أخذ الاستشارة");
         return;
       }
 
@@ -48,9 +48,10 @@ export function ClaimConsultationButton({
         type="button"
         onClick={claim}
         disabled={claiming}
-        className="inline-flex rounded-lg bg-[#111827] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-40"
+        title="أخذ هذه الاستشارة لتصبح مسؤولاً عنها، وتختفي من بقية المستشارين"
+        className="inline-flex rounded-lg bg-[#157a43] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#126838] disabled:opacity-40"
       >
-        {claiming ? "جاري الاختيار..." : "اختيار"}
+        {claiming ? "جاري الأخذ..." : "أخذ الاستشارة"}
       </button>
       {error ? <span className="text-xs font-medium text-[#b42318]">{error}</span> : null}
     </span>

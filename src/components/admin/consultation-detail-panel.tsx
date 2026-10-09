@@ -181,7 +181,7 @@ export function ConsultationDetailPanel({
             <DetailRow label="الجهة" value={data.university ?? "—"} />
             <DetailRow label="المجال" value={data.majorInterest ?? "—"} />
             <DetailRow label="المستشار المفضل" value={data.preferredConsultantFullLabel} />
-            <DetailRow label="المستشار المسؤول" value={data.assignedTo?.name ?? (claimable ? "متاح للاختيار" : "—")} />
+            <DetailRow label="المستشار المسؤول" value={data.assignedTo?.name ?? (claimable ? "متاحة للأخذ" : "—")} />
             <DetailRow label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
             <DetailRow
               label="رابط البيانات"
@@ -207,9 +207,9 @@ export function ConsultationDetailPanel({
 
       {claimable ? (
         <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
-          <h2 className="mb-2 text-lg font-semibold text-slate-800">اختيار الطلب</h2>
-          <p className="mb-4 text-sm text-slate-600">
-            هذا الطلب بلا تفضيل ويظهر لكل المستشارين. بعد اختياره يختفي من البقية.
+          <h2 className="mb-2 text-lg font-semibold text-slate-800">أخذ هذه الاستشارة</h2>
+          <p className="mb-4 text-sm leading-7 text-slate-600">
+            هذا الطلب بلا تفضيل ويظهر لكل المستشارين. عندما تأخذ الاستشارة تصبح مسؤولاً عنها، وتختفي من بقية المستشارين.
           </p>
           <ClaimConsultationButton
             consultationId={data.id}
@@ -309,7 +309,7 @@ export function ConsultationDetailPanel({
       <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">ملاحظات داخلية</h2>
         {claimable ? (
-          <p className="text-sm text-slate-500">تظهر الملاحظات بعد اختيار الطلب.</p>
+          <p className="text-sm text-slate-500">تظهر الملاحظات بعد أخذ الاستشارة.</p>
         ) : (
         <form onSubmit={handleAddNote} className="space-y-3">
           <textarea

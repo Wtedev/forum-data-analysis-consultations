@@ -42,11 +42,28 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
 
   return (
     <Suspense>
+      <div className="mb-6 rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+        <h1 className="text-lg font-semibold text-[#111827]">طلبات الاستشارة</h1>
+        <p className="mt-2 text-sm leading-7 text-[#374151]">
+          تجد هنا الطلبات الظاهرة لك: ما طُلب باسمك، وما أخذته، والطلبات المتاحة لكل المستشارين.
+        </p>
+        <ul className="mt-3 space-y-1.5 text-sm leading-7 text-[#374151]">
+          <li>
+            <span className="font-semibold text-[#111827]">أخذ الاستشارة</span> يجعل الطلب لك، ويختفي من بقية المستشارين.
+          </li>
+          <li>
+            <span className="font-semibold text-[#111827]">واتساب</span> يفتح محادثة مع صاحب الطلب.
+          </li>
+          <li>
+            <span className="font-semibold text-[#111827]">عرض</span> يفتح التفاصيل لتحديث الحالة وكتابة ملاحظة.
+          </li>
+        </ul>
+      </div>
       <ConsultationsTable
-        heading="طلباتك"
         basePath="/consultant"
         canClaim
-        emptyMessage="لا توجد طلبات متاحة"
+        showSearchButton={false}
+        emptyMessage="لا توجد طلبات الآن. عندما يصل طلب موجه إليك، أو طلب بلا تفضيل، سيظهر هنا."
         initialData={result.data}
         initialStats={result.stats}
         initialQuery={q}

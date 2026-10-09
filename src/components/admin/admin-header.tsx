@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 type AdminHeaderProps = {
   adminName: string;
   title?: string;
+  subtitle?: string;
+  showName?: boolean;
   homeHref?: string;
   showDirectory?: boolean;
 };
@@ -13,6 +15,8 @@ type AdminHeaderProps = {
 export function AdminHeader({
   adminName,
   title = "إدارة طلبات الاستشارات",
+  subtitle,
+  showName = true,
   homeHref = "/admin",
   showDirectory = false,
 }: AdminHeaderProps) {
@@ -34,7 +38,8 @@ export function AdminHeader({
       <div className="min-w-0">
         <p className="text-xs font-semibold text-[#cfe3ff]/80">ملتقى تحليل البيانات ٢</p>
         <p className="mt-0.5 text-lg font-bold leading-snug">{title}</p>
-        <p className="text-sm font-medium text-[#cfe3ff]">{adminName}</p>
+        {subtitle ? <p className="mt-1 text-sm font-medium text-[#cfe3ff]">{subtitle}</p> : null}
+        {showName ? <p className="text-sm font-medium text-[#cfe3ff]">{adminName}</p> : null}
       </div>
 
       <div className="flex items-center gap-3">

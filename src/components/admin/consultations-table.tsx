@@ -30,6 +30,7 @@ type ConsultationsTableProps = {
   heading?: string;
   emptyMessage?: string;
   canClaim?: boolean;
+  showSearchButton?: boolean;
 };
 
 export function ConsultationsTable({
@@ -44,6 +45,7 @@ export function ConsultationsTable({
   heading,
   emptyMessage = "لا توجد طلبات مطابقة",
   canClaim = false,
+  showSearchButton = true,
 }: ConsultationsTableProps) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
@@ -114,28 +116,35 @@ export function ConsultationsTable({
                 if (event.key === "Enter") applyFilters(1);
               }}
             />
+            {showSearchButton ? null : (
+              <p className="mt-2 text-xs font-medium text-[#6b7280]">اكتب ثم اضغط إدخال للبحث.</p>
+            )}
           </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => applyFilters(1)}
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#157a43] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#126838] sm:w-auto"
-            >
-              بحث
-            </button>
-            {filtersActive ? (
-              <StaffSecondaryButton
-                type="button"
-                onClick={() => {
-                  setQ("");
-                  setStatus("");
-                  router.push(basePath);
-                }}
-              >
-                إعادة ضبط
-              </StaffSecondaryButton>
-            ) : null}
-          </div>
+          {showSearchButton || filtersActive ? (
+            <div className="flex gap-2">
+              {showSearchButton ? (
+                <button
+                  type="button"
+                  onClick={() => applyFilters(1)}
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#157a43] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#126838] sm:w-auto"
+                >
+                  بحث
+                </button>
+              ) : null}
+              {filtersActive ? (
+                <StaffSecondaryButton
+                  type="button"
+                  onClick={() => {
+                    setQ("");
+                    setStatus("");
+                    router.push(basePath);
+                  }}
+                >
+                  إعادة ضبط
+                </StaffSecondaryButton>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4">
@@ -197,7 +206,9 @@ export function ConsultationsTable({
                       {row.assignedTo ? (
                         <p className="mt-1 text-xs font-medium text-[#6b7280]">مُسند إلى {row.assignedTo.name}</p>
                       ) : row.preferredConsultantId === "NO_PREFERENCE" ? (
-                        <p className="mt-1 text-xs font-medium text-[#6b7280]">متاح للمستشارين</p>
+                        <p className="mt-1 text-xs font-medium text-[#6b7280]">
+                          {canClaim ? "متاحة للأخذ" : "متاح للمستشارين"}
+                        </p>
                       ) : null}
                     </td>
                     <td className="px-4 py-3">

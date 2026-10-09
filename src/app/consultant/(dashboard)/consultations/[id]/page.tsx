@@ -28,7 +28,7 @@ export default async function ConsultantConsultationDetailPage({ params }: PageP
         href="/consultant"
         className="inline-flex text-sm font-medium text-[#1c1c1c] hover:underline"
       >
-        ← العودة للطلبات
+        ← العودة إلى طلباتك
       </Link>
       <ConsultationDetailPanel initialData={consultation} mode="consultant" />
     </div>
