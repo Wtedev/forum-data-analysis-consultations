@@ -24,7 +24,7 @@ export default async function ConsultantDashboardLayout({
   }
 
   return (
-    <main className="min-h-dvh bg-[#f4f6f8] px-4 py-6 text-[#111827] sm:px-6 lg:py-10">
+    <main className="min-h-dvh bg-[#f6f7f9] px-4 py-6 text-[#1c1c1c] sm:px-6 lg:py-10">
       <div className="mx-auto max-w-6xl">
         <AdminHeader
           adminName={session.name}
@@ -32,6 +32,7 @@ export default async function ConsultantDashboardLayout({
           subtitle="تجد طلباتك هنا"
           showName={false}
           showGuide
+          light
           homeHref="/consultant"
         />
         {children}

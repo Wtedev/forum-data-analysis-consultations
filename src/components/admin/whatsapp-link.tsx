@@ -4,7 +4,7 @@ export function WhatsAppLink({ href, label = "واتساب" }: { href: string; l
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f7ee] px-3.5 py-1.5 text-sm font-semibold text-[#1b8a4a] transition hover:bg-[#d9f3e4]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[#d7f0e2] bg-[#f4fbf7] px-3.5 py-1.5 text-sm font-semibold text-[#1b8a4a] transition hover:bg-[#e8f7ee]"
     >
       <WhatsAppIcon />
       {label}

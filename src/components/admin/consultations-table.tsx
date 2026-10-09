@@ -106,7 +106,7 @@ export function ConsultationsTable({
 
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
-          {heading ? <h1 className="text-lg font-semibold text-[#111827]">{heading}</h1> : <span />}
+          {heading ? <h1 className="text-lg font-semibold text-[#1c1c1c]">{heading}</h1> : <span />}
           {iconTools ? (
             <div className="flex items-center gap-2">
               <ToolIconButton
@@ -131,7 +131,7 @@ export function ConsultationsTable({
       ) : null}
 
       {!iconTools || searchOpen || filtersOpen ? (
-        <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] sm:p-5">
+        <div className="rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5">
           {!iconTools || searchOpen ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1">
@@ -227,7 +227,7 @@ export function ConsultationsTable({
 
       <div className={iconTools ? "space-y-3" : "space-y-3 md:hidden"}>
         {initialData.length === 0 ? (
-          <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#6b7280] shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+          <div className="rounded-3xl border border-[#eceef2] bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#9ca3af]">
             {emptyMessage}
           </div>
         ) : iconTools ? (
@@ -354,22 +354,24 @@ function ConsultantRequestCard({
   const collected = Boolean(row.assignedTo);
 
   return (
-    <article className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+    <article className="rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#111827] px-3 py-1 text-sm font-bold text-white">
-          <UserRound className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="inline-flex max-w-full items-center gap-2 text-sm font-semibold text-[#1c1c1c]">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-[#6b7280]">
+            <UserRound className="h-4 w-4" aria-hidden />
+          </span>
           <span className="truncate">{row.fullName}</span>
         </span>
         {row.status === "NEW" ? (
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#157a43]">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#157a43]" aria-hidden />
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-[#3d9a62]">
+            <span className="h-2 w-2 rounded-full bg-[#3d9a62]" aria-hidden />
             جديد
           </span>
         ) : null}
       </div>
-      <p className="mt-2 text-xs font-semibold text-[#6b7280]">{row.referenceCode}</p>
-      <span className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#eef3f8] px-3 py-1 text-sm font-semibold text-[#335382]">
-        <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <p className="mt-2 text-xs font-medium text-[#9ca3af]">{row.referenceCode}</p>
+      <span className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#f4f6f8] px-3 py-1 text-sm font-medium text-[#4b5563]">
+        <Tag className="h-3.5 w-3.5 shrink-0 text-[#9ca3af]" aria-hidden />
         <span className="truncate">{row.consultationTypeLabel}</span>
       </span>
       <div className="mt-4">
@@ -411,7 +413,12 @@ function ConsultationActions({
       ) : null}
       <Link
         href={`${basePath}/consultations/${row.id}`}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
+        className={clsx(
+          "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold transition",
+          detailsLabel === "اطلع على التفاصيل"
+            ? "rounded-full border border-[#e6e8ec] bg-white text-[#374151] hover:bg-[#f7f8fa]"
+            : "rounded-lg bg-[#f3f4f6] text-[#111827] hover:bg-[#e8eaee]",
+        )}
       >
         {detailsLabel === "اطلع على التفاصيل" ? <Eye className="h-4 w-4" aria-hidden /> : null}
         {detailsLabel}
@@ -434,18 +441,17 @@ function StatCard({
   onClick?: () => void;
 }) {
   const className = clsx(
-    "rounded-2xl px-2.5 py-3 text-start shadow-sm ring-1 ring-transparent transition sm:px-5 sm:py-4",
-    tone === "warm" && "bg-[#fff4dc]",
-    tone === "neutral" && "bg-white ring-[#e6e8ec]",
-    tone === "fresh" && "bg-[#e7f6ec]",
-    onClick && "hover:brightness-[0.98]",
-    active && "ring-2 ring-black/10",
+    "rounded-3xl border border-[#eceef2] bg-white px-2.5 py-3 text-start shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition sm:px-5 sm:py-4",
+    tone === "warm" && "bg-[#fffaf3]",
+    tone === "fresh" && "bg-[#f4fbf7]",
+    onClick && "hover:bg-[#fafbfc]",
+    active && "border-[#d7f0e2]",
   );
   const labelClass = clsx(
     "text-xs font-medium leading-5 sm:text-sm",
-    tone === "warm" && "text-[#a16207]",
-    tone === "neutral" && "text-[#6b7280]",
-    tone === "fresh" && "text-[#157a43]",
+    tone === "warm" && "text-[#b5812c]",
+    tone === "neutral" && "text-[#8b909a]",
+    tone === "fresh" && "text-[#3d9a62]",
   );
   const body = (
     <>
@@ -487,8 +493,8 @@ function ToolIconButton({
       className={clsx(
         "relative inline-flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition",
         pressed
-          ? "border-[#111827] bg-[#111827] text-white"
-          : "border-[#e6e8ec] bg-white text-[#374151] hover:bg-[#f7f8fa]",
+          ? "border-[#e6e8ec] bg-[#f4f5f7] text-[#1c1c1c]"
+          : "border-[#eceef2] bg-white text-[#6b7280] hover:bg-[#f7f8fa]",
       )}
     >
       {children}

@@ -49,7 +49,7 @@ export function ClaimConsultationButton({
         onClick={claim}
         disabled={claiming}
         title="أخذ هذه الاستشارة لتصبح مسؤولاً عنها، وتختفي من بقية المستشارين"
-        className="inline-flex rounded-lg bg-[#157a43] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#126838] disabled:opacity-40"
+        className="inline-flex rounded-full border border-[#d7f0e2] bg-[#f4fbf7] px-3 py-1.5 text-sm font-semibold text-[#157a43] transition hover:bg-[#e8f7ee] disabled:opacity-40"
       >
         {claiming ? "جاري الأخذ..." : "أخذ الاستشارة"}
       </button>
