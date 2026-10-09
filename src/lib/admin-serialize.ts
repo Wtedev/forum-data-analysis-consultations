@@ -25,6 +25,11 @@ export type ConsultationListItem = {
   phone: string;
   question: string;
   consultationTypeLabel: string;
+  currentStageLabel: string;
+  university: string | null;
+  majorInterest: string | null;
+  tools: string[];
+  link: string | null;
   preferredConsultantId: string;
   preferredConsultantLabel: string;
   assignedTo: { id: string; name: string } | null;
@@ -77,6 +82,11 @@ export function serializeConsultationListItem(
     phone: row.phone,
     question: row.question,
     consultationTypeLabel: TYPE_DB_LABELS[row.consultationType],
+    currentStageLabel: STAGE_DB_LABELS[row.currentStage],
+    university: row.university,
+    majorInterest: row.majorInterest,
+    tools: row.tools,
+    link: row.link,
     preferredConsultantId: row.preferredConsultant,
     preferredConsultantLabel: consultantShortLabel(row.preferredConsultant),
     assignedTo: row.assignedTo ?? null,
@@ -100,13 +110,7 @@ export function serializeConsultationDetail(
     ...serializeConsultationListItem(row),
     email: row.email,
     genderLabel: GENDER_DB_LABELS[row.gender],
-    currentStageLabel: STAGE_DB_LABELS[row.currentStage],
-    university: row.university,
-    majorInterest: row.majorInterest,
-    tools: row.tools,
     preferredConsultantFullLabel: consultantLabel(row.preferredConsultant),
-    question: row.question,
-    link: row.link,
     preferredContactMethodLabel: CONTACT_DB_LABELS[row.preferredContactMethod],
     updatedAt: row.updatedAt.toISOString(),
     updatedAtLabel: formatDateTime(row.updatedAt),

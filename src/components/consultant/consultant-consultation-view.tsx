@@ -8,7 +8,7 @@ import { ClaimConsultationButton } from "@/components/admin/claim-consultation-b
 import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
-import { whatsappUrl } from "@/lib/phone";
+import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 
 type ConsultantConsultationViewProps = {
   initialData: ConsultationDetail;
@@ -134,7 +134,7 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
         </div>
         {canContact ? (
           <a
-            href={whatsappUrl(data.phone)}
+            href={whatsappUrl(data.phone, consultationWhatsappMessage(data))}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-[#3dcb8c] px-3.5 text-[13px] font-bold text-white shadow-[0_8px_16px_rgba(61,203,140,0.28)]"

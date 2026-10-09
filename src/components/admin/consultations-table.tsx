@@ -11,7 +11,7 @@ import { WhatsAppIcon, WhatsAppLink } from "@/components/admin/whatsapp-link";
 import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
-import { whatsappUrl } from "@/lib/phone";
+import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 
 type Stats = {
   total: number;
@@ -384,7 +384,7 @@ function ConsultantRequestCard({
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
         {collected && row.phone ? (
           <a
-            href={whatsappUrl(row.phone)}
+            href={whatsappUrl(row.phone, consultationWhatsappMessage(row))}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="تواصل واتساب"
@@ -423,7 +423,7 @@ function ConsultationActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {showWhatsApp && row.phone ? (
-        <WhatsAppLink href={whatsappUrl(row.phone)} label={whatsAppLabel} />
+        <WhatsAppLink href={whatsappUrl(row.phone, consultationWhatsappMessage(row))} label={whatsAppLabel} />
       ) : null}
       {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
         <ClaimConsultationButton consultationId={row.id} />

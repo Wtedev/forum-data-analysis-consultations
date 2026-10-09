@@ -11,7 +11,7 @@ import {
   staffInputClassName,
 } from "@/components/consultation/ui";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/admin-labels";
-import { whatsappUrl } from "@/lib/phone";
+import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
 
 type ConsultationDetailPanelProps = {
@@ -173,7 +173,7 @@ export function ConsultationDetailPanel({
                 <span className="flex flex-wrap items-center gap-2">
                   <span dir="ltr">{data.phone}</span>
                   <WhatsAppLink
-                    href={whatsappUrl(data.phone)}
+                    href={whatsappUrl(data.phone, consultationWhatsappMessage(data))}
                     label={mode === "consultant" ? "تواصل واتساب" : "واتساب"}
                   />
                 </span>
