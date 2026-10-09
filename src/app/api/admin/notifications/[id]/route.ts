@@ -17,13 +17,13 @@ export async function PATCH(_request: Request, context: RouteContext) {
   try {
     const existing = await getPrisma().notification.findUnique({
       where: { id },
-      include: { consultation: { select: { preferredConsultant: true } } },
+      include: { consultation: { select: { preferredConsultant: true, assignedToId: true } } },
     });
     if (!existing) return notFound("الإشعار غير موجود");
     if (
       auth.session.role === "CONSULTANT" &&
       (!existing.consultation ||
-        !canAccessConsultation(auth.session, existing.consultation.preferredConsultant))
+        !canAccessConsultation(auth.session, existing.consultation))
     ) {
       return notFound("الإشعار غير موجود");
     }

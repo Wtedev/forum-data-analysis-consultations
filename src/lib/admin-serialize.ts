@@ -24,7 +24,9 @@ export type ConsultationListItem = {
   fullName: string;
   phone: string;
   consultationTypeLabel: string;
+  preferredConsultantId: string;
   preferredConsultantLabel: string;
+  assignedTo: { id: string; name: string } | null;
   status: ConsultationStatus;
   statusLabel: string;
   priority: Priority;
@@ -48,7 +50,6 @@ export type ConsultationDetail = ConsultationListItem & {
   updatedAtLabel: string;
   closedAt: string | null;
   closedAtLabel: string | null;
-  assignedTo: { id: string; name: string } | null;
   notes: {
     id: string;
     note: string;
@@ -64,7 +65,7 @@ export type ConsultationDetail = ConsultationListItem & {
 };
 
 export function serializeConsultationListItem(
-  row: Consultation,
+  row: Consultation & { assignedTo?: { id: string; name: string } | null },
 ): ConsultationListItem {
   return {
     id: row.id,
@@ -72,7 +73,9 @@ export function serializeConsultationListItem(
     fullName: row.fullName,
     phone: row.phone,
     consultationTypeLabel: TYPE_DB_LABELS[row.consultationType],
+    preferredConsultantId: row.preferredConsultant,
     preferredConsultantLabel: consultantShortLabel(row.preferredConsultant),
+    assignedTo: row.assignedTo ?? null,
     status: row.status,
     statusLabel: STATUS_LABELS[row.status],
     priority: row.priority,
@@ -105,7 +108,6 @@ export function serializeConsultationDetail(
     updatedAtLabel: formatDateTime(row.updatedAt),
     closedAt: row.closedAt?.toISOString() ?? null,
     closedAtLabel: row.closedAt ? formatDateTime(row.closedAt) : null,
-    assignedTo: row.assignedTo,
     notes: row.notes.map((note) => ({
       id: note.id,
       note: note.note,

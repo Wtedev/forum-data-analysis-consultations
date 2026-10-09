@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { ALL_STATUSES } from "@/lib/admin-labels";
 import { requireAdminApi, serverError } from "@/lib/admin-api";
-import { consultationScope } from "@/lib/admin-auth";
+import { consultationAccessWhere } from "@/lib/admin-auth";
 import { listConsultationsForAdmin } from "@/lib/admin-queries";
 
 const querySchema = z.object({
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       status,
       page,
       limit,
-      consultantId: consultationScope(auth.session),
+      access: consultationAccessWhere(auth.session),
     });
 
     return NextResponse.json({

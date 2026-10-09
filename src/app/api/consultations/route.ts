@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       email: created.email,
       consultationType: created.consultationType,
       preferredConsultant: created.preferredConsultant,
+      assignedToId: created.assignedToId,
     });
 
     return NextResponse.json({

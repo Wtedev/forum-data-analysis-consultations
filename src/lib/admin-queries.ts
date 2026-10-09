@@ -1,5 +1,6 @@
 import type { ConsultationStatus, Prisma } from "@prisma/client";
 
+import { canAccessConsultation, type SessionPayload } from "@/lib/admin-auth";
 import { serializeConsultationDetail, serializeConsultationListItem } from "@/lib/admin-serialize";
 import { getPrisma } from "@/lib/prisma";
 
@@ -21,31 +22,31 @@ export async function listConsultationsForAdmin(options: {
   status?: ConsultationStatus;
   page?: number;
   limit?: number;
-  consultantId?: string;
+  access?: Prisma.ConsultationWhereInput;
 }) {
   const page = options.page ?? 1;
   const limit = options.limit ?? 20;
   const skip = (page - 1) * limit;
-
-  const scope: Prisma.ConsultationWhereInput = options.consultantId
-    ? { preferredConsultant: options.consultantId }
-    : {};
-
-  const where: Prisma.ConsultationWhereInput = { ...scope };
+  const scope: Prisma.ConsultationWhereInput = options.access ?? {};
+  const filters: Prisma.ConsultationWhereInput[] = [scope];
 
   if (options.status) {
-    where.status = options.status;
+    filters.push({ status: options.status });
   }
 
   if (options.q?.trim()) {
     const term = options.q.trim();
-    where.OR = [
-      { referenceCode: { contains: term, mode: "insensitive" } },
-      { fullName: { contains: term, mode: "insensitive" } },
-      { phone: { contains: term } },
-      { email: { contains: term, mode: "insensitive" } },
-    ];
+    filters.push({
+      OR: [
+        { referenceCode: { contains: term, mode: "insensitive" } },
+        { fullName: { contains: term, mode: "insensitive" } },
+        { phone: { contains: term } },
+        { email: { contains: term, mode: "insensitive" } },
+      ],
+    });
   }
+
+  const where: Prisma.ConsultationWhereInput = { AND: filters };
 
   const [total, rows, statusCounts, newCount, allTotal] = await Promise.all([
     getPrisma().consultation.count({ where }),
@@ -54,6 +55,7 @@ export async function listConsultationsForAdmin(options: {
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
+      include: { assignedTo: { select: { id: true, name: true } } },
     }),
     getPrisma().consultation.groupBy({
       by: ["status"],
@@ -82,14 +84,14 @@ export async function listConsultationsForAdmin(options: {
   };
 }
 
-export async function getConsultationDetailForAdmin(id: string, consultantId?: string) {
+export async function getConsultationDetailForAdmin(id: string, session?: SessionPayload) {
   const consultation = await getPrisma().consultation.findUnique({
     where: { id },
     include: consultationDetailInclude,
   });
 
   if (!consultation) return null;
-  if (consultantId && consultation.preferredConsultant !== consultantId) return null;
+  if (session && !canAccessConsultation(session, consultation)) return null;
 
   return serializeConsultationDetail(consultation);
 }

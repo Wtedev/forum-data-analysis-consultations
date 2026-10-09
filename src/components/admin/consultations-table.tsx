@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 
+import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
 import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
@@ -27,6 +28,7 @@ type ConsultationsTableProps = {
   basePath?: string;
   heading?: string;
   emptyMessage?: string;
+  canClaim?: boolean;
 };
 
 export function ConsultationsTable({
@@ -40,6 +42,7 @@ export function ConsultationsTable({
   basePath = "/admin",
   heading,
   emptyMessage = "لا توجد طلبات مطابقة",
+  canClaim = false,
 }: ConsultationsTableProps) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
@@ -188,7 +191,14 @@ export function ConsultationsTable({
                     <td className="px-4 py-3 text-xs font-semibold text-[#4b5563]">{row.referenceCode}</td>
                     <td className="px-4 py-3 font-bold text-[#111827]">{row.fullName}</td>
                     <td className="px-4 py-3 font-medium text-[#374151]">{row.consultationTypeLabel}</td>
-                    <td className="px-4 py-3 font-medium text-[#374151]">{row.preferredConsultantLabel}</td>
+                    <td className="px-4 py-3 font-medium text-[#374151]">
+                      <p>{row.preferredConsultantLabel}</p>
+                      {row.assignedTo ? (
+                        <p className="mt-1 text-xs font-medium text-[#6b7280]">مُسند إلى {row.assignedTo.name}</p>
+                      ) : row.preferredConsultantId === "NO_PREFERENCE" ? (
+                        <p className="mt-1 text-xs font-medium text-[#6b7280]">متاح للمستشارين</p>
+                      ) : null}
+                    </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={row.status} label={row.statusLabel} />
                     </td>
@@ -204,6 +214,9 @@ export function ConsultationsTable({
                           <WhatsAppIcon />
                           واتساب
                         </a>
+                        {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
+                          <ClaimConsultationButton consultationId={row.id} />
+                        ) : null}
                         <Link
                           href={`${basePath}/consultations/${row.id}`}
                           className="inline-flex rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { ConsultationsTable } from "@/components/admin/consultations-table";
 import { ALL_STATUSES } from "@/lib/admin-labels";
-import { getAdminSession } from "@/lib/admin-auth";
+import { consultationAccessWhere, getAdminSession } from "@/lib/admin-auth";
 import { listConsultationsForAdmin } from "@/lib/admin-queries";
 
 type PageProps = {
@@ -37,7 +37,7 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
     q,
     status,
     page,
-    consultantId: session.consultantId,
+    access: consultationAccessWhere(session),
   });
 
   return (
@@ -45,7 +45,8 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
       <ConsultationsTable
         heading="طلباتك"
         basePath="/consultant"
-        emptyMessage="لا توجد طلبات مخصصة لك بعد"
+        canClaim
+        emptyMessage="لا توجد طلبات متاحة"
         initialData={result.data}
         initialStats={result.stats}
         initialQuery={q}

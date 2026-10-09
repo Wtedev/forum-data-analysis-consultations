@@ -22,6 +22,14 @@ type ConsultationMailContext = {
   email: string | null;
   consultationType: ConsultationType;
   preferredConsultant: string;
+  assignedToId?: string | null;
+};
+
+type StaffRecipient = {
+  email: string;
+  name: string;
+  deskPath: string;
+  pool: boolean;
 };
 
 function escapeHtml(value: string) {
@@ -103,24 +111,66 @@ function consultantStatusLine(status: ConsultationStatus) {
   return `الحالة الآن: ${STATUS_LABELS[status]}.`;
 }
 
-async function consultantRecipient(preferredConsultant: string) {
-  if (preferredConsultant === "NO_PREFERENCE") {
+async function staffRecipients(consultation: ConsultationMailContext): Promise<StaffRecipient[]> {
+  if (consultation.assignedToId) {
+    const assignee = await getPrisma().adminUser.findFirst({
+      where: { id: consultation.assignedToId, role: "CONSULTANT" },
+      select: { email: true, name: true },
+    });
+    if (assignee) {
+      return [{
+        email: assignee.email,
+        name: assignee.name,
+        deskPath: `/consultant/consultations/${consultation.id}`,
+        pool: false,
+      }];
+    }
+  }
+
+  if (consultation.preferredConsultant === "NO_PREFERENCE") {
+    const consultants = await getPrisma().adminUser.findMany({
+      where: { role: "CONSULTANT", consultantKey: { not: null } },
+      select: { email: true, name: true },
+    });
+    const recipients: StaffRecipient[] = consultants.map((consultant) => ({
+      email: consultant.email,
+      name: consultant.name,
+      deskPath: "/consultant",
+      pool: true,
+    }));
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-    return adminEmail ? { email: adminEmail, name: "إدارة الملتقى", missingAccount: false, unassigned: true } : null;
+    if (adminEmail) {
+      recipients.push({
+        email: adminEmail,
+        name: "إدارة الملتقى",
+        deskPath: "/admin",
+        pool: true,
+      });
+    }
+    return recipients;
   }
 
   const account = await getPrisma().adminUser.findFirst({
-    where: { role: "CONSULTANT", consultantKey: preferredConsultant },
+    where: { role: "CONSULTANT", consultantKey: consultation.preferredConsultant },
     select: { email: true, name: true },
   });
-
   if (account) {
-    return { email: account.email, name: account.name, missingAccount: false, unassigned: false };
+    return [{
+      email: account.email,
+      name: account.name,
+      deskPath: `/consultant/consultations/${consultation.id}`,
+      pool: false,
+    }];
   }
 
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  if (!adminEmail) return null;
-  return { email: adminEmail, name: "إدارة الملتقى", missingAccount: true, unassigned: false };
+  if (!adminEmail) return [];
+  return [{
+    email: adminEmail,
+    name: "إدارة الملتقى",
+    deskPath: "/admin",
+    pool: false,
+  }];
 }
 
 export async function notifyConsultationCreated(consultation: ConsultationMailContext) {
@@ -141,48 +191,57 @@ export async function notifyConsultationCreated(consultation: ConsultationMailCo
 }
 
 async function sendStaffNewRequest(consultation: ConsultationMailContext, typeLabel: string) {
-  const recipient = await consultantRecipient(consultation.preferredConsultant);
-  if (!recipient) return;
-
-  const safeName = escapeHtml(recipient.name);
+  const recipients = await staffRecipients(consultation);
   const safeApplicant = escapeHtml(consultation.fullName);
   const safeType = escapeHtml(typeLabel);
   const safeRef = escapeHtml(consultation.referenceCode);
-  const deskUrl = recipient.unassigned || recipient.missingAccount ? `${appUrl()}/admin` : `${appUrl()}/consultant`;
+  const missingAccount = consultation.preferredConsultant !== "NO_PREFERENCE" && recipients.every((item) => item.deskPath === "/admin");
 
-  if (recipient.unassigned) {
-    await sendEmail({
+  await Promise.all(recipients.map((recipient) => {
+    const deskUrl = `${appUrl()}${recipient.deskPath}`;
+    if (recipient.pool && recipient.deskPath === "/admin") {
+      return sendEmail({
+        to: recipient.email,
+        subject: "طلب استشارة بدون تفضيل مستشار",
+        html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
+          <p>وصل طلب جديد بلا تفضيل مستشار، ويظهر لكل المستشارين حتى يختاره أحدهم أو تسنده الإدارة.</p>
+          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
+          <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
+      });
+    }
+
+    if (recipient.pool) {
+      return sendEmail({
+        to: recipient.email,
+        subject: "طلب استشارة متاح للاختيار",
+        html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
+          <p>وصل طلب بلا تفضيل مستشار. يمكنك اختياره من واجهتك، ويختفي عندها من بقية المستشارين.</p>
+          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
+          <p><a href="${escapeHtml(deskUrl)}">فتح واجهة المستشار</a></p>`),
+      });
+    }
+
+    if (missingAccount) {
+      const label = escapeHtml(consultantShortLabel(consultation.preferredConsultant));
+      return sendEmail({
+        to: recipient.email,
+        subject: "طلب استشارة بانتظار حساب المستشار",
+        html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
+          <p>وصل طلب يفضّل ${label}، ولا يوجد حساب مفعّل لهذا المستشار بعد.</p>
+          <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
+          <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
+      });
+    }
+
+    return sendEmail({
       to: recipient.email,
-      subject: "طلب استشارة بدون تفضيل مستشار",
-      html: layout(`<p>مرحباً ${safeName}،</p>
-        <p>وصل طلب جديد بلا تفضيل مستشار.</p>
+      subject: "طلب استشارة جديد",
+      html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
+        <p>وصل طلب استشارة جديد يفضّلك مستشاراً.</p>
         <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-        <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
+        <p><a href="${escapeHtml(deskUrl)}">فتح الطلب</a></p>`),
     });
-    return;
-  }
-
-  if (recipient.missingAccount) {
-    const label = escapeHtml(consultantShortLabel(consultation.preferredConsultant));
-    await sendEmail({
-      to: recipient.email,
-      subject: "طلب استشارة بانتظار حساب المستشار",
-      html: layout(`<p>مرحباً ${safeName}،</p>
-        <p>وصل طلب يفضّل ${label}، ولا يوجد حساب مفعّل لهذا المستشار بعد. يمكن إرسال دعوة من صفحة الإدارة.</p>
-        <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-        <p><a href="${escapeHtml(deskUrl)}">فتح إدارة الطلبات</a></p>`),
-    });
-    return;
-  }
-
-  await sendEmail({
-    to: recipient.email,
-    subject: "طلب استشارة جديد",
-    html: layout(`<p>مرحباً ${safeName}،</p>
-      <p>وصل طلب استشارة جديد يفضّلك مستشاراً.</p>
-      <p>صاحب الطلب: ${safeApplicant}<br>نوع الاستشارة: ${safeType}<br>الرقم المرجعي: ${safeRef}</p>
-      <p><a href="${escapeHtml(deskUrl)}">فتح واجهة المستشار</a></p>`),
-  });
+  }));
 }
 
 export async function notifyStatusChanged(consultation: ConsultationMailContext, status: ConsultationStatus) {
@@ -205,25 +264,45 @@ export async function notifyStatusChanged(consultation: ConsultationMailContext,
 }
 
 async function sendStaffStatus(consultation: ConsultationMailContext, status: ConsultationStatus) {
-  const recipient = await consultantRecipient(consultation.preferredConsultant);
-  if (!recipient || recipient.unassigned) return;
-
+  const recipients = (await staffRecipients(consultation)).filter((recipient) => recipient.deskPath !== "/admin" || !recipient.pool);
   const label = STATUS_LABELS[status];
-  const deskPath = recipient.missingAccount ? "/admin" : `/consultant/consultations/${consultation.id}`;
-  const deskUrl = `${appUrl()}${deskPath}`;
-  const intro = recipient.missingAccount
-    ? `تغيّرت حالة طلب ${escapeHtml(consultantShortLabel(consultation.preferredConsultant))}، ولا يوجد له حساب بعد.`
-    : `تغيّرت حالة طلب يفضّلك مستشاراً.`;
 
-  await sendEmail({
-    to: recipient.email,
-    subject: `تحديث حالة الطلب ${consultation.referenceCode}`,
-    html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
-      <p>${intro}</p>
-      <p>صاحب الطلب: ${escapeHtml(consultation.fullName)}<br>الرقم المرجعي: ${escapeHtml(consultation.referenceCode)}<br>الحالة: ${escapeHtml(label)}</p>
-      <p>${escapeHtml(consultantStatusLine(status))}</p>
-      <p><a href="${escapeHtml(deskUrl)}">فتح الطلب</a></p>`),
-  });
+  await Promise.all(recipients.map((recipient) => {
+    const deskUrl = `${appUrl()}${recipient.deskPath}`;
+    const intro = recipient.pool
+      ? "تغيّرت حالة طلب متاح للاختيار."
+      : "تغيّرت حالة طلب ظاهر في واجهتك.";
+    return sendEmail({
+      to: recipient.email,
+      subject: `تحديث حالة الطلب ${consultation.referenceCode}`,
+      html: layout(`<p>مرحباً ${escapeHtml(recipient.name)}،</p>
+        <p>${intro}</p>
+        <p>صاحب الطلب: ${escapeHtml(consultation.fullName)}<br>الرقم المرجعي: ${escapeHtml(consultation.referenceCode)}<br>الحالة: ${escapeHtml(label)}</p>
+        <p>${escapeHtml(consultantStatusLine(status))}</p>
+        <p><a href="${escapeHtml(deskUrl)}">فتح الطلب</a></p>`),
+    });
+  }));
+}
+
+export async function notifyConsultationAssigned(consultation: ConsultationMailContext) {
+  if (!consultation.assignedToId) return;
+
+  try {
+    const recipients = await staffRecipients(consultation);
+    const assignee = recipients.find((recipient) => recipient.deskPath.startsWith("/consultant"));
+    if (!assignee) return;
+
+    await sendEmail({
+      to: assignee.email,
+      subject: `أُسند إليك الطلب ${consultation.referenceCode}`,
+      html: layout(`<p>مرحباً ${escapeHtml(assignee.name)}،</p>
+        <p>أُسند إليك طلب ${escapeHtml(consultation.fullName)}، الرقم المرجعي ${escapeHtml(consultation.referenceCode)}.</p>
+        <p>لن يظهر هذا الطلب لبقية المستشارين.</p>
+        <p><a href="${escapeHtml(`${appUrl()}${assignee.deskPath}`)}">فتح الطلب</a></p>`),
+    });
+  } catch (error) {
+    console.error("Failed to send assignment email", error);
+  }
 }
 
 export function inviteEmail(input: { name: string; acceptUrl: string }) {

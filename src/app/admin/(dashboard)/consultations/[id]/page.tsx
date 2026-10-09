@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ConsultationDetailPanel } from "@/components/admin/consultation-detail-panel";
 import { getAdminSession } from "@/lib/admin-auth";
 import { getConsultationDetailForAdmin } from "@/lib/admin-queries";
+import { getPrisma } from "@/lib/prisma";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -16,7 +17,14 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
   }
 
   const { id } = await params;
-  const consultation = await getConsultationDetailForAdmin(id);
+  const [consultation, assignees] = await Promise.all([
+    getConsultationDetailForAdmin(id),
+    getPrisma().adminUser.findMany({
+      where: { role: "CONSULTANT", consultantKey: { not: null } },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!consultation) {
     notFound();
@@ -30,7 +38,7 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
       >
         ← العودة لطلبات الاستشارات
       </Link>
-      <ConsultationDetailPanel initialData={consultation} />
+      <ConsultationDetailPanel initialData={consultation} mode="admin" assignees={assignees} />
     </div>
   );
 }

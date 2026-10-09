@@ -16,7 +16,7 @@ export default async function ConsultantConsultationDetailPage({ params }: PageP
   }
 
   const { id } = await params;
-  const consultation = await getConsultationDetailForAdmin(id, session.consultantId);
+  const consultation = await getConsultationDetailForAdmin(id, session);
 
   if (!consultation) {
     notFound();
@@ -30,7 +30,7 @@ export default async function ConsultantConsultationDetailPage({ params }: PageP
       >
         ← العودة للطلبات
       </Link>
-      <ConsultationDetailPanel initialData={consultation} />
+      <ConsultationDetailPanel initialData={consultation} mode="consultant" />
     </div>
   );
 }

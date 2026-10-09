@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { AdminRole } from "@prisma/client";
+import type { AdminRole, Prisma } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
@@ -90,17 +90,45 @@ export function verifySessionToken(token: string): SessionPayload | null {
   }
 }
 
-export function consultationScope(session: SessionPayload): string | undefined {
-  if (session.role !== "CONSULTANT") return undefined;
-  return session.consultantId ?? undefined;
+export function consultationAccessWhere(session: SessionPayload): Prisma.ConsultationWhereInput {
+  if (session.role !== "CONSULTANT" || !session.consultantId) return {};
+
+  return {
+    OR: [
+      { assignedToId: session.sub },
+      {
+        AND: [
+          { assignedToId: null },
+          {
+            OR: [
+              { preferredConsultant: session.consultantId },
+              { preferredConsultant: "NO_PREFERENCE" },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 }
 
 export function canAccessConsultation(
   session: SessionPayload,
-  preferredConsultant: string,
+  consultation: { preferredConsultant: string; assignedToId: string | null },
 ): boolean {
   if (session.role === "ADMIN") return true;
-  return session.consultantId === preferredConsultant;
+  if (session.role !== "CONSULTANT" || !session.consultantId) return false;
+  if (consultation.assignedToId) return consultation.assignedToId === session.sub;
+  if (consultation.preferredConsultant === "NO_PREFERENCE") return true;
+  return consultation.preferredConsultant === session.consultantId;
+}
+
+export function canManageConsultation(
+  session: SessionPayload,
+  consultation: { preferredConsultant: string; assignedToId: string | null },
+): boolean {
+  if (!canAccessConsultation(session, consultation)) return false;
+  if (session.role === "ADMIN") return true;
+  return !(consultation.preferredConsultant === "NO_PREFERENCE" && !consultation.assignedToId);
 }
 
 export async function getAdminSession(): Promise<SessionPayload | null> {

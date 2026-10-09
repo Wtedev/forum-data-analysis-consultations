@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { consultationScope } from "@/lib/admin-auth";
+import { consultationAccessWhere } from "@/lib/admin-auth";
 import { badRequest, requireAdminApi, serverError } from "@/lib/admin-api";
 import { formatDateTime } from "@/lib/admin-labels";
 import { getPrisma } from "@/lib/prisma";
@@ -29,8 +29,8 @@ export async function GET(request: Request) {
   }
 
   const { unreadOnly, limit } = parsed.data;
-  const scope = consultationScope(auth.session);
-  const scopedConsultation = scope ? { consultation: { preferredConsultant: scope } } : {};
+  const access = consultationAccessWhere(auth.session);
+  const scopedConsultation = auth.session.role === "CONSULTANT" ? { consultation: access } : {};
 
   try {
     const [notifications, unreadCount] = await Promise.all([
@@ -77,11 +77,11 @@ export async function PATCH(request: Request) {
   if (!auth.session) return auth.response!;
 
   try {
-    const scope = consultationScope(auth.session);
+    const access = consultationAccessWhere(auth.session);
     const result = await getPrisma().notification.updateMany({
       where: {
         isRead: false,
-        ...(scope ? { consultation: { preferredConsultant: scope } } : {}),
+        ...(auth.session.role === "CONSULTANT" ? { consultation: access } : {}),
       },
       data: { isRead: true },
     });

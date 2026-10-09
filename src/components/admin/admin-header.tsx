@@ -23,24 +23,24 @@ export function AdminHeader({
   }
 
   return (
-    <header className="kf-gradient-bg mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-5 text-[#061223] shadow-[0_8px_24px_rgba(79,211,155,0.18)]">
+    <header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[var(--kf-bg)] px-6 py-5 text-[#e6edf8] shadow-[0_8px_24px_rgba(10,15,29,0.16)]">
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-[#061223]/70">ملتقى تحليل البيانات ٢</p>
+        <p className="text-xs font-semibold text-[#cfe3ff]/80">ملتقى تحليل البيانات ٢</p>
         <p className="mt-0.5 text-lg font-bold leading-snug">{title}</p>
-        <p className="text-sm font-medium text-[#061223]/80">{adminName}</p>
+        <p className="text-sm font-medium text-[#cfe3ff]">{adminName}</p>
       </div>
 
       <div className="flex items-center gap-3">
         <Link
           href={homeHref}
-          className="rounded-lg bg-white/75 px-3 py-2 text-sm font-semibold text-[#061223] transition hover:bg-white"
+          className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
         >
           طلبات الاستشارات
         </Link>
         <button
           type="button"
           onClick={handleLogout}
-          className="rounded-xl border border-[#061223]/15 bg-white/45 px-4 py-2 text-sm font-semibold text-[#061223] transition hover:bg-white/75"
+          className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           خروج
         </button>

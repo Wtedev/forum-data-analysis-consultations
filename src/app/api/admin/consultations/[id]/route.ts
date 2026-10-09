@@ -3,8 +3,8 @@ import type { ConsultationStatus, Priority } from "@prisma/client";
 import { z } from "zod";
 
 import { ALL_PRIORITIES, ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
-import { notifyStatusChanged } from "@/lib/consultation-mail";
-import { canAccessConsultation } from "@/lib/admin-auth";
+import { notifyConsultationAssigned, notifyStatusChanged } from "@/lib/consultation-mail";
+import { canAccessConsultation, canManageConsultation } from "@/lib/admin-auth";
 import { badRequest, notFound, requireAdminApi, serverError } from "@/lib/admin-api";
 import { consultationDetailInclude } from "@/lib/admin-queries";
 import { serializeConsultationDetail } from "@/lib/admin-serialize";
@@ -13,6 +13,7 @@ import { getPrisma } from "@/lib/prisma";
 const updateSchema = z.object({
   status: z.enum(ALL_STATUSES).optional(),
   priority: z.enum(ALL_PRIORITIES).optional(),
+  assignedToId: z.string().min(1).nullable().optional(),
 });
 
 type RouteContext = {
@@ -31,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
       include: consultationDetailInclude,
     });
 
-    if (!consultation || !canAccessConsultation(auth.session, consultation.preferredConsultant)) {
+    if (!consultation || !canAccessConsultation(auth.session, consultation)) {
       return notFound("الطلب غير موجود");
     }
 
@@ -63,21 +64,42 @@ export async function PATCH(request: Request, context: RouteContext) {
     return badRequest("بيانات التحديث غير صالحة");
   }
 
-  if (!parsed.data.status && !parsed.data.priority) {
+  if (!parsed.data.status && !parsed.data.priority && parsed.data.assignedToId === undefined) {
     return badRequest("لا توجد بيانات للتحديث");
+  }
+
+  if (parsed.data.assignedToId !== undefined && auth.session.role !== "ADMIN") {
+    return badRequest("إسناد الطلب متاح للإدارة فقط");
   }
 
   try {
     const existing = await getPrisma().consultation.findUnique({ where: { id } });
-    if (!existing || !canAccessConsultation(auth.session, existing.preferredConsultant)) {
+    if (!existing || !canAccessConsultation(auth.session, existing)) {
       return notFound("الطلب غير موجود");
+    }
+    if (!canManageConsultation(auth.session, existing)) {
+      return badRequest("اختر الطلب أولاً قبل تعديله");
     }
 
     const updates: {
       status?: ConsultationStatus;
       priority?: Priority;
       closedAt?: Date | null;
+      assignedToId?: string | null;
     } = {};
+    let assigneeName: string | null = null;
+
+    if (parsed.data.assignedToId) {
+      const assignee = await getPrisma().adminUser.findFirst({
+        where: { id: parsed.data.assignedToId, role: "CONSULTANT" },
+        select: { id: true, name: true },
+      });
+      if (!assignee) return badRequest("المستشار غير موجود");
+      updates.assignedToId = assignee.id;
+      assigneeName = assignee.name;
+    } else if (parsed.data.assignedToId === null) {
+      updates.assignedToId = null;
+    }
 
     if (parsed.data.status) {
       updates.status = parsed.data.status;
@@ -107,6 +129,10 @@ export async function PATCH(request: Request, context: RouteContext) {
         descriptions.push(`تحديث الأولوية إلى ${parsed.data.priority}`);
       }
 
+      if (parsed.data.assignedToId !== undefined && parsed.data.assignedToId !== existing.assignedToId) {
+        descriptions.push(assigneeName ? `إسناد الطلب إلى ${assigneeName}` : "إلغاء إسناد الطلب");
+      }
+
       if (descriptions.length > 0) {
         await tx.activityLog.create({
           data: {
@@ -121,6 +147,21 @@ export async function PATCH(request: Request, context: RouteContext) {
       return updated;
     });
 
+    if (
+      parsed.data.assignedToId &&
+      parsed.data.assignedToId !== existing.assignedToId
+    ) {
+      await notifyConsultationAssigned({
+        id: consultation.id,
+        referenceCode: consultation.referenceCode,
+        fullName: consultation.fullName,
+        email: consultation.email,
+        consultationType: consultation.consultationType,
+        preferredConsultant: consultation.preferredConsultant,
+        assignedToId: parsed.data.assignedToId,
+      });
+    }
+
     if (parsed.data.status && parsed.data.status !== existing.status) {
       await notifyStatusChanged(
         {
@@ -130,6 +171,7 @@ export async function PATCH(request: Request, context: RouteContext) {
           email: consultation.email,
           consultationType: consultation.consultationType,
           preferredConsultant: consultation.preferredConsultant,
+          assignedToId: consultation.assignedToId,
         },
         parsed.data.status,
       );
