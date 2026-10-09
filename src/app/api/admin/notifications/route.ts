@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { consultationScope } from "@/lib/admin-auth";
 import { badRequest, requireAdminApi, serverError } from "@/lib/admin-api";
 import { formatDateTime } from "@/lib/admin-labels";
 import { getPrisma } from "@/lib/prisma";
@@ -28,11 +29,16 @@ export async function GET(request: Request) {
   }
 
   const { unreadOnly, limit } = parsed.data;
+  const scope = consultationScope(auth.session);
+  const scopedConsultation = scope ? { consultation: { preferredConsultant: scope } } : {};
 
   try {
     const [notifications, unreadCount] = await Promise.all([
       getPrisma().notification.findMany({
-        where: unreadOnly ? { isRead: false } : undefined,
+        where: {
+          ...(unreadOnly ? { isRead: false } : {}),
+          ...scopedConsultation,
+        },
         orderBy: { createdAt: "desc" },
         take: limit,
         include: {
@@ -41,7 +47,9 @@ export async function GET(request: Request) {
           },
         },
       }),
-      getPrisma().notification.count({ where: { isRead: false } }),
+      getPrisma().notification.count({
+        where: { isRead: false, ...scopedConsultation },
+      }),
     ]);
 
     return NextResponse.json({
@@ -69,8 +77,12 @@ export async function PATCH(request: Request) {
   if (!auth.session) return auth.response!;
 
   try {
+    const scope = consultationScope(auth.session);
     const result = await getPrisma().notification.updateMany({
-      where: { isRead: false },
+      where: {
+        isRead: false,
+        ...(scope ? { consultation: { preferredConsultant: scope } } : {}),
+      },
       data: { isRead: true },
     });
 

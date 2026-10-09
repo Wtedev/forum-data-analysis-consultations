@@ -1,0 +1,1 @@
+ALTER TABLE "Consultation" ADD COLUMN "preferredConsultant" TEXT NOT NULL DEFAULT 'NO_PREFERENCE';

@@ -4,7 +4,7 @@ import { getAdminSession } from "@/lib/admin-auth";
 
 export async function requireAdminApi() {
   const session = await getAdminSession();
-  if (!session) {
+  if (!session || (session.role === "CONSULTANT" && !session.consultantId)) {
     return { session: null, response: unauthorized() };
   }
   return { session, response: null };

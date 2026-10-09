@@ -4,6 +4,9 @@ import type { ReactNode } from "react";
 export const inputClassName =
   "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white shadow-none outline-none transition placeholder:text-slate-400 focus:border-forum-primary focus:ring-[3px] focus:ring-forum-primary/15 [color-scheme:dark] [&>option]:bg-[#0f1729]";
 
+export const staffInputClassName =
+  "w-full min-h-12 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] text-slate-900 shadow-none outline-none transition placeholder:text-slate-400 focus:border-forum-primary focus:ring-[3px] focus:ring-forum-primary/25 [color-scheme:light] [&>option]:bg-white [&>option]:text-slate-900";
+
 export const labelClassName = "mb-2 block text-sm font-medium text-slate-200";
 
 export function FieldError({ message }: { message?: string }) {
@@ -69,7 +72,7 @@ export function RadioOption({
   return (
     <label
       className={clsx(
-        "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
+        "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-medium leading-snug transition",
         checked
           ? "border-forum-primary/70 bg-forum-primary/15 text-white ring-1 ring-forum-primary/40"
           : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-forum-primary/40 hover:bg-forum-primary/5",
@@ -108,6 +111,34 @@ export function PrimaryButton({
       onClick={onClick}
       className={clsx(
         "inline-flex min-h-[48px] items-center justify-center rounded-xl kf-gradient-bg px-6 py-3 text-sm font-bold text-[#061223] shadow-lg shadow-emerald-400/10 transition hover:brightness-110 focus:outline-none focus:ring-[3px] focus:ring-forum-primary/30 disabled:cursor-not-allowed disabled:opacity-55",
+        className,
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function StaffSecondaryButton({
+  children,
+  disabled,
+  type = "button",
+  onClick,
+  className,
+}: {
+  children: ReactNode;
+  disabled?: boolean;
+  type?: "button" | "submit";
+  onClick?: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={clsx(
+        "inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-[3px] focus:ring-forum-primary/25 disabled:cursor-not-allowed disabled:opacity-45",
         className,
       )}
     >

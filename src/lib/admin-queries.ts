@@ -21,12 +21,17 @@ export async function listConsultationsForAdmin(options: {
   status?: ConsultationStatus;
   page?: number;
   limit?: number;
+  consultantId?: string;
 }) {
   const page = options.page ?? 1;
   const limit = options.limit ?? 20;
   const skip = (page - 1) * limit;
 
-  const where: Prisma.ConsultationWhereInput = {};
+  const scope: Prisma.ConsultationWhereInput = options.consultantId
+    ? { preferredConsultant: options.consultantId }
+    : {};
+
+  const where: Prisma.ConsultationWhereInput = { ...scope };
 
   if (options.status) {
     where.status = options.status;
@@ -52,10 +57,11 @@ export async function listConsultationsForAdmin(options: {
     }),
     getPrisma().consultation.groupBy({
       by: ["status"],
+      where: scope,
       _count: { _all: true },
     }),
-    getPrisma().consultation.count({ where: { status: "NEW" } }),
-    getPrisma().consultation.count(),
+    getPrisma().consultation.count({ where: { ...scope, status: "NEW" } }),
+    getPrisma().consultation.count({ where: scope }),
   ]);
 
   return {
@@ -76,13 +82,14 @@ export async function listConsultationsForAdmin(options: {
   };
 }
 
-export async function getConsultationDetailForAdmin(id: string) {
+export async function getConsultationDetailForAdmin(id: string, consultantId?: string) {
   const consultation = await getPrisma().consultation.findUnique({
     where: { id },
     include: consultationDetailInclude,
   });
 
   if (!consultation) return null;
+  if (consultantId && consultation.preferredConsultant !== consultantId) return null;
 
   return serializeConsultationDetail(consultation);
 }

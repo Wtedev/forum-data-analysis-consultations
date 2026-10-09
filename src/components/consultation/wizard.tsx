@@ -99,6 +99,7 @@ export function ConsultationWizard() {
             university: 2,
             majorInterest: 2,
             consultationType: 3,
+            preferredConsultant: 3,
             tools: 3,
             question: 3,
             link: 3,

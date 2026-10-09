@@ -1,5 +1,6 @@
 "use client";
 
+import { CONSULTANTS } from "@/lib/consultants";
 import {
   CONSULTATION_TYPE_LABELS,
   CURRENT_STAGE_LABELS,
@@ -186,6 +187,32 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
             ))}
           </select>
         </FormField>
+
+        <fieldset>
+          <legend className="mb-1 block text-sm font-medium text-slate-200">
+            المستشار المفضل <span className="text-forum-primary">*</span>
+          </legend>
+          <p className="mb-3 text-xs text-slate-400">
+            اختر مستشارًا محددًا، أو اترك التعيين دون تفضيل
+          </p>
+          <div className="grid gap-3">
+            {CONSULTANTS.map((option) => (
+              <RadioOption
+                key={option.id}
+                name="preferredConsultant"
+                value={option.label}
+                label={option.label}
+                checked={form.preferredConsultant === option.label}
+                onChange={() => onChange("preferredConsultant", option.label)}
+              />
+            ))}
+          </div>
+          {errors.preferredConsultant ? (
+            <p className="mt-1.5 text-xs font-medium text-red-400">
+              {errors.preferredConsultant}
+            </p>
+          ) : null}
+        </fieldset>
 
         <fieldset>
           <legend className="mb-1 block text-sm font-medium text-slate-200">

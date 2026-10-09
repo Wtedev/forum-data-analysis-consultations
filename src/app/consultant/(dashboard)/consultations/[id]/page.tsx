@@ -9,14 +9,14 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-export default async function AdminConsultationDetailPage({ params }: PageProps) {
+export default async function ConsultantConsultationDetailPage({ params }: PageProps) {
   const session = await getAdminSession();
-  if (!session || session.role !== "ADMIN") {
-    redirect("/admin/login");
+  if (!session?.consultantId) {
+    redirect("/admin/login?next=/consultant");
   }
 
   const { id } = await params;
-  const consultation = await getConsultationDetailForAdmin(id);
+  const consultation = await getConsultationDetailForAdmin(id, session.consultantId);
 
   if (!consultation) {
     notFound();
@@ -25,7 +25,7 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
   return (
     <div className="space-y-4">
       <Link
-        href="/admin"
+        href="/consultant"
         className="inline-flex text-sm font-medium text-forum-primary hover:underline"
       >
         ← العودة للطلبات

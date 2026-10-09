@@ -6,6 +6,7 @@ import {
   GENDER_LABELS,
   TOOL_LABELS,
 } from "@/lib/consultation-mappers";
+import { CONSULTANT_LABELS } from "@/lib/consultants";
 import { isValidSaudiMobile, normalizePhone } from "@/lib/phone";
 
 export const consultationFormSchema = z.object({
@@ -48,6 +49,9 @@ export const consultationFormSchema = z.object({
   consultationType: z.enum(CONSULTATION_TYPE_LABELS, {
     message: "اختر نوع الاستشارة",
   }),
+  preferredConsultant: z.enum(CONSULTANT_LABELS, {
+    message: "اختر المستشار أو عدم التفضيل",
+  }),
   tools: z.array(z.enum(TOOL_LABELS)).default([]),
   question: z
     .string()
@@ -81,6 +85,7 @@ export const consultationStep2Schema = consultationFormSchema.pick({
 
 export const consultationStep3Schema = consultationFormSchema.pick({
   consultationType: true,
+  preferredConsultant: true,
   tools: true,
   question: true,
   link: true,

@@ -6,9 +6,9 @@ import { clsx } from "clsx";
 
 import {
   FieldError,
-  inputClassName,
   PrimaryButton,
-  SecondaryButton,
+  staffInputClassName,
+  StaffSecondaryButton,
 } from "@/components/consultation/ui";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
@@ -129,6 +129,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
             <DetailRow label="صفة المستفيد" value={data.currentStageLabel} />
             <DetailRow label="الجهة" value={data.university ?? "—"} />
             <DetailRow label="المجال" value={data.majorInterest ?? "—"} />
+            <DetailRow label="المستشار المفضل" value={data.preferredConsultantFullLabel} />
             <DetailRow label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
             <DetailRow
               label="رابط البيانات"
@@ -161,7 +162,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
             </label>
             <select
               id="status"
-              className={inputClassName}
+              className={staffInputClassName}
               value={status}
               onChange={(event) => setStatus(event.target.value as typeof status)}
             >
@@ -178,7 +179,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
             </label>
             <select
               id="priority"
-              className={inputClassName}
+              className={staffInputClassName}
               value={priority}
               onChange={(event) => setPriority(event.target.value as typeof priority)}
             >
@@ -204,14 +205,14 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
         <h2 className="mb-4 text-lg font-semibold text-slate-800">ملاحظات داخلية</h2>
         <form onSubmit={handleAddNote} className="space-y-3">
           <textarea
-            className={clsx(inputClassName, "min-h-28 resize-y")}
+            className={clsx(staffInputClassName, "min-h-28 resize-y")}
             placeholder="أضف ملاحظة للفريق..."
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
-          <SecondaryButton type="submit" disabled={noteSaving || !note.trim()}>
+          <StaffSecondaryButton type="submit" disabled={noteSaving || !note.trim()}>
             {noteSaving ? "جاري الإضافة..." : "إضافة ملاحظة"}
-          </SecondaryButton>
+          </StaffSecondaryButton>
         </form>
         <ul className="mt-6 space-y-4">
           {data.notes.length === 0 ? (

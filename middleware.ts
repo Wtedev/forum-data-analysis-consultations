@@ -7,12 +7,14 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasSessionCookie = Boolean(request.cookies.get(ADMIN_COOKIE)?.value);
 
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    if (!hasSessionCookie) {
-      const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  const needsSession =
+    (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) ||
+    pathname.startsWith("/consultant");
+
+  if (needsSession && !hasSessionCookie) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (pathname === "/admin/login" && hasSessionCookie) {
@@ -23,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/consultant/:path*"],
 };

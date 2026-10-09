@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { canAccessConsultation } from "@/lib/admin-auth";
 import { badRequest, notFound, requireAdminApi, serverError } from "@/lib/admin-api";
 import { consultationDetailInclude } from "@/lib/admin-queries";
 import { serializeConsultationDetail } from "@/lib/admin-serialize";
@@ -34,7 +35,9 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const existing = await getPrisma().consultation.findUnique({ where: { id } });
-    if (!existing) return notFound("الطلب غير موجود");
+    if (!existing || !canAccessConsultation(auth.session, existing.preferredConsultant)) {
+      return notFound("الطلب غير موجود");
+    }
 
     const consultation = await getPrisma().$transaction(async (tx) => {
       await tx.consultationNote.create({

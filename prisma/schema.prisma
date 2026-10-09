@@ -69,6 +69,7 @@ model Consultation {
   tools                  String[]               @default([])
   question               String
   link                   String?
+  preferredConsultant    String                 @default("NO_PREFERENCE")
   preferredContactMethod PreferredContactMethod
   status                 ConsultationStatus     @default(NEW)
   priority               Priority               @default(NORMAL)

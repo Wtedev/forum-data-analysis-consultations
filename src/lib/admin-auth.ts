@@ -8,13 +8,14 @@ import { ADMIN_COOKIE, SESSION_MAX_AGE } from "@/lib/admin-cookie";
 
 export { ADMIN_COOKIE } from "@/lib/admin-cookie";
 
-export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
+export const INVALID_CREDENTIALS_MESSAGE = "البريد أو كلمة المرور غير صحيحة";
 
 export type SessionPayload = {
   sub: string;
   email: string;
   name: string;
   role: AdminRole;
+  consultantId: string | null;
 };
 
 function getJwtSecret(): string {
@@ -54,6 +55,10 @@ function timingSafeEqualString(a: string, b: string): boolean {
   return result === 0;
 }
 
+export function passwordsMatch(left: string, right: string): boolean {
+  return timingSafeEqualString(left, right);
+}
+
 export function verifyAdminCredentials(email: string, password: string): boolean {
   const configured = getAdminCredentialsFromEnv();
   if (!configured) {
@@ -75,10 +80,27 @@ export function signSession(payload: SessionPayload): string {
 
 export function verifySessionToken(token: string): SessionPayload | null {
   try {
-    return jwt.verify(token, getJwtSecret()) as SessionPayload;
+    const payload = jwt.verify(token, getJwtSecret()) as SessionPayload;
+    return {
+      ...payload,
+      consultantId: payload.consultantId ?? null,
+    };
   } catch {
     return null;
   }
+}
+
+export function consultationScope(session: SessionPayload): string | undefined {
+  if (session.role !== "CONSULTANT") return undefined;
+  return session.consultantId ?? undefined;
+}
+
+export function canAccessConsultation(
+  session: SessionPayload,
+  preferredConsultant: string,
+): boolean {
+  if (session.role === "ADMIN") return true;
+  return session.consultantId === preferredConsultant;
 }
 
 export async function getAdminSession(): Promise<SessionPayload | null> {

@@ -4,29 +4,29 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { getAdminSession } from "@/lib/admin-auth";
 
 export const metadata = {
-  title: "لوحة الإدارة | ملتقى تحليل البيانات في القطاع غير الربحي 2",
+  title: "واجهة المستشار | ملتقى تحليل البيانات في القطاع غير الربحي 2",
 };
 
-export default async function AdminDashboardLayout({
+export default async function ConsultantDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await getAdminSession();
   if (!session) {
-    redirect("/admin/login");
+    redirect("/admin/login?next=/consultant");
   }
-  if (session.role === "CONSULTANT" && session.consultantId) {
-    redirect("/consultant");
+  if (session.role === "ADMIN") {
+    redirect("/admin");
   }
-  if (session.role !== "ADMIN") {
+  if (session.role !== "CONSULTANT" || !session.consultantId) {
     redirect("/admin/login");
   }
 
   return (
     <main className="min-h-dvh bg-slate-50 px-4 py-6 sm:px-6 lg:py-10">
       <div className="mx-auto max-w-6xl">
-        <AdminHeader adminName={session.name} />
+        <AdminHeader adminName={session.name} title="واجهة المستشار" homeHref="/consultant" />
         {children}
       </div>
     </main>

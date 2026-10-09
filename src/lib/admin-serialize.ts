@@ -7,6 +7,7 @@ import type {
   Priority,
 } from "@prisma/client";
 
+import { consultantLabel, consultantShortLabel } from "@/lib/consultants";
 import {
   CONTACT_DB_LABELS,
   formatDateTime,
@@ -23,6 +24,7 @@ export type ConsultationListItem = {
   fullName: string;
   phone: string;
   consultationTypeLabel: string;
+  preferredConsultantLabel: string;
   status: ConsultationStatus;
   statusLabel: string;
   priority: Priority;
@@ -38,6 +40,7 @@ export type ConsultationDetail = ConsultationListItem & {
   university: string | null;
   majorInterest: string | null;
   tools: string[];
+  preferredConsultantFullLabel: string;
   question: string;
   link: string | null;
   preferredContactMethodLabel: string;
@@ -69,6 +72,7 @@ export function serializeConsultationListItem(
     fullName: row.fullName,
     phone: row.phone,
     consultationTypeLabel: TYPE_DB_LABELS[row.consultationType],
+    preferredConsultantLabel: consultantShortLabel(row.preferredConsultant),
     status: row.status,
     statusLabel: STATUS_LABELS[row.status],
     priority: row.priority,
@@ -93,6 +97,7 @@ export function serializeConsultationDetail(
     university: row.university,
     majorInterest: row.majorInterest,
     tools: row.tools,
+    preferredConsultantFullLabel: consultantLabel(row.preferredConsultant),
     question: row.question,
     link: row.link,
     preferredContactMethodLabel: CONTACT_DB_LABELS[row.preferredContactMethod],

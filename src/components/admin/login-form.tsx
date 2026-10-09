@@ -30,6 +30,9 @@ export function AdminLoginForm() {
       const result = (await response.json()) as {
         success: boolean;
         message?: string;
+        role?: string;
+        redirectTo?: string;
+        admin?: { role?: string };
       };
 
       if (!response.ok || !result.success) {
@@ -37,7 +40,10 @@ export function AdminLoginForm() {
         return;
       }
 
-      router.replace(nextPath);
+      const role = result.admin?.role ?? result.role;
+      const home = role === "CONSULTANT" ? "/consultant" : "/admin";
+      const destination = nextPath.startsWith(home) ? nextPath : (result.redirectTo ?? home);
+      router.replace(destination);
       router.refresh();
     } catch {
       setError("تعذر الاتصال بالخادم");
@@ -55,10 +61,10 @@ export function AdminLoginForm() {
         ملتقى تحليل البيانات <span className="text-[#4fd39b]">٢</span>
       </p>
       <h1 className="mt-3 text-center text-xl font-semibold text-white">
-        لوحة إدارة الاستشارات
+        دخول الفريق
       </h1>
       <p className="mt-2 text-center text-sm text-slate-300">
-        سجّل الدخول لإدارة طلبات استشارات تحليل البيانات
+        للإدارة أو للمستشار، حسب الحساب المستخدم
       </p>
 
       <div className="mt-8 space-y-5">
@@ -71,7 +77,7 @@ export function AdminLoginForm() {
             type="email"
             autoComplete="email"
             dir="ltr"
-            placeholder="name@example.com"
+            placeholder="admin@kafaat.org.sa"
             className={inputClassName}
             value={email}
             onChange={(event) => setEmail(event.target.value)}

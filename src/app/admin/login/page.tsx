@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { AdminLoginForm } from "@/components/admin/login-form";
 
 export const metadata = {
-  title: "تسجيل الدخول | لوحة الإدارة",
+  title: "تسجيل الدخول | ملتقى تحليل البيانات ٢",
 };
 
 export default function AdminLoginPage() {

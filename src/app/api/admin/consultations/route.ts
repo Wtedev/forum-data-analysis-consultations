@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { ALL_STATUSES } from "@/lib/admin-labels";
 import { requireAdminApi, serverError } from "@/lib/admin-api";
-import { serializeConsultationListItem } from "@/lib/admin-serialize";
-import { getPrisma } from "@/lib/prisma";
+import { consultationScope } from "@/lib/admin-auth";
+import { listConsultationsForAdmin } from "@/lib/admin-queries";
 
 const querySchema = z.object({
   q: z.string().optional(),
@@ -34,58 +33,19 @@ export async function GET(request: Request) {
   }
 
   const { q, status, page, limit } = parsed.data;
-  const skip = (page - 1) * limit;
-
-  const where: Prisma.ConsultationWhereInput = {};
-
-  if (status) {
-    where.status = status;
-  }
-
-  if (q?.trim()) {
-    const term = q.trim();
-    where.OR = [
-      { referenceCode: { contains: term, mode: "insensitive" } },
-      { fullName: { contains: term, mode: "insensitive" } },
-      { phone: { contains: term } },
-      { email: { contains: term, mode: "insensitive" } },
-    ];
-  }
 
   try {
-    const [total, rows, statusCounts, newCount] = await Promise.all([
-      getPrisma().consultation.count({ where }),
-      getPrisma().consultation.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      getPrisma().consultation.groupBy({
-        by: ["status"],
-        _count: { _all: true },
-      }),
-      getPrisma().consultation.count({ where: { status: "NEW" } }),
-    ]);
-
-    const stats = {
-      total: await getPrisma().consultation.count(),
-      new: newCount,
-      byStatus: Object.fromEntries(
-        statusCounts.map((item) => [item.status, item._count._all]),
-      ),
-    };
+    const result = await listConsultationsForAdmin({
+      q,
+      status,
+      page,
+      limit,
+      consultantId: consultationScope(auth.session),
+    });
 
     return NextResponse.json({
       success: true,
-      data: rows.map(serializeConsultationListItem),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
-      },
-      stats,
+      ...result,
     });
   } catch (error) {
     console.error("Failed to list consultations:", error);

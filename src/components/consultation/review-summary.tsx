@@ -71,6 +71,7 @@ export function ReviewSummary({
     { label: "الجهة", value: form.university, step: 2 },
     { label: "المجال", value: form.majorInterest, step: 2 },
     { label: "نوع الاستشارة", value: form.consultationType, step: 3 },
+    { label: "المستشار المفضل", value: form.preferredConsultant, step: 3 },
     { label: "الأدوات", value: form.tools.join("، "), step: 3 },
     {
       label: "الاستفسار",

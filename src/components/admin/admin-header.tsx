@@ -7,9 +7,15 @@ import { SecondaryButton } from "@/components/consultation/ui";
 
 type AdminHeaderProps = {
   adminName: string;
+  title?: string;
+  homeHref?: string;
 };
 
-export function AdminHeader({ adminName }: AdminHeaderProps) {
+export function AdminHeader({
+  adminName,
+  title = "لوحة الإدارة",
+  homeHref = "/admin",
+}: AdminHeaderProps) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -20,20 +26,15 @@ export function AdminHeader({ adminName }: AdminHeaderProps) {
 
   return (
     <header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-b from-forum-primary to-[#056b6f] px-6 py-5 text-white shadow-lg shadow-forum-primary/20">
-      <div className="flex items-center gap-4">
-        <p className="text-sm font-bold leading-snug">
-          ملتقى تحليل البيانات
-          <span className="ms-1 text-base">٢</span>
-        </p>
-        <div>
-          <p className="text-sm text-white/75">لوحة الإدارة</p>
-          <p className="font-semibold">{adminName}</p>
-        </div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-white/75">ملتقى تحليل البيانات ٢</p>
+        <p className="mt-0.5 text-lg font-bold leading-snug">{title}</p>
+        <p className="text-sm text-white/85">{adminName}</p>
       </div>
 
       <div className="flex items-center gap-3">
         <Link
-          href="/admin"
+          href={homeHref}
           className="rounded-lg px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10"
         >
           الطلبات

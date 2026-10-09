@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { canAccessConsultation } from "@/lib/admin-auth";
 import { notFound, requireAdminApi, serverError } from "@/lib/admin-api";
 import { getPrisma } from "@/lib/prisma";
 
@@ -14,8 +15,18 @@ export async function PATCH(_request: Request, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    const existing = await getPrisma().notification.findUnique({ where: { id } });
+    const existing = await getPrisma().notification.findUnique({
+      where: { id },
+      include: { consultation: { select: { preferredConsultant: true } } },
+    });
     if (!existing) return notFound("الإشعار غير موجود");
+    if (
+      auth.session.role === "CONSULTANT" &&
+      (!existing.consultation ||
+        !canAccessConsultation(auth.session, existing.consultation.preferredConsultant))
+    ) {
+      return notFound("الإشعار غير موجود");
+    }
 
     const notification = await getPrisma().notification.update({
       where: { id },

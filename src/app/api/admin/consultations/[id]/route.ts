@@ -3,6 +3,7 @@ import type { ConsultationStatus, Priority } from "@prisma/client";
 import { z } from "zod";
 
 import { ALL_PRIORITIES, ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
+import { canAccessConsultation } from "@/lib/admin-auth";
 import { badRequest, notFound, requireAdminApi, serverError } from "@/lib/admin-api";
 import { consultationDetailInclude } from "@/lib/admin-queries";
 import { serializeConsultationDetail } from "@/lib/admin-serialize";
@@ -29,7 +30,9 @@ export async function GET(_request: Request, context: RouteContext) {
       include: consultationDetailInclude,
     });
 
-    if (!consultation) return notFound("الطلب غير موجود");
+    if (!consultation || !canAccessConsultation(auth.session, consultation.preferredConsultant)) {
+      return notFound("الطلب غير موجود");
+    }
 
     return NextResponse.json({
       success: true,
@@ -65,7 +68,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const existing = await getPrisma().consultation.findUnique({ where: { id } });
-    if (!existing) return notFound("الطلب غير موجود");
+    if (!existing || !canAccessConsultation(auth.session, existing.preferredConsultant)) {
+      return notFound("الطلب غير موجود");
+    }
 
     const updates: {
       status?: ConsultationStatus;
