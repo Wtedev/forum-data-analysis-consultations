@@ -5,6 +5,7 @@ import { useState } from "react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
+import { WhatsAppLink } from "@/components/admin/whatsapp-link";
 import {
   FieldError,
   staffInputClassName,
@@ -170,14 +171,7 @@ export function ConsultationDetailPanel({
               value={
                 <span className="inline-flex items-center gap-3">
                   <span dir="ltr">{data.phone}</span>
-                  <a
-                    href={whatsappUrl(data.phone)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center rounded-full bg-[#e7f6ec] px-3 py-1 text-sm font-medium text-[#157a43] transition hover:bg-[#d7f0e1]"
-                  >
-                    واتساب
-                  </a>
+                  <WhatsAppLink href={whatsappUrl(data.phone)} />
                 </span>
               }
             />
