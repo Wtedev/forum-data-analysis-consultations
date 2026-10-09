@@ -305,6 +305,20 @@ export async function notifyConsultationAssigned(consultation: ConsultationMailC
   }
 }
 
+function inviteButton(href: string, label: string, tone: "primary" | "secondary") {
+  const background = tone === "primary" ? "#5cc9b0" : "#ffffff";
+  const color = tone === "primary" ? "#061223" : "#111827";
+  const border = tone === "primary" ? "#5cc9b0" : "#d7dbe2";
+
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 8px">
+    <tr>
+      <td align="center" bgcolor="${background}" style="border-radius:12px;border:1px solid ${border};background-color:${background}">
+        <a href="${href}" style="display:block;padding:14px 18px;font-family:Tahoma,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.4;color:${color};text-decoration:none;border-radius:12px">${label}</a>
+      </td>
+    </tr>
+  </table>`;
+}
+
 export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: string }) {
   const name = escapeHtml(input.name);
   const acceptUrl = escapeHtml(input.acceptUrl);
@@ -312,14 +326,26 @@ export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: 
 
   return {
     subject: "دعوة للانضمام إلى فريق المستشارين – ملتقى تحليل البيانات في القطاع غير الربحي 2",
-    html: layout(`<p>مرحباً ${name}،</p>
-      <p>يسعدنا انضمامك إلى فريق المستشارين في ملتقى تحليل البيانات في القطاع غير الربحي 2، وقد أُنشئ حسابك لاستقبال الاستشارات في منصة الاستشارات.</p>
-      <p>لتفعيل حسابك:</p>
-      <p>أنشئ كلمة المرور من الرابط التالي (صالح لمدة 7 أيام):<br><a href="${acceptUrl}">إنشاء كلمة المرور</a></p>
-      <p>سجّل الدخول ببريدك الإلكتروني نفسه وكلمة المرور التي اخترتها:<br><a href="${loginUrl}">تسجيل الدخول</a></p>
-      <p>ستصلك رسالة على بريدك عند وصول أي طلب استشارة جديد.</p>
-      <p>شاكرين لك مشاركتك، ونتطلع إلى الاستفادة من خبراتك.</p>
-      <p>مع التحية،<br>فريق ملتقى تحليل البيانات في القطاع غير الربحي 2</p>`, false),
+    html: `<div dir="rtl" style="margin:0;padding:24px 12px;background:#f4f6f8;font-family:Tahoma,Arial,sans-serif;color:#111827">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e6e8ec;border-radius:20px;overflow:hidden">
+        <div style="background:#0a0f1d;padding:28px 24px;text-align:center">
+          <div style="color:#cfe3ff;font-size:13px;line-height:1.7">ملتقى تحليل البيانات في القطاع غير الربحي 2</div>
+          <div style="margin-top:8px;color:#e6edf8;font-size:22px;font-weight:700;line-height:1.6">دعوة للانضمام إلى فريق المستشارين</div>
+        </div>
+        <div style="padding:28px 24px;font-size:16px;line-height:1.9">
+          <p style="margin:0 0 12px">مرحباً ${name}،</p>
+          <p style="margin:0 0 20px">يسعدنا انضمامك إلى فريق المستشارين في ملتقى تحليل البيانات في القطاع غير الربحي 2، وقد أُنشئ حسابك لاستقبال الاستشارات في منصة الاستشارات.</p>
+          <p style="margin:0 0 16px;font-weight:700">لتفعيل حسابك:</p>
+          <p style="margin:0 0 10px">أنشئ كلمة المرور من الزر التالي (صالح لمدة 7 أيام):</p>
+          ${inviteButton(acceptUrl, "إنشاء كلمة المرور", "primary")}
+          <p style="margin:18px 0 10px">سجّل الدخول ببريدك الإلكتروني نفسه وكلمة المرور التي اخترتها:</p>
+          ${inviteButton(loginUrl, "تسجيل الدخول", "secondary")}
+          <div style="margin:20px 0;padding:14px 16px;background:#f7f8fa;border:1px solid #e6e8ec;border-radius:12px;color:#374151">ستصلك رسالة على بريدك عند وصول أي طلب استشارة جديد.</div>
+          <p style="margin:0 0 8px">شاكرين لك مشاركتك، ونتطلع إلى الاستفادة من خبراتك.</p>
+          <p style="margin:16px 0 0;padding-top:16px;border-top:1px solid #e6e8ec">مع التحية،<br>فريق ملتقى تحليل البيانات في القطاع غير الربحي 2</p>
+        </div>
+      </div>
+    </div>`,
   };
 }
 
