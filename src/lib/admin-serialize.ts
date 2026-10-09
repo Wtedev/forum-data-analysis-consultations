@@ -54,12 +54,14 @@ export type ConsultationDetail = ConsultationListItem & {
   notes: {
     id: string;
     note: string;
+    createdAt: string;
     createdAtLabel: string;
     adminName: string;
   }[];
   activityLogs: {
     id: string;
     description: string;
+    createdAt: string;
     createdAtLabel: string;
     adminName: string | null;
   }[];
@@ -113,12 +115,14 @@ export function serializeConsultationDetail(
     notes: row.notes.map((note) => ({
       id: note.id,
       note: note.note,
+      createdAt: note.createdAt.toISOString(),
       createdAtLabel: formatDateTime(note.createdAt),
       adminName: note.adminUser.name,
     })),
     activityLogs: row.activityLogs.map((log) => ({
       id: log.id,
       description: log.description,
+      createdAt: log.createdAt.toISOString(),
       createdAtLabel: formatDateTime(log.createdAt),
       adminName: log.adminUser?.name ?? null,
     })),

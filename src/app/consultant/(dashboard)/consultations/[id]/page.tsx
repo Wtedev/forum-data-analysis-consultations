@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { ConsultationDetailPanel } from "@/components/admin/consultation-detail-panel";
+import { ConsultantConsultationView } from "@/components/consultant/consultant-consultation-view";
 import { getAdminSession } from "@/lib/admin-auth";
 import { getConsultationDetailForAdmin } from "@/lib/admin-queries";
 
@@ -23,19 +22,8 @@ export default async function ConsultantConsultationDetailPage({ params }: PageP
   }
 
   return (
-    <div className="space-y-4">
-      <Link
-        href="/consultant"
-        className="inline-flex text-sm font-medium text-[#1c1c1c] hover:underline"
-      >
-        ← العودة إلى طلباتك
-      </Link>
-      <ConsultationDetailPanel
-        initialData={
-          consultation.assignedTo ? consultation : { ...consultation, phone: "" }
-        }
-        mode="consultant"
-      />
-    </div>
+    <ConsultantConsultationView
+      initialData={consultation.assignedTo ? consultation : { ...consultation, phone: "" }}
+    />
   );
 }
