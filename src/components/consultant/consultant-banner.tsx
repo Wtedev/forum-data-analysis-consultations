@@ -16,7 +16,7 @@ export function ConsultantBanner({ name }: { name: string }) {
   return (
     <div className="mb-5">
       <div className="mb-2.5 flex items-center justify-between gap-3">
-        <img src="/images/kafaat-logo.png" alt="كفاءات" width={241} height={130} className="h-16 w-auto shrink-0 object-contain" />
+        <img src="/images/kafaat-logo.png?v=5" alt="جمعية كفاءات الأهلية" width={800} height={579} className="h-32 w-auto max-w-[62%] shrink-0 object-contain" />
         <PlatformGuide />
       </div>
       <header className="rounded-2xl bg-[linear-gradient(168deg,#121c33_0%,#1a2849_32%,#0e1528_68%,#0b0f1c_100%)] px-6 py-5 text-white shadow-[0_10px_24px_rgba(11,15,28,0.28)] sm:px-7 sm:py-6">
