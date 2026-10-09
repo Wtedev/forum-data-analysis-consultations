@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AdminHeader } from "@/components/admin/admin-header";
+import { StaffShell } from "@/components/admin/staff-shell";
 import { getAdminSession } from "@/lib/admin-auth";
 
 export const metadata = {
@@ -24,11 +24,8 @@ export default async function AdminDashboardLayout({
   }
 
   return (
-    <main className="min-h-dvh bg-slate-100 px-4 py-6 text-slate-950 sm:px-6 lg:py-10">
-      <div className="mx-auto max-w-6xl">
-        <AdminHeader adminName={session.name} title="إدارة طلبات الاستشارات" />
-        {children}
-      </div>
-    </main>
+    <StaffShell adminName={session.name} title="إدارة طلبات الاستشارات" homeHref="/admin">
+      {children}
+    </StaffShell>
   );
 }

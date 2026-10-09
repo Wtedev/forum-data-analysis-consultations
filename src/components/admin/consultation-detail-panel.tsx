@@ -6,9 +6,7 @@ import { clsx } from "clsx";
 
 import {
   FieldError,
-  PrimaryButton,
   staffInputClassName,
-  StaffSecondaryButton,
 } from "@/components/consultation/ui";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
@@ -97,7 +95,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
 
   return (
     <div className="space-y-6">
-      <header className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <header className="rounded-2xl border border-[#ececec] bg-white p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm text-slate-500">{data.referenceCode}</p>
@@ -109,9 +107,9 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
           <span
             className={clsx(
               "rounded-full px-3 py-1 text-sm font-medium",
-              data.status === "NEW" && "bg-amber-200 text-amber-950",
-              data.status === "CLOSED" && "bg-slate-300 text-slate-950",
-              data.status !== "NEW" && data.status !== "CLOSED" && "bg-[#d8f4ef] text-[#034f52]",
+              data.status === "NEW" && "bg-[#fff4dc] text-[#a16207]",
+              data.status === "CLOSED" && "bg-[#f1f1ef] text-[#5c5c5c]",
+              data.status !== "NEW" && data.status !== "CLOSED" && "bg-[#e7f6ec] text-[#157a43]",
             )}
           >
             {data.statusLabel}
@@ -120,7 +118,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-2xl border border-[#ececec] bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">بيانات المتقدم</h2>
           <dl className="space-y-3 text-sm">
             <DetailRow label="الجوال" value={data.phone} dir="ltr" />
@@ -147,13 +145,13 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
           </dl>
         </section>
 
-        <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-2xl border border-[#ececec] bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">السؤال</h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{data.question}</p>
         </section>
       </div>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <section className="rounded-2xl border border-[#ececec] bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">إدارة الطلب</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -195,13 +193,18 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
         {error ? <div className="mt-4"><FieldError message={error} /></div> : null}
 
         <div className="mt-4">
-          <PrimaryButton type="button" onClick={handleUpdate} disabled={saving}>
+          <button
+            type="button"
+            onClick={handleUpdate}
+            disabled={saving}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#1c1c1c] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-40"
+          >
             {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
-          </PrimaryButton>
+          </button>
         </div>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <section className="rounded-2xl border border-[#ececec] bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">ملاحظات داخلية</h2>
         <form onSubmit={handleAddNote} className="space-y-3">
           <textarea
@@ -210,9 +213,13 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
-          <StaffSecondaryButton type="submit" disabled={noteSaving || !note.trim()}>
+          <button
+            type="submit"
+            disabled={noteSaving || !note.trim()}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e4e4e2] bg-white px-5 text-sm font-semibold text-[#1c1c1c] transition hover:bg-[#f6f6f4] disabled:opacity-40"
+          >
             {noteSaving ? "جاري الإضافة..." : "إضافة ملاحظة"}
-          </StaffSecondaryButton>
+          </button>
         </form>
         <ul className="mt-6 space-y-4">
           {data.notes.length === 0 ? (
@@ -230,7 +237,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
         </ul>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <section className="rounded-2xl border border-[#ececec] bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">سجل النشاط</h2>
         <ul className="space-y-3">
           {data.activityLogs.length === 0 ? (

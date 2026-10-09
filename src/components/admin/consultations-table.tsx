@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 
-import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
+import { staffInputClassName } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
 
@@ -62,12 +62,29 @@ export function ConsultationsTable({
   const openCount = initialStats.total - (initialStats.byStatus.CLOSED ?? 0);
 
   return (
-    <div className="space-y-6">
-      {heading ? <h1 className="text-lg font-semibold text-slate-900">{heading}</h1> : null}
-      <div className="grid gap-4 sm:grid-cols-3">
+    <div>
+      {heading ? (
+        <h1 className="text-[2rem] font-bold tracking-tight text-[#161616] sm:text-[2.5rem]">
+          {heading}
+        </h1>
+      ) : null}
+
+      <p className="mb-3 mt-8 text-[11px] font-semibold tracking-wide text-[#9a9a9a]">تصفية سريعة</p>
+      <div className="grid gap-3 sm:grid-cols-3" dir="ltr">
+        <StatCard
+          label="طلبات جديدة"
+          value={initialStats.new}
+          tone="warm"
+          active={status === "NEW"}
+          onClick={() => {
+            setStatus("NEW");
+            applyFilters(1, { status: "NEW" });
+          }}
+        />
         <StatCard
           label="إجمالي الطلبات"
           value={initialStats.total}
+          tone="neutral"
           active={!status && !q.trim()}
           onClick={() => {
             setQ("");
@@ -76,160 +93,148 @@ export function ConsultationsTable({
           }}
         />
         <StatCard
-          label="طلبات جديدة"
-          value={initialStats.new}
-          accent
-          active={status === "NEW"}
-          onClick={() => {
-            setStatus("NEW");
-            applyFilters(1, { status: "NEW" });
-          }}
-        />
-        <StatCard
           label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
           value={filtersActive ? total : openCount}
+          tone="fresh"
         />
       </div>
 
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="min-w-0 flex-1">
-            <label htmlFor="search" className="mb-2 block text-sm font-semibold text-slate-700">
-              بحث
-            </label>
-            <input
-              id="search"
-              className={staffInputClassName}
-              placeholder="الرقم المرجعي، الاسم، أو الجوال"
-              value={q}
-              onChange={(event) => setQ(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") applyFilters(1);
-              }}
-            />
-          </div>
-          <div className="flex gap-2">
+      <p className="mb-3 mt-8 text-[11px] font-semibold tracking-wide text-[#9a9a9a]">التصفية</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          id="search"
+          aria-label="بحث"
+          className={clsx(staffInputClassName, "bg-white sm:max-w-md")}
+          placeholder="الرقم المرجعي، الاسم، أو الجوال"
+          value={q}
+          onChange={(event) => setQ(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") applyFilters(1);
+          }}
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => applyFilters(1)}
+            className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#1c1c1c] ring-1 ring-[#e4e4e2] transition hover:bg-[#f3f3f1]"
+          >
+            بحث
+          </button>
+          {filtersActive ? (
             <button
               type="button"
-              onClick={() => applyFilters(1)}
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#034f52] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#04656a] focus:outline-none focus:ring-[3px] focus:ring-[#034f52]/30 sm:w-auto"
-            >
-              بحث
-            </button>
-            {filtersActive ? (
-              <StaffSecondaryButton
-                type="button"
-                onClick={() => {
-                  setQ("");
-                  setStatus("");
-                  router.push(basePath);
-                }}
-              >
-                إعادة ضبط
-              </StaffSecondaryButton>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <p className="mb-2 text-sm font-semibold text-slate-700">الحالة</p>
-          <div className="flex flex-wrap gap-2">
-            <StatusChip
-              label="الكل"
-              active={!status}
               onClick={() => {
+                setQ("");
                 setStatus("");
-                applyFilters(1, { status: "" });
+                router.push(basePath);
               }}
-            />
-            {ALL_STATUSES.map((item) => (
-              <StatusChip
-                key={item}
-                label={STATUS_LABELS[item]}
-                count={initialStats.byStatus[item] ?? 0}
-                active={status === item}
-                onClick={() => {
-                  setStatus(item);
-                  applyFilters(1, { status: item });
-                }}
-              />
-            ))}
-          </div>
+              className="rounded-xl px-4 py-2.5 text-sm font-medium text-[#3d3d3d] transition hover:bg-white"
+            >
+              إعادة ضبط
+            </button>
+          ) : null}
         </div>
       </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <StatusChip
+          label="الكل"
+          active={!status}
+          onClick={() => {
+            setStatus("");
+            applyFilters(1, { status: "" });
+          }}
+        />
+        {ALL_STATUSES.map((item) => (
+          <StatusChip
+            key={item}
+            label={STATUS_LABELS[item]}
+            count={initialStats.byStatus[item] ?? 0}
+            active={status === item}
+            onClick={() => {
+              setStatus(item);
+              applyFilters(1, { status: item });
+            }}
+          />
+        ))}
+      </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-slate-100 text-slate-800">
+      <div className="mt-8 overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="text-[11px] font-semibold tracking-wide text-[#9a9a9a]">
+              <th className="px-3 py-3 text-start font-semibold">المرجع</th>
+              <th className="px-3 py-3 text-start font-semibold">الاسم</th>
+              <th className="px-3 py-3 text-start font-semibold">النوع</th>
+              <th className="px-3 py-3 text-start font-semibold">المستشار</th>
+              <th className="px-3 py-3 text-start font-semibold">الحالة</th>
+              <th className="px-3 py-3 text-start font-semibold">التاريخ</th>
+              <th className="px-3 py-3 text-start font-semibold" />
+            </tr>
+          </thead>
+          <tbody>
+            {initialData.length === 0 ? (
               <tr>
-                <th className="px-4 py-3 text-start font-medium">المرجع</th>
-                <th className="px-4 py-3 text-start font-medium">الاسم</th>
-                <th className="px-4 py-3 text-start font-medium">النوع</th>
-                <th className="px-4 py-3 text-start font-medium">المستشار</th>
-                <th className="px-4 py-3 text-start font-medium">الحالة</th>
-                <th className="px-4 py-3 text-start font-medium">التاريخ</th>
-                <th className="px-4 py-3 text-start font-medium" />
+                <td colSpan={7} className="px-3 py-10 text-center text-[#5c5c5c]">
+                  {emptyMessage}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {initialData.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center font-medium text-slate-700">
-                    {emptyMessage}
+            ) : (
+              initialData.map((row) => (
+                <tr key={row.id} className="border-t border-[#ececec]">
+                  <td className="px-3 py-4 text-xs font-medium text-[#5c5c5c]">{row.referenceCode}</td>
+                  <td className="px-3 py-4">
+                    <Link
+                      href={`${basePath}/consultations/${row.id}`}
+                      className="font-semibold text-[#1c1c1c] hover:underline"
+                    >
+                      {row.fullName}
+                    </Link>
+                    <p className="mt-0.5 text-xs text-[#5c5c5c]" dir="ltr">
+                      {row.phone}
+                    </p>
+                  </td>
+                  <td className="px-3 py-4 text-[#3d3d3d]">{row.consultationTypeLabel}</td>
+                  <td className="px-3 py-4 text-[#3d3d3d]">{row.preferredConsultantLabel}</td>
+                  <td className="px-3 py-4">
+                    <StatusBadge status={row.status} label={row.statusLabel} />
+                  </td>
+                  <td className="px-3 py-4 text-[#5c5c5c]">{row.createdAtLabel}</td>
+                  <td className="px-3 py-4">
+                    <Link
+                      href={`${basePath}/consultations/${row.id}`}
+                      className="text-sm font-medium text-[#1c1c1c] underline-offset-4 hover:underline"
+                    >
+                      عرض
+                    </Link>
                   </td>
                 </tr>
-              ) : (
-                initialData.map((row) => (
-                  <tr key={row.id} className="border-t border-slate-200 transition hover:bg-slate-50">
-                    <td className="px-4 py-3 text-xs font-semibold text-slate-800">{row.referenceCode}</td>
-                    <td className="px-4 py-3">
-                      <p className="font-bold text-slate-950">{row.fullName}</p>
-                      <p className="mt-0.5 text-xs font-medium text-slate-700" dir="ltr">
-                        {row.phone}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{row.consultationTypeLabel}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{row.preferredConsultantLabel}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={row.status} label={row.statusLabel} />
-                    </td>
-                    <td className="px-4 py-3 font-medium text-slate-800">{row.createdAtLabel}</td>
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`${basePath}/consultations/${row.id}`}
-                        className="inline-flex rounded-lg bg-[#034f52] px-3 py-1.5 text-sm font-bold text-white transition hover:bg-[#04656a]"
-                      >
-                        عرض
-                      </Link>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-3">
-          <StaffSecondaryButton
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
             type="button"
             disabled={initialPage <= 1}
             onClick={() => applyFilters(initialPage - 1)}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-[#1c1c1c] hover:bg-white disabled:opacity-35"
           >
             السابق
-          </StaffSecondaryButton>
-          <span className="text-sm text-slate-600">
+          </button>
+          <span className="text-sm text-[#5c5c5c]">
             صفحة {initialPage} من {totalPages}
           </span>
-          <StaffSecondaryButton
+          <button
             type="button"
             disabled={initialPage >= totalPages}
             onClick={() => applyFilters(initialPage + 1)}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-[#1c1c1c] hover:bg-white disabled:opacity-35"
           >
             التالي
-          </StaffSecondaryButton>
+          </button>
         </div>
       ) : null}
     </div>
@@ -239,37 +244,49 @@ export function ConsultationsTable({
 function StatCard({
   label,
   value,
-  accent,
+  tone,
   active,
   onClick,
 }: {
   label: string;
   value: number;
-  accent?: boolean;
+  tone: "warm" | "neutral" | "fresh";
   active?: boolean;
   onClick?: () => void;
 }) {
   const className = clsx(
-    "rounded-2xl px-5 py-4 text-start shadow-sm ring-1 transition",
-    accent
-      ? "bg-[#034f52] text-white ring-[#034f52]"
-      : "bg-white text-slate-950 ring-slate-300",
-    onClick && "hover:brightness-95",
-    active && "ring-2 ring-[#034f52]",
+    "rounded-2xl px-5 py-4 text-start transition",
+    tone === "warm" && "bg-[#fff4dc]",
+    tone === "neutral" && "bg-[#f1f1ef]",
+    tone === "fresh" && "bg-[#e7f6ec]",
+    onClick && "hover:brightness-[0.98]",
+    active && "ring-2 ring-black/10",
+  );
+  const labelClass = clsx(
+    "text-sm font-medium",
+    tone === "warm" && "text-[#a16207]",
+    tone === "neutral" && "text-[#5c5c5c]",
+    tone === "fresh" && "text-[#157a43]",
   );
   const body = (
     <>
-      <p className={clsx("text-sm font-semibold", accent ? "text-[#d8f4ef]" : "text-slate-700")}>{label}</p>
-      <p className="mt-1 text-2xl font-bold">{value}</p>
+      <p className="text-4xl font-semibold tracking-tight text-[#161616]">
+        {String(value).padStart(2, "0")}
+      </p>
+      <p className={clsx("mt-1", labelClass)}>{label}</p>
     </>
   );
 
   if (!onClick) {
-    return <div className={className}>{body}</div>;
+    return (
+      <div className={className} dir="rtl">
+        {body}
+      </div>
+    );
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button type="button" onClick={onClick} className={className} dir="rtl">
       {body}
     </button>
   );
@@ -292,16 +309,12 @@ function StatusChip({
       onClick={onClick}
       aria-pressed={active}
       className={clsx(
-        "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition",
-        active
-          ? "bg-[#034f52] text-white"
-          : "border border-slate-400 bg-white text-slate-900 hover:border-[#034f52] hover:bg-slate-50",
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition",
+        active ? "bg-[#ececea] font-semibold text-[#1c1c1c]" : "text-[#5c5c5c] hover:bg-white",
       )}
     >
       {label}
-      {typeof count === "number" ? (
-        <span className={clsx("text-xs font-bold", active ? "text-[#d8f4ef]" : "text-slate-700")}>{count}</span>
-      ) : null}
+      {typeof count === "number" ? <span className="text-xs">{count}</span> : null}
     </button>
   );
 }
@@ -310,13 +323,13 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-bold",
-        status === "NEW" && "bg-amber-200 text-amber-950",
-        status === "IN_REVIEW" && "bg-blue-200 text-blue-950",
-        status === "CONTACTED" && "bg-violet-200 text-violet-950",
-        status === "ANSWERED" && "bg-emerald-200 text-emerald-950",
-        status === "NEEDS_FOLLOW_UP" && "bg-orange-200 text-orange-950",
-        status === "CLOSED" && "bg-slate-300 text-slate-950",
+        "inline-flex rounded-full px-2.5 py-1 text-xs font-medium",
+        status === "NEW" && "bg-[#fff4dc] text-[#a16207]",
+        status === "IN_REVIEW" && "bg-[#e8f0ff] text-[#2f62c4]",
+        status === "CONTACTED" && "bg-[#f3eaff] text-[#7a45c4]",
+        status === "ANSWERED" && "bg-[#e7f6ec] text-[#157a43]",
+        status === "NEEDS_FOLLOW_UP" && "bg-[#fff1e4] text-[#c26a12]",
+        status === "CLOSED" && "bg-[#f1f1ef] text-[#5c5c5c]",
       )}
     >
       {label}

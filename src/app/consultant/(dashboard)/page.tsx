@@ -43,7 +43,7 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
   return (
     <Suspense>
       <ConsultationsTable
-        heading="طلباتك"
+        heading="طلبات الاستشارات"
         basePath="/consultant"
         emptyMessage="لا توجد طلبات مخصصة لك بعد"
         initialData={result.data}

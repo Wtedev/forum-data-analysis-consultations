@@ -31,7 +31,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
   return (
     <Suspense>
       <ConsultationsTable
-        heading="كل طلبات الاستشارات"
+        heading="إدارة طلبات الاستشارات"
         initialData={result.data}
         initialStats={result.stats}
         initialQuery={q}

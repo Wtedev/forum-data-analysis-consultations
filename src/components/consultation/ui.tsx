@@ -5,7 +5,7 @@ export const inputClassName =
   "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white shadow-none outline-none transition placeholder:text-slate-400 focus:border-forum-primary focus:ring-[3px] focus:ring-forum-primary/15 [color-scheme:dark] [&>option]:bg-[#0f1729]";
 
 export const staffInputClassName =
-  "w-full min-h-12 rounded-xl border border-slate-400 bg-white px-4 py-3 text-[15px] text-slate-950 shadow-none outline-none transition placeholder:text-slate-600 focus:border-[#034f52] focus:ring-[3px] focus:ring-[#034f52]/25 [color-scheme:light] [&>option]:bg-white [&>option]:text-slate-950";
+  "w-full min-h-11 rounded-xl border border-[#e7e7e5] bg-[#f7f7f5] px-4 py-3 text-[15px] text-[#1c1c1c] shadow-none outline-none transition placeholder:text-[#6f6f6f] focus:border-[#d0d0ce] focus:ring-2 focus:ring-black/5 [color-scheme:light] [&>option]:bg-white [&>option]:text-[#1c1c1c]";
 
 export const labelClassName = "mb-2 block text-sm font-medium text-slate-200";
 
@@ -138,7 +138,7 @@ export function StaffSecondaryButton({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-400 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-[#034f52] hover:bg-slate-50 focus:outline-none focus:ring-[3px] focus:ring-[#034f52]/25 disabled:cursor-not-allowed disabled:opacity-45",
+        "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e4e4e2] bg-white px-5 py-3 text-sm font-semibold text-[#1c1c1c] transition hover:bg-[#f6f6f4] focus:outline-none focus:ring-2 focus:ring-black/5 disabled:cursor-not-allowed disabled:opacity-40",
         className,
       )}
     >
