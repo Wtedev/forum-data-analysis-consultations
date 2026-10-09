@@ -99,37 +99,9 @@ export function ConsultationsTable({
           ) : null}
         </div>
       ) : null}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <StatCard
-          label="إجمالي الطلبات"
-          value={initialStats.total}
-          tone="neutral"
-          active={!status && !q.trim()}
-          onClick={() => {
-            setQ("");
-            setStatus("");
-            router.push(basePath);
-          }}
-        />
-        <StatCard
-          label="طلبات جديدة"
-          value={initialStats.new}
-          tone="warm"
-          active={status === "NEW"}
-          onClick={() => {
-            setStatus("NEW");
-            applyFilters(1, { status: "NEW" });
-          }}
-        />
-        <StatCard
-          label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
-          value={filtersActive ? total : openCount}
-          tone="fresh"
-        />
-      </div>
 
       {!iconTools || searchOpen || filtersOpen ? (
-        <div className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+        <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] sm:p-5">
           {!iconTools || searchOpen ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1">
@@ -222,6 +194,36 @@ export function ConsultationsTable({
           ) : null}
         </div>
       ) : null}
+
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <StatCard
+          label="إجمالي الطلبات"
+          value={initialStats.total}
+          tone="neutral"
+          active={!status && !q.trim()}
+          onClick={() => {
+            setQ("");
+            setStatus("");
+            router.push(basePath);
+          }}
+        />
+        <StatCard
+          label="طلبات جديدة"
+          value={initialStats.new}
+          tone="warm"
+          active={status === "NEW"}
+          onClick={() => {
+            setStatus("NEW");
+            applyFilters(1, { status: "NEW" });
+          }}
+        />
+        <StatCard
+          label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
+          value={filtersActive ? total : openCount}
+          tone="fresh"
+        />
+      </div>
+
 
       <div className="space-y-3 md:hidden">
         {initialData.length === 0 ? (

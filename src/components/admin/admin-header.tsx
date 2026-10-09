@@ -28,8 +28,8 @@ export function AdminHeader({
   const pathname = usePathname();
   const tabClass = (active: boolean) =>
     active
-      ? "rounded-lg bg-white px-3 py-2 text-sm font-semibold text-[#061223]"
-      : "rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15";
+      ? "whitespace-nowrap rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-[#061223] sm:px-3 sm:py-2 sm:text-sm"
+      : "whitespace-nowrap rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-sm";
 
   async function handleLogout() {
     await fetch("/api/admin/auth/logout", { method: "POST" });
