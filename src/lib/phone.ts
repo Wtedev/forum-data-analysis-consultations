@@ -30,34 +30,29 @@ export function whatsappUrl(phone: string, text?: string): string {
 
 export function consultationWhatsappMessage(input: {
   fullName: string;
+  consultantName: string;
   referenceCode: string;
-  consultationTypeLabel: string;
   question: string;
-  currentStageLabel?: string | null;
-  university?: string | null;
-  majorInterest?: string | null;
-  tools?: string[];
   link?: string | null;
 }): string {
   const lines = [
     `السلام عليكم ${input.fullName}،`,
     "",
-    "معك مستشار من ملتقى تحليل البيانات في القطاع غير الربحي، وأتواصل معك لمتابعة استشارتك.",
+    `معك مستشار ملتقى تحليل البيانات في القطاع غير الربحي ${input.consultantName}، وأتواصل معك لمتابعة استشارتك.`,
     "",
     `رقم الاستشارة: ${input.referenceCode}`,
-    `نوع الاستشارة: ${input.consultationTypeLabel}`,
+    "نص الاستشارة:",
+    input.question.trim(),
   ];
-
-  if (input.currentStageLabel) lines.push(`الصفة: ${input.currentStageLabel}`);
-  if (input.university?.trim()) lines.push(`الجهة: ${input.university.trim()}`);
-  if (input.majorInterest?.trim()) lines.push(`المجال: ${input.majorInterest.trim()}`);
-  if (input.tools?.length) lines.push(`الأدوات: ${input.tools.join("، ")}`);
-
-  lines.push("", "نص الاستشارة:", input.question.trim());
 
   if (input.link?.trim()) lines.push("", `رابط البيانات: ${input.link.trim()}`);
 
-  lines.push("", "يسعدني خدمتك. إن كان لديك توضيح أو ملفات إضافية، أرسلها في هذه المحادثة.");
+  lines.push(
+    "",
+    "تسعدني مساعدتك إن كان لديك توضيح أو ملفات إضافية، فضلاً إرسالها في هذه المحادثة.",
+    "",
+    "جمعية كفاءات الأهلية لبناء قدرات الشباب",
+  );
 
   return lines.join("\n");
 }

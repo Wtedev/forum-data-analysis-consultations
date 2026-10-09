@@ -173,7 +173,16 @@ export function ConsultationDetailPanel({
                 <span className="flex flex-wrap items-center gap-2">
                   <span dir="ltr">{data.phone}</span>
                   <WhatsAppLink
-                    href={whatsappUrl(data.phone, consultationWhatsappMessage(data))}
+                    href={whatsappUrl(
+                      data.phone,
+                      consultationWhatsappMessage({
+                        fullName: data.fullName,
+                        consultantName: data.assignedTo?.name ?? "",
+                        referenceCode: data.referenceCode,
+                        question: data.question,
+                        link: data.link,
+                      }),
+                    )}
                     label={mode === "consultant" ? "تواصل واتساب" : "واتساب"}
                   />
                 </span>

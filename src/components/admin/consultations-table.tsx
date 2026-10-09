@@ -384,7 +384,16 @@ function ConsultantRequestCard({
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
         {collected && row.phone ? (
           <a
-            href={whatsappUrl(row.phone, consultationWhatsappMessage(row))}
+            href={whatsappUrl(
+              row.phone,
+              consultationWhatsappMessage({
+                fullName: row.fullName,
+                consultantName: row.assignedTo?.name ?? "",
+                referenceCode: row.referenceCode,
+                question: row.question,
+                link: row.link,
+              }),
+            )}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="تواصل واتساب"
@@ -423,7 +432,19 @@ function ConsultationActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {showWhatsApp && row.phone ? (
-        <WhatsAppLink href={whatsappUrl(row.phone, consultationWhatsappMessage(row))} label={whatsAppLabel} />
+        <WhatsAppLink
+          href={whatsappUrl(
+            row.phone,
+            consultationWhatsappMessage({
+              fullName: row.fullName,
+              consultantName: row.assignedTo?.name ?? "",
+              referenceCode: row.referenceCode,
+              question: row.question,
+              link: row.link,
+            }),
+          )}
+          label={whatsAppLabel}
+        />
       ) : null}
       {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
         <ClaimConsultationButton consultationId={row.id} />

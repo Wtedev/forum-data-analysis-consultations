@@ -140,7 +140,16 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
         </div>
         {canContact ? (
           <a
-            href={whatsappUrl(data.phone, consultationWhatsappMessage(data))}
+            href={whatsappUrl(
+              data.phone,
+              consultationWhatsappMessage({
+                fullName: data.fullName,
+                consultantName: data.assignedTo?.name ?? "",
+                referenceCode: data.referenceCode,
+                question: data.question,
+                link: data.link,
+              }),
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-[#3dcb8c] px-3.5 text-[13px] font-bold text-white shadow-[0_8px_16px_rgba(61,203,140,0.28)]"
