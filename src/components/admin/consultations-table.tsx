@@ -117,7 +117,7 @@ export function ConsultationsTable({
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
           {heading ? (
-            <h1 className={iconTools ? "min-w-0 text-[1.65rem] font-bold leading-none text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
+            <h1 className={iconTools ? "min-w-0 text-lg font-bold leading-none text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
               {heading}
             </h1>
           ) : (
@@ -446,13 +446,13 @@ function ConsultationActions({
 
 function DeskStat({ value, lines }: { value: number; lines: string[] }) {
   return (
-    <div className="flex h-full min-h-[108px] min-w-0 flex-col items-center justify-center gap-3 rounded-2xl bg-white px-2 py-3.5 text-center shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
-      <p className="text-[1.75rem] font-bold leading-none tabular-nums text-[#3e4c86]">{value}</p>
-      <p className="flex h-8 flex-col items-center justify-center text-[11px] font-medium leading-4 text-[#8b93ab] sm:text-xs">
+    <div className="flex h-full min-h-[96px] min-w-0 flex-col items-start justify-center gap-2 rounded-2xl bg-white px-3 py-3 text-right shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+      <p className="flex h-8 flex-col items-start justify-center text-[11px] font-medium leading-4 text-[#8b93ab] sm:text-xs">
         {lines.map((line) => (
           <span key={line}>{line}</span>
         ))}
       </p>
+      <p className="text-[1.65rem] font-bold leading-none tabular-nums text-[#3e4c86]">{value}</p>
     </div>
   );
 }

@@ -14,25 +14,25 @@ export function ConsultantBanner({ name }: { name: string }) {
   }
 
   return (
-    <div className="mb-6">
-      <div className="mb-4 flex justify-center">
-        <img src="/images/kafaat-logo.png" alt="كفاءات" width={168} height={72} className="h-16 w-auto" />
+    <div className="mb-5">
+      <div className="mb-2.5 flex justify-center">
+        <img src="/images/kafaat-logo.png" alt="كفاءات" width={120} height={52} className="h-10 w-auto" />
       </div>
-      <header className="rounded-2xl bg-[linear-gradient(168deg,#121c33_0%,#1a2849_32%,#0e1528_68%,#0b0f1c_100%)] px-5 py-5 text-white shadow-[0_10px_24px_rgba(11,15,28,0.28)] sm:px-6 sm:py-6">
-        <div className="flex items-start justify-between gap-4">
+      <header className="rounded-2xl bg-[linear-gradient(168deg,#121c33_0%,#1a2849_32%,#0e1528_68%,#0b0f1c_100%)] px-4 py-3 text-white shadow-[0_10px_24px_rgba(11,15,28,0.28)] sm:px-5 sm:py-3.5">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-lg font-bold leading-7 sm:text-xl">استشارات ملتقى تحليل البيانات</p>
-            <p className="mt-2 text-sm font-medium leading-6 text-white/75">مرحبا مستشارنا، {name}</p>
+            <p className="text-lg font-bold leading-6 sm:text-xl">استشارات ملتقى تحليل البيانات</p>
+            <p className="mt-1 text-sm font-medium leading-5 text-white/75">مرحبا مستشارنا، {name}</p>
           </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border border-white/15 bg-[#1a2744] px-4 text-[13px] font-semibold text-white transition hover:bg-[#243656]"
+            className="inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full border border-white/15 bg-[#1a2744] px-2.5 text-[11px] font-semibold text-white transition hover:bg-[#243656]"
           >
             تسجيل خروج
           </button>
         </div>
-        <div className="mt-6 flex justify-end">
+        <div className="mt-3 flex justify-end">
           <PlatformGuide tone="onDark" />
         </div>
       </header>
