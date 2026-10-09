@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 
-import { staffInputClassName } from "@/components/consultation/ui";
-import { whatsappUrl } from "@/lib/phone";
+import { staffInputClassName, StaffSecondaryButton } from "@/components/consultation/ui";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
+import { whatsappUrl } from "@/lib/phone";
 
 type Stats = {
   total: number;
@@ -63,25 +63,9 @@ export function ConsultationsTable({
   const openCount = initialStats.total - (initialStats.byStatus.CLOSED ?? 0);
 
   return (
-    <div>
-      {heading ? (
-        <h1 className="text-[2rem] font-bold tracking-tight text-[#161616] sm:text-[2.5rem]">
-          {heading}
-        </h1>
-      ) : null}
-
-      <p className="mb-3 mt-8 text-[11px] font-semibold tracking-wide text-[#9a9a9a]">تصفية سريعة</p>
-      <div className="grid gap-3 sm:grid-cols-3" dir="ltr">
-        <StatCard
-          label="طلبات جديدة"
-          value={initialStats.new}
-          tone="warm"
-          active={status === "NEW"}
-          onClick={() => {
-            setStatus("NEW");
-            applyFilters(1, { status: "NEW" });
-          }}
-        />
+    <div className="space-y-6">
+      {heading ? <h1 className="text-lg font-semibold text-[#1c1c1c]">{heading}</h1> : null}
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label="إجمالي الطلبات"
           value={initialStats.total}
@@ -94,156 +78,167 @@ export function ConsultationsTable({
           }}
         />
         <StatCard
+          label="طلبات جديدة"
+          value={initialStats.new}
+          tone="warm"
+          active={status === "NEW"}
+          onClick={() => {
+            setStatus("NEW");
+            applyFilters(1, { status: "NEW" });
+          }}
+        />
+        <StatCard
           label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
           value={filtersActive ? total : openCount}
           tone="fresh"
         />
       </div>
 
-      <p className="mb-3 mt-8 text-[11px] font-semibold tracking-wide text-[#9a9a9a]">التصفية</p>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <input
-          id="search"
-          aria-label="بحث"
-          className={clsx(staffInputClassName, "bg-white sm:max-w-md")}
-          placeholder="الرقم المرجعي، الاسم، أو الجوال"
-          value={q}
-          onChange={(event) => setQ(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") applyFilters(1);
-          }}
-        />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => applyFilters(1)}
-            className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#1c1c1c] ring-1 ring-[#e4e4e2] transition hover:bg-[#f3f3f1]"
-          >
-            بحث
-          </button>
-          {filtersActive ? (
+      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#ececec]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="min-w-0 flex-1">
+            <label htmlFor="search" className="mb-2 block text-sm font-semibold text-[#3d3d3d]">
+              بحث
+            </label>
+            <input
+              id="search"
+              className={staffInputClassName}
+              placeholder="الرقم المرجعي، الاسم، أو الجوال"
+              value={q}
+              onChange={(event) => setQ(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") applyFilters(1);
+              }}
+            />
+          </div>
+          <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => {
-                setQ("");
-                setStatus("");
-                router.push(basePath);
-              }}
-              className="rounded-xl px-4 py-2.5 text-sm font-medium text-[#3d3d3d] transition hover:bg-white"
+              onClick={() => applyFilters(1)}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#157a43] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#126838] sm:w-auto"
             >
-              إعادة ضبط
+              بحث
             </button>
-          ) : null}
+            {filtersActive ? (
+              <StaffSecondaryButton
+                type="button"
+                onClick={() => {
+                  setQ("");
+                  setStatus("");
+                  router.push(basePath);
+                }}
+              >
+                إعادة ضبط
+              </StaffSecondaryButton>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <p className="mb-2 text-sm font-semibold text-[#3d3d3d]">الحالة</p>
+          <div className="flex flex-wrap gap-2">
+            <StatusChip
+              label="الكل"
+              active={!status}
+              onClick={() => {
+                setStatus("");
+                applyFilters(1, { status: "" });
+              }}
+            />
+            {ALL_STATUSES.map((item) => (
+              <StatusChip
+                key={item}
+                label={STATUS_LABELS[item]}
+                count={initialStats.byStatus[item] ?? 0}
+                active={status === item}
+                onClick={() => {
+                  setStatus(item);
+                  applyFilters(1, { status: item });
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <StatusChip
-          label="الكل"
-          active={!status}
-          onClick={() => {
-            setStatus("");
-            applyFilters(1, { status: "" });
-          }}
-        />
-        {ALL_STATUSES.map((item) => (
-          <StatusChip
-            key={item}
-            label={STATUS_LABELS[item]}
-            count={initialStats.byStatus[item] ?? 0}
-            active={status === item}
-            onClick={() => {
-              setStatus(item);
-              applyFilters(1, { status: item });
-            }}
-          />
-        ))}
-      </div>
 
-      <div className="mt-8 overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-[11px] font-semibold tracking-wide text-[#9a9a9a]">
-              <th className="px-3 py-3 text-start font-semibold">المرجع</th>
-              <th className="px-3 py-3 text-start font-semibold">الاسم</th>
-              <th className="px-3 py-3 text-start font-semibold">النوع</th>
-              <th className="px-3 py-3 text-start font-semibold">المستشار</th>
-              <th className="px-3 py-3 text-start font-semibold">الحالة</th>
-              <th className="px-3 py-3 text-start font-semibold">التاريخ</th>
-              <th className="px-3 py-3 text-start font-semibold" />
-            </tr>
-          </thead>
-          <tbody>
-            {initialData.length === 0 ? (
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#ececec]">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-[#f1f1ef] text-[#5c5c5c]">
               <tr>
-                <td colSpan={7} className="px-3 py-10 text-center text-[#5c5c5c]">
-                  {emptyMessage}
-                </td>
+                <th className="px-4 py-3 text-start font-medium">المرجع</th>
+                <th className="px-4 py-3 text-start font-medium">الاسم</th>
+                <th className="px-4 py-3 text-start font-medium">النوع</th>
+                <th className="px-4 py-3 text-start font-medium">المستشار</th>
+                <th className="px-4 py-3 text-start font-medium">الحالة</th>
+                <th className="px-4 py-3 text-start font-medium">التاريخ</th>
+                <th className="px-4 py-3 text-start font-medium" />
               </tr>
-            ) : (
-              initialData.map((row) => (
-                <tr key={row.id} className="border-t border-[#ececec]">
-                  <td className="px-3 py-4 text-xs font-medium text-[#5c5c5c]">{row.referenceCode}</td>
-                  <td className="px-3 py-4">
-                    <Link
-                      href={`${basePath}/consultations/${row.id}`}
-                      className="font-semibold text-[#1c1c1c] hover:underline"
-                    >
-                      {row.fullName}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-4 text-[#3d3d3d]">{row.consultationTypeLabel}</td>
-                  <td className="px-3 py-4 text-[#3d3d3d]">{row.preferredConsultantLabel}</td>
-                  <td className="px-3 py-4">
-                    <StatusBadge status={row.status} label={row.statusLabel} />
-                  </td>
-                  <td className="px-3 py-4 text-[#5c5c5c]">{row.createdAtLabel}</td>
-                  <td className="px-3 py-4">
-                    <div className="flex items-center gap-3">
-                      <a
-                        href={whatsappUrl(row.phone)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-[#e7f6ec] px-3 py-1 text-sm font-medium text-[#157a43] transition hover:bg-[#d7f0e1]"
-                      >
-                        <WhatsAppIcon />
-                        واتساب
-                      </a>
-                      <Link
-                        href={`${basePath}/consultations/${row.id}`}
-                        className="text-sm font-medium text-[#1c1c1c] underline-offset-4 hover:underline"
-                      >
-                        عرض
-                      </Link>
-                    </div>
+            </thead>
+            <tbody>
+              {initialData.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center font-medium text-[#5c5c5c]">
+                    {emptyMessage}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                initialData.map((row) => (
+                  <tr key={row.id} className="border-t border-[#ececec] transition hover:bg-[#fafaf8]">
+                    <td className="px-4 py-3 text-xs font-semibold text-[#3d3d3d]">{row.referenceCode}</td>
+                    <td className="px-4 py-3 font-bold text-[#1c1c1c]">{row.fullName}</td>
+                    <td className="px-4 py-3 font-medium text-[#3d3d3d]">{row.consultationTypeLabel}</td>
+                    <td className="px-4 py-3 font-medium text-[#3d3d3d]">{row.preferredConsultantLabel}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={row.status} label={row.statusLabel} />
+                    </td>
+                    <td className="px-4 py-3 font-medium text-[#5c5c5c]">{row.createdAtLabel}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={whatsappUrl(row.phone)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#e7f6ec] px-3 py-1.5 text-sm font-semibold text-[#157a43] transition hover:bg-[#d7f0e1]"
+                        >
+                          <WhatsAppIcon />
+                          واتساب
+                        </a>
+                        <Link
+                          href={`${basePath}/consultations/${row.id}`}
+                          className="inline-flex rounded-lg bg-[#f1f1ef] px-3 py-1.5 text-sm font-semibold text-[#1c1c1c] transition hover:bg-[#e7e7e5]"
+                        >
+                          عرض
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {totalPages > 1 ? (
-        <div className="mt-6 flex items-center justify-center gap-3">
-          <button
+        <div className="flex items-center justify-center gap-3">
+          <StaffSecondaryButton
             type="button"
             disabled={initialPage <= 1}
             onClick={() => applyFilters(initialPage - 1)}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-[#1c1c1c] hover:bg-white disabled:opacity-35"
           >
             السابق
-          </button>
+          </StaffSecondaryButton>
           <span className="text-sm text-[#5c5c5c]">
             صفحة {initialPage} من {totalPages}
           </span>
-          <button
+          <StaffSecondaryButton
             type="button"
             disabled={initialPage >= totalPages}
             onClick={() => applyFilters(initialPage + 1)}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-[#1c1c1c] hover:bg-white disabled:opacity-35"
           >
             التالي
-          </button>
+          </StaffSecondaryButton>
         </div>
       ) : null}
     </div>
@@ -264,9 +259,9 @@ function StatCard({
   onClick?: () => void;
 }) {
   const className = clsx(
-    "rounded-2xl px-5 py-4 text-start transition",
+    "rounded-2xl px-5 py-4 text-start shadow-sm ring-1 ring-transparent transition",
     tone === "warm" && "bg-[#fff4dc]",
-    tone === "neutral" && "bg-[#f1f1ef]",
+    tone === "neutral" && "bg-white ring-[#ececec]",
     tone === "fresh" && "bg-[#e7f6ec]",
     onClick && "hover:brightness-[0.98]",
     active && "ring-2 ring-black/10",
@@ -279,23 +274,17 @@ function StatCard({
   );
   const body = (
     <>
-      <p className="text-4xl font-semibold tracking-tight text-[#161616]">
-        {String(value).padStart(2, "0")}
-      </p>
-      <p className={clsx("mt-1", labelClass)}>{label}</p>
+      <p className={labelClass}>{label}</p>
+      <p className="mt-1 text-2xl font-bold text-[#161616]">{value}</p>
     </>
   );
 
   if (!onClick) {
-    return (
-      <div className={className} dir="rtl">
-        {body}
-      </div>
-    );
+    return <div className={className}>{body}</div>;
   }
 
   return (
-    <button type="button" onClick={onClick} className={className} dir="rtl">
+    <button type="button" onClick={onClick} className={className}>
       {body}
     </button>
   );
@@ -318,12 +307,12 @@ function StatusChip({
       onClick={onClick}
       aria-pressed={active}
       className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition",
-        active ? "bg-[#ececea] font-semibold text-[#1c1c1c]" : "text-[#5c5c5c] hover:bg-white",
+        "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition",
+        active ? "bg-[#ececea] text-[#1c1c1c]" : "border border-[#e4e4e2] bg-white text-[#3d3d3d] hover:bg-[#f6f6f4]",
       )}
     >
       {label}
-      {typeof count === "number" ? <span className="text-xs">{count}</span> : null}
+      {typeof count === "number" ? <span className="text-xs text-[#5c5c5c]">{count}</span> : null}
     </button>
   );
 }
