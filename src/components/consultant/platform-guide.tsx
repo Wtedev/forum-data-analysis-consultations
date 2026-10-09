@@ -55,13 +55,13 @@ export function PlatformGuide() {
           setStep(0);
           setOpen(true);
         }}
-        className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+        className="inline-flex items-center gap-1 text-xs font-medium text-[#cfe3ff] transition hover:text-white"
         dir="ltr"
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-[#061223]">
+        <span className="text-sm leading-none" aria-hidden="true">
           ?
         </span>
-        كيف أستخدم المنصة
+        <span className="whitespace-nowrap">كيف أستخدم المنصة</span>
       </button>
 
       {open ? (
@@ -76,7 +76,7 @@ export function PlatformGuide() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="platform-guide-title"
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 text-[#111827] shadow-2xl"
+            className="relative w-full max-w-md rounded-2xl bg-white p-5 text-[#111827] shadow-2xl sm:p-6"
           >
             <p className="text-xs font-semibold text-[#6b7280]">
               {step + 1} من {STEPS.length}

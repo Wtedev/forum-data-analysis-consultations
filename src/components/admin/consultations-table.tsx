@@ -99,7 +99,7 @@ export function ConsultationsTable({
           ) : null}
         </div>
       ) : null}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <StatCard
           label="إجمالي الطلبات"
           value={initialStats.total}
@@ -223,7 +223,43 @@ export function ConsultationsTable({
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+      <div className="space-y-3 md:hidden">
+        {initialData.length === 0 ? (
+          <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#6b7280] shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+            {emptyMessage}
+          </div>
+        ) : (
+          initialData.map((row) => (
+            <article
+              key={row.id}
+              className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-bold text-[#111827]">{row.fullName}</p>
+                  <p className="mt-1 text-xs font-semibold text-[#4b5563]">{row.referenceCode}</p>
+                </div>
+                <StatusBadge status={row.status} label={row.statusLabel} />
+              </div>
+              <p className="mt-3 text-sm font-medium text-[#374151]">{row.consultationTypeLabel}</p>
+              <p className="mt-1 text-sm text-[#374151]">{row.preferredConsultantLabel}</p>
+              {row.assignedTo ? (
+                <p className="mt-1 text-xs font-medium text-[#6b7280]">مُسند إلى {row.assignedTo.name}</p>
+              ) : row.preferredConsultantId === "NO_PREFERENCE" ? (
+                <p className="mt-1 text-xs font-medium text-[#6b7280]">
+                  {canClaim ? "متاحة للأخذ" : "متاح للمستشارين"}
+                </p>
+              ) : null}
+              <p className="mt-1 text-xs font-medium text-[#6b7280]">{row.createdAtLabel}</p>
+              <div className="mt-3">
+                <ConsultationActions row={row} basePath={basePath} canClaim={canClaim} />
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-[#f7f8fa] text-[#6b7280]">
@@ -265,18 +301,7 @@ export function ConsultationsTable({
                     </td>
                     <td className="px-4 py-3 font-medium text-[#6b7280]">{row.createdAtLabel}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <WhatsAppLink href={whatsappUrl(row.phone)} />
-                        {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
-                          <ClaimConsultationButton consultationId={row.id} />
-                        ) : null}
-                        <Link
-                          href={`${basePath}/consultations/${row.id}`}
-                          className="inline-flex rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
-                        >
-                          عرض
-                        </Link>
-                      </div>
+                      <ConsultationActions row={row} basePath={basePath} canClaim={canClaim} />
                     </td>
                   </tr>
                 ))
@@ -311,6 +336,31 @@ export function ConsultationsTable({
   );
 }
 
+function ConsultationActions({
+  row,
+  basePath,
+  canClaim,
+}: {
+  row: ConsultationListItem;
+  basePath: string;
+  canClaim: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <WhatsAppLink href={whatsappUrl(row.phone)} />
+      {canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo ? (
+        <ClaimConsultationButton consultationId={row.id} />
+      ) : null}
+      <Link
+        href={`${basePath}/consultations/${row.id}`}
+        className="inline-flex rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
+      >
+        عرض
+      </Link>
+    </div>
+  );
+}
+
 function StatCard({
   label,
   value,
@@ -325,7 +375,7 @@ function StatCard({
   onClick?: () => void;
 }) {
   const className = clsx(
-    "rounded-2xl px-5 py-4 text-start shadow-sm ring-1 ring-transparent transition",
+    "rounded-2xl px-2.5 py-3 text-start shadow-sm ring-1 ring-transparent transition sm:px-5 sm:py-4",
     tone === "warm" && "bg-[#fff4dc]",
     tone === "neutral" && "bg-white ring-[#e6e8ec]",
     tone === "fresh" && "bg-[#e7f6ec]",
@@ -333,7 +383,7 @@ function StatCard({
     active && "ring-2 ring-black/10",
   );
   const labelClass = clsx(
-    "text-sm font-medium",
+    "text-xs font-medium leading-5 sm:text-sm",
     tone === "warm" && "text-[#a16207]",
     tone === "neutral" && "text-[#6b7280]",
     tone === "fresh" && "text-[#157a43]",
@@ -341,7 +391,7 @@ function StatCard({
   const body = (
     <>
       <p className={labelClass}>{label}</p>
-      <p className="mt-1 text-2xl font-bold text-[#111827]">{value}</p>
+      <p className="mt-1 text-xl font-bold text-[#111827] sm:text-2xl">{value}</p>
     </>
   );
 

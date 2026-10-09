@@ -140,11 +140,11 @@ export function ConsultationDetailPanel({
 
   return (
     <div className="space-y-6">
-      <header className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+      <header className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm text-slate-500">{data.referenceCode}</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-800">{data.fullName}</h1>
+            <h1 className="mt-1 text-xl font-bold text-slate-800 sm:text-2xl">{data.fullName}</h1>
             <p className="mt-1 text-sm text-slate-500">
               {data.createdAtLabel} · {data.consultationTypeLabel}
             </p>
@@ -163,13 +163,13 @@ export function ConsultationDetailPanel({
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">بيانات المتقدم</h2>
           <dl className="space-y-3 text-sm">
             <DetailRow
               label="الجوال"
               value={
-                <span className="inline-flex items-center gap-3">
+                <span className="flex flex-wrap items-center gap-2">
                   <span dir="ltr">{data.phone}</span>
                   <WhatsAppLink href={whatsappUrl(data.phone)} />
                 </span>
@@ -199,14 +199,14 @@ export function ConsultationDetailPanel({
           </dl>
         </section>
 
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">السؤال</h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{data.question}</p>
         </section>
       </div>
 
       {claimable ? (
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
           <h2 className="mb-2 text-lg font-semibold text-slate-800">أخذ هذه الاستشارة</h2>
           <p className="mb-4 text-sm leading-7 text-slate-600">
             هذا الطلب بلا تفضيل ويظهر لكل المستشارين. عندما تأخذ الاستشارة تصبح مسؤولاً عنها، وتختفي من بقية المستشارين.
@@ -217,7 +217,7 @@ export function ConsultationDetailPanel({
           />
         </section>
       ) : (
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">إدارة الطلب</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -306,7 +306,7 @@ export function ConsultationDetailPanel({
       </section>
       )}
 
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">ملاحظات داخلية</h2>
         {claimable ? (
           <p className="text-sm text-slate-500">تظهر الملاحظات بعد أخذ الاستشارة.</p>
@@ -345,7 +345,7 @@ export function ConsultationDetailPanel({
         )}
       </section>
 
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-6">
+      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">سجل النشاط</h2>
         <ul className="space-y-3">
           {data.activityLogs.length === 0 ? (
@@ -378,7 +378,7 @@ function DetailRow({
   return (
     <div className="flex flex-wrap justify-between gap-2 border-b border-slate-50 pb-2 last:border-0">
       <dt className="font-medium text-slate-700">{label}</dt>
-      <dd className="font-medium text-slate-800" dir={dir}>
+      <dd className="min-w-0 max-w-full break-words font-medium text-slate-800" dir={dir}>
         {value}
       </dd>
     </div>
