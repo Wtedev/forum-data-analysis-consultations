@@ -1,15 +1,12 @@
 "use client";
 
+import { ArrowRight, Phone, Users } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { clsx } from "clsx";
+import { useEffect, useState } from "react";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
-import { WhatsAppLink } from "@/components/admin/whatsapp-link";
-import {
-  FieldError,
-  staffInputClassName,
-} from "@/components/consultation/ui";
+import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/admin-labels";
 import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
@@ -36,7 +33,14 @@ export function ConsultationDetailPanel({
   const [assigneeId, setAssigneeId] = useState(data.assignedTo?.id ?? "");
   const [assigning, setAssigning] = useState(false);
 
-  async function handleUpdate() {
+  useEffect(() => {
+    setData(initialData);
+    setStatus(initialData.status);
+    setPriority(initialData.priority);
+    setAssigneeId(initialData.assignedTo?.id ?? "");
+  }, [initialData]);
+
+  async function handleUpdate(next?: { status?: ConsultationDetail["status"]; priority?: ConsultationDetail["priority"] }) {
     setSaving(true);
     setError(null);
 
@@ -44,7 +48,10 @@ export function ConsultationDetailPanel({
       const response = await fetch(`/api/admin/consultations/${data.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, priority }),
+        body: JSON.stringify({
+          status: next?.status ?? status,
+          priority: next?.priority ?? priority,
+        }),
       });
 
       const result = (await response.json()) as {
@@ -54,6 +61,8 @@ export function ConsultationDetailPanel({
       };
 
       if (!response.ok || !result.success || !result.data) {
+        if (next?.status) setStatus(data.status);
+        if (next?.priority) setPriority(data.priority);
         setError(result.message ?? "تعذر التحديث");
         return;
       }
@@ -63,6 +72,8 @@ export function ConsultationDetailPanel({
       setPriority(result.data.priority);
       router.refresh();
     } catch {
+      if (next?.status) setStatus(data.status);
+      if (next?.priority) setPriority(data.priority);
       setError("تعذر الاتصال بالخادم");
     } finally {
       setSaving(false);
@@ -137,264 +148,271 @@ export function ConsultationDetailPanel({
   }
 
   const claimable = mode === "consultant" && data.preferredConsultantId === "NO_PREFERENCE" && !data.assignedTo;
+  const homeHref = mode === "admin" ? "/admin" : "/consultant";
+  const canContact = Boolean(data.phone) && (mode === "admin" || data.assignedTo);
+
+  const timeline = [
+    ...data.notes.map((item) => ({
+      id: `note-${item.id}`,
+      title: "تعليق",
+      detail: item.note,
+      at: item.createdAt,
+    })),
+    ...data.activityLogs
+      .filter(
+        (item) =>
+          item.description !== "إضافة ملاحظة داخلية" && !item.description.startsWith("تم إنشاء طلب"),
+      )
+      .map((item) => ({
+        id: `log-${item.id}`,
+        title: "تحديث",
+        detail: item.description,
+        at: item.createdAt,
+      })),
+    { id: "created", title: "تم إرسال الاستشارة", detail: "", at: data.createdAt },
+  ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
   return (
-    <div className="space-y-6">
-      <header className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-slate-500">{data.referenceCode}</p>
-            <h1 className="mt-1 text-xl font-bold text-slate-800 sm:text-2xl">{data.fullName}</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {data.createdAtLabel} · {data.consultationTypeLabel}
-            </p>
-          </div>
-          <span
-            className={clsx(
-              "rounded-full px-3 py-1 text-sm font-medium",
-              data.status === "NEW" && "bg-[#fff4dc] text-[#a16207]",
-              data.status === "CLOSED" && "bg-[#f3f4f6] text-[#6b7280]",
-              data.status !== "NEW" && data.status !== "CLOSED" && "bg-[#e7f6ec] text-[#157a43]",
-            )}
-          >
-            {data.statusLabel}
-          </span>
+    <div className="space-y-3">
+      <Link href={homeHref} aria-label="رجوع" className="inline-flex h-9 w-9 items-center justify-center text-[#3e4c86]">
+        <ArrowRight className="h-5 w-5" aria-hidden />
+      </Link>
+
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="line-clamp-2 text-xl font-bold leading-8 text-[#3e4c86]">{data.question}</h1>
+          <p className="mt-1 text-[13px] font-medium text-[#8b93ab]">{data.referenceCode}</p>
         </div>
-      </header>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">بيانات المتقدم</h2>
-          <dl className="space-y-3 text-sm">
-            {mode === "consultant" && !data.assignedTo ? null : (
-            <DetailRow
-              label="الجوال"
-              value={
-                <span className="flex flex-wrap items-center gap-2">
-                  <span dir="ltr">{data.phone}</span>
-                  <WhatsAppLink
-                    href={whatsappUrl(
-                      data.phone,
-                      consultationWhatsappMessage({
-                        fullName: data.fullName,
-                        consultantName: data.assignedTo?.name ?? "",
-                        referenceCode: data.referenceCode,
-                        question: data.question,
-                        link: data.link,
-                      }),
-                    )}
-                    label={mode === "consultant" ? "تواصل واتساب" : "واتساب"}
-                  />
-                </span>
-              }
-            />
+        {canContact ? (
+          <a
+            href={whatsappUrl(
+              data.phone,
+              consultationWhatsappMessage({
+                fullName: data.fullName,
+                consultantName: data.assignedTo?.name ?? "",
+                referenceCode: data.referenceCode,
+                question: data.question,
+                link: data.link,
+              }),
             )}
-            <DetailRow label="البريد" value={data.email ?? "—"} dir="ltr" />
-            <DetailRow label="الجنس" value={data.genderLabel} />
-            <DetailRow label="صفة المستفيد" value={data.currentStageLabel} />
-            <DetailRow label="الجهة" value={data.university ?? "—"} />
-            <DetailRow label="المجال" value={data.majorInterest ?? "—"} />
-            <DetailRow label="المستشار المفضل" value={data.preferredConsultantFullLabel} />
-            <DetailRow label="المستشار المسؤول" value={data.assignedTo?.name ?? (claimable ? "متاحة للأخذ" : "—")} />
-            <DetailRow label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
-            <DetailRow
-              label="رابط البيانات"
-              value={
-                data.link ? (
-                  <a href={data.link} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-forum-primary underline">
-                    {data.link}
-                  </a>
-                ) : (
-                  "—"
-                )
-              }
-            />
-            <DetailRow label="الأولوية" value={data.priorityLabel} />
-          </dl>
-        </section>
-
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">السؤال</h2>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{data.question}</p>
-        </section>
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-[#3dcb8c] px-3.5 text-[13px] font-bold text-white shadow-[0_8px_16px_rgba(61,203,140,0.28)]"
+          >
+            تواصل واتساب
+            <WhatsAppIcon className="h-[18px] w-[18px]" />
+          </a>
+        ) : claimable ? (
+          <ClaimConsultationButton consultationId={data.id} variant="bar" onClaimed={(assignee) => setData((current) => ({ ...current, assignedTo: assignee }))} />
+        ) : null}
       </div>
 
-      {claimable ? (
-        <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-          <h2 className="mb-2 text-lg font-semibold text-slate-800">أخذ هذه الاستشارة</h2>
-          <p className="mb-4 text-sm leading-7 text-slate-600">
-            هذا الطلب بلا تفضيل ويظهر لكل المستشارين. عندما تأخذ الاستشارة تصبح مسؤولاً عنها، وتختفي من بقية المستشارين.
-          </p>
-          <ClaimConsultationButton
-            consultationId={data.id}
-            onClaimed={(assignee) => setData((current) => ({ ...current, assignedTo: assignee }))}
+      <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <h2 className="text-base font-bold text-[#3e4c86]">بيانات المستفيد</h2>
+        <dl className="mt-4 space-y-3">
+          <Info label="الاسم" value={data.fullName} />
+          {canContact ? <Info label="الجوال" value={data.phone} dir="ltr" /> : null}
+          <Info label="البريد" value={data.email ?? "—"} dir="ltr" />
+          <Info label="الجنس" value={data.genderLabel} />
+          <Info label="الصفة" value={data.currentStageLabel} />
+          <Info label="الجهة" value={data.university ?? "—"} />
+          <Info label="المجال" value={data.majorInterest ?? "—"} />
+        </dl>
+      </section>
+
+      <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <h2 className="text-base font-bold text-[#3e4c86]">تفاصيل الاستشارة</h2>
+        <dl className="mt-4 space-y-3">
+          <Info label="نوع الاستشارة" value={data.consultationTypeLabel} />
+          <Info label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
+          <div className="flex items-center justify-between gap-4 border-b border-[#f3f4f8] pb-3">
+            <dt className="shrink-0 text-[13px] font-semibold text-[#8b93ab]">طريقة التواصل المفضلة</dt>
+            <dd className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#3e4c86]">
+              <ContactChoiceIcon method={data.preferredContactMethodLabel} />
+              {data.preferredContactMethodLabel}
+            </dd>
+          </div>
+          {mode === "admin" ? <Info label="المستشار المفضل" value={data.preferredConsultantFullLabel} /> : null}
+          {mode === "admin" ? <Info label="المستشار المسؤول" value={data.assignedTo?.name ?? "—"} /> : null}
+          <div className="border-t border-[#f3f4f8] pt-3">
+            <dt className="text-[13px] font-semibold text-[#8b93ab]">السؤال</dt>
+            <dd className="mt-1 whitespace-pre-wrap text-sm font-medium leading-7 text-[#3e4c86]">{data.question}</dd>
+          </div>
+          {data.link ? (
+            <div className="border-t border-[#f3f4f8] pt-3">
+              <dt className="text-[13px] font-semibold text-[#8b93ab]">رابط البيانات</dt>
+              <dd className="mt-1 break-all text-sm font-medium text-[#3e4c86]" dir="ltr">
+                <a href={data.link} target="_blank" rel="noopener noreferrer" className="underline">{data.link}</a>
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      </section>
+
+      <section className="space-y-3 rounded-2xl bg-white px-4 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-base font-bold text-[#3e4c86]">حالة الاستشارة</h2>
+          <FieldSelect
+            label="حالة الاستشارة"
+            value={status}
+            disabled={claimable || saving}
+            onChange={(value) => {
+              const next = value as ConsultationDetail["status"];
+              setStatus(next);
+              void handleUpdate({ status: next });
+            }}
+            options={ALL_STATUSES.map((item) => ({ value: item, label: STATUS_LABELS[item] }))}
           />
-        </section>
-      ) : (
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-800">إدارة الطلب</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="status" className="mb-2 block text-sm font-medium text-slate-700">
-              الحالة
-            </label>
-            <select
-              id="status"
-              className={staffInputClassName}
-              value={status}
-              onChange={(event) => setStatus(event.target.value as typeof status)}
-            >
-              {ALL_STATUSES.map((item) => (
-                <option key={item} value={item}>
-                  {STATUS_LABELS[item]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="priority" className="mb-2 block text-sm font-medium text-slate-700">
-              الأولوية
-            </label>
-            <select
-              id="priority"
-              className={staffInputClassName}
-              value={priority}
-              onChange={(event) => setPriority(event.target.value as typeof priority)}
-            >
-              {ALL_PRIORITIES.map((item) => (
-                <option key={item} value={item}>
-                  {PRIORITY_LABELS[item]}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
-
-        {error ? <div className="mt-4"><FieldError message={error} /></div> : null}
-
         {mode === "admin" ? (
-          <div className="mt-4">
-            <label htmlFor="assignee" className="mb-2 block text-sm font-medium text-slate-700">
-              إسناد لمستشار
-            </label>
-            {assignees.length === 0 ? (
-              <p className="text-sm text-slate-500">لا يوجد مستشار مفعّل بعد. أرسل دعوة أولاً.</p>
-            ) : (
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center justify-between gap-3 border-t border-[#f3f4f8] pt-3">
+            <h2 className="text-base font-bold text-[#3e4c86]">الأولوية</h2>
+            <FieldSelect
+              label="الأولوية"
+              value={priority}
+              disabled={saving}
+              onChange={(value) => {
+                const next = value as ConsultationDetail["priority"];
+                setPriority(next);
+                void handleUpdate({ priority: next });
+              }}
+              options={ALL_PRIORITIES.map((item) => ({ value: item, label: PRIORITY_LABELS[item] }))}
+            />
+          </div>
+        ) : null}
+      </section>
+
+      {mode === "admin" ? (
+        <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+          <h2 className="text-base font-bold text-[#3e4c86]">إسناد المستشار</h2>
+          {assignees.length === 0 ? (
+            <p className="mt-3 text-sm font-medium text-[#8b93ab]">لا يوجد مستشار مفعّل بعد. أرسل دعوة أولاً.</p>
+          ) : (
+            <div className="mt-3 flex items-center gap-2">
+              <div className="relative min-w-0 flex-1">
                 <select
-                  id="assignee"
-                  className={staffInputClassName}
+                  aria-label="إسناد المستشار"
                   value={assigneeId}
                   onChange={(event) => setAssigneeId(event.target.value)}
+                  className="h-10 w-full appearance-none rounded-full border border-[#d5d9e8] bg-white py-0 pl-8 pr-3 text-[13px] font-semibold text-[#3e4c86] outline-none"
                 >
                   <option value="">اختر مستشاراً</option>
                   {assignees.map((assignee) => (
-                    <option key={assignee.id} value={assignee.id}>
-                      {assignee.name}
-                    </option>
+                    <option key={assignee.id} value={assignee.id}>{assignee.name}</option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={handleAssign}
-                  disabled={assigning || !assigneeId}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#111827] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-40"
-                >
-                  {assigning ? "جاري الإسناد..." : "إسناد"}
-                </button>
+                <Caret />
               </div>
-            )}
-          </div>
-        ) : null}
-
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={handleUpdate}
-            disabled={saving}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#111827] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-40"
-          >
-            {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
-          </button>
-        </div>
-      </section>
-      )}
-
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-800">ملاحظات داخلية</h2>
-        {claimable ? (
-          <p className="text-sm text-slate-500">تظهر الملاحظات بعد أخذ الاستشارة.</p>
-        ) : (
-        <form onSubmit={handleAddNote} className="space-y-3">
-          <textarea
-            className={clsx(staffInputClassName, "min-h-28 resize-y")}
-            placeholder="أضف ملاحظة للفريق..."
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={noteSaving || !note.trim()}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#e6e8ec] bg-white px-5 text-sm font-semibold text-[#111827] transition hover:bg-[#f7f8fa] disabled:opacity-40"
-          >
-            {noteSaving ? "جاري الإضافة..." : "إضافة ملاحظة"}
-          </button>
-        </form>
-        )}
-        {claimable ? null : (
-        <ul className="mt-6 space-y-4">
-          {data.notes.length === 0 ? (
-            <li className="text-sm text-slate-500">لا توجد ملاحظات بعد</li>
-          ) : (
-            data.notes.map((item) => (
-              <li key={item.id} className="rounded-xl bg-[#f7f8fa] px-4 py-3 text-sm">
-                <p className="text-slate-700">{item.note}</p>
-                <p className="mt-2 text-xs text-slate-500">
-                  {item.adminName} · {item.createdAtLabel}
-                </p>
-              </li>
-            ))
+              <button
+                type="button"
+                onClick={handleAssign}
+                disabled={assigning || !assigneeId}
+                className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272] disabled:opacity-40"
+              >
+                {assigning ? "جاري الإسناد..." : "إسناد"}
+              </button>
+            </div>
           )}
-        </ul>
-        )}
-      </section>
+        </section>
+      ) : null}
 
-      <section className="rounded-2xl border border-[#e6e8ec] bg-white p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-800">سجل النشاط</h2>
-        <ul className="space-y-3">
-          {data.activityLogs.length === 0 ? (
-            <li className="text-sm text-slate-500">لا يوجد نشاط مسجّل</li>
-          ) : (
-            data.activityLogs.map((log) => (
-              <li key={log.id} className="border-b border-slate-100 pb-3 text-sm last:border-0 last:pb-0">
-                <p className="text-slate-700">{log.description}</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {log.adminName ?? "النظام"} · {log.createdAtLabel}
-                </p>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      <form onSubmit={handleAddNote} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <h2 className="shrink-0 text-sm font-bold text-[#3e4c86] sm:text-base">تعليقات داخلية</h2>
+        <input
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          disabled={claimable || noteSaving}
+          placeholder={claimable ? "بعد استلام الاستشارة" : "أضف تعليقاً"}
+          className="h-10 min-w-0 flex-1 rounded-full border-0 bg-[#eef1f8] px-4 text-sm text-[#3e4c86] outline-none placeholder:text-[#a3abc2] disabled:opacity-60"
+        />
+        <button
+          type="submit"
+          aria-label="إضافة تعليق"
+          disabled={claimable || noteSaving || !note.trim()}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#33406f] disabled:opacity-40"
+        >
+          <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
+            <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
+      </form>
+
+      {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
+
+      <ul className="divide-y divide-[#e6e8ee] px-1">
+        {timeline.map((item) => (
+          <li key={item.id} className="flex items-start justify-between gap-4 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold leading-6 text-[#3e4c86]">{item.title}</p>
+              {item.detail ? <p className="mt-0.5 text-[13px] leading-6 text-[#8b93ab]">{item.detail}</p> : null}
+            </div>
+            <time className="shrink-0 pt-0.5 text-[13px] font-medium text-[#8b93ab]" dir="ltr">{clock(item.at)}</time>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-function DetailRow({
+function clock(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(value));
+}
+
+function FieldSelect({
   label,
   value,
-  dir,
+  disabled,
+  onChange,
+  options,
 }: {
   label: string;
-  value: React.ReactNode;
-  dir?: "ltr" | "rtl";
+  value: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
 }) {
   return (
-    <div className="flex flex-wrap justify-between gap-2 border-b border-slate-50 pb-2 last:border-0">
-      <dt className="font-medium text-slate-700">{label}</dt>
-      <dd className="min-w-0 max-w-full break-words font-medium text-slate-800" dir={dir}>
-        {value}
-      </dd>
+    <div className="relative shrink-0">
+      <select
+        aria-label={label}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-10 appearance-none rounded-full border border-[#d5d9e8] bg-white py-0 pl-8 pr-3 text-[13px] font-semibold text-[#3e4c86] outline-none disabled:opacity-50"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+      <Caret />
+    </div>
+  );
+}
+
+function Caret() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-[#3e4c86]">
+      <path d="M5 7.5 10 12.5 15 7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ContactChoiceIcon({ method }: { method: string }) {
+  const className = "h-3.5 w-3.5 shrink-0";
+  if (method === "واتساب") return <WhatsAppIcon className={className} />;
+  if (method === "مكالمة") return <Phone className={className} aria-hidden />;
+  return <Users className={className} aria-hidden />;
+}
+
+function Info({ label, value, dir }: { label: string; value: string; dir?: "ltr" | "rtl" }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-[#f3f4f8] pb-3 last:border-0 last:pb-0">
+      <dt className="shrink-0 text-[13px] font-semibold text-[#8b93ab]">{label}</dt>
+      <dd className="min-w-0 text-left text-sm font-semibold text-[#3e4c86]" dir={dir}>{value}</dd>
     </div>
   );
 }

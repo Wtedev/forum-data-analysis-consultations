@@ -35,6 +35,7 @@ type ConsultationsTableProps = {
   canClaim?: boolean;
   showSearchButton?: boolean;
   iconTools?: boolean;
+  desk?: "consultant" | "admin";
 };
 
 export function ConsultationsTable({
@@ -51,6 +52,7 @@ export function ConsultationsTable({
   canClaim = false,
   showSearchButton = true,
   iconTools = false,
+  desk = "consultant",
 }: ConsultationsTableProps) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
@@ -79,9 +81,19 @@ export function ConsultationsTable({
     <div className={iconTools ? "space-y-5" : "space-y-6"}>
       {iconTools ? (
         <div className="grid grid-cols-3 items-stretch gap-2.5 sm:gap-3">
-          <DeskStat value={initialStats.total} lines={["جميع", "الاستشارات"]} />
-          <DeskStat value={initialStats.mine ?? 0} lines={["استشاراتي"]} />
-          <DeskStat value={initialStats.unassigned ?? 0} lines={["الاستشارات", "غير المسندة"]} />
+          {desk === "admin" ? (
+            <>
+              <DeskStat value={initialStats.total} lines={["إجمالي", "الطلبات"]} />
+              <DeskStat value={initialStats.new} lines={["طلبات", "جديدة"]} />
+              <DeskStat value={openCount} lines={["طلبات", "مفتوحة"]} />
+            </>
+          ) : (
+            <>
+              <DeskStat value={initialStats.total} lines={["جميع", "الاستشارات"]} />
+              <DeskStat value={initialStats.mine ?? 0} lines={["استشاراتي"]} />
+              <DeskStat value={initialStats.unassigned ?? 0} lines={["الاستشارات", "غير المسندة"]} />
+            </>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -147,7 +159,9 @@ export function ConsultationsTable({
       ) : null}
 
       {!iconTools || searchOpen || filtersOpen ? (
-        <div className="rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5">
+        <div className={iconTools
+          ? "rounded-2xl bg-white p-4 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]"
+          : "rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5"}>
           {!iconTools || searchOpen ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1">
@@ -250,7 +264,7 @@ export function ConsultationsTable({
           </div>
         ) : iconTools ? (
           initialData.map((row) => (
-            <ConsultantRequestCard key={row.id} row={row} basePath={basePath} canClaim={canClaim} />
+            <ConsultantRequestCard key={row.id} row={row} basePath={basePath} canClaim={canClaim} contact={desk === "admin" ? "always" : "assigned"} />
           ))
         ) : (
           initialData.map((row) => (
@@ -364,12 +378,14 @@ function ConsultantRequestCard({
   row,
   basePath,
   canClaim,
+  contact = "assigned",
 }: {
   row: ConsultationListItem;
   basePath: string;
   canClaim: boolean;
+  contact?: "assigned" | "always";
 }) {
-  const collected = Boolean(row.assignedTo);
+  const collected = contact === "always" ? Boolean(row.phone) : Boolean(row.assignedTo && row.phone);
   const canTake = canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo;
 
   return (
@@ -382,7 +398,7 @@ function ConsultantRequestCard({
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
-        {collected && row.phone ? (
+        {collected ? (
           <a
             href={whatsappUrl(
               row.phone,

@@ -32,7 +32,10 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <Suspense>
         <ConsultationsTable
-          heading="كل طلبات الاستشارات"
+          heading="كل الاستشارات"
+          iconTools
+          desk="admin"
+          showSearchButton={false}
           initialData={result.data}
           initialStats={result.stats}
           initialQuery={q}

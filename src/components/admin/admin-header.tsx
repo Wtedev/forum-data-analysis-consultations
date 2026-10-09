@@ -3,39 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { PlatformGuide } from "@/components/consultant/platform-guide";
-
-type AdminHeaderProps = {
-  adminName: string;
-  title?: string;
-  subtitle?: string;
-  showName?: boolean;
-  homeHref?: string;
-  showDirectory?: boolean;
-  showGuide?: boolean;
-  light?: boolean;
-};
-
-export function AdminHeader({
-  adminName,
-  title = "إدارة طلبات الاستشارات",
-  subtitle,
-  showName = true,
-  homeHref = "/admin",
-  showDirectory = false,
-  showGuide = false,
-  light = false,
-}: AdminHeaderProps) {
+export function AdminHeader({ adminName }: { adminName: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const tabClass = (active: boolean) =>
-    light
-      ? active
-        ? "whitespace-nowrap rounded-full bg-[#e8f8ef] px-3 py-1.5 text-xs font-semibold text-[#157a43] sm:text-sm"
-        : "whitespace-nowrap rounded-full bg-[#f4f5f7] px-3 py-1.5 text-xs font-semibold text-[#4b5563] transition hover:bg-[#eef0f3] sm:text-sm"
-      : active
-        ? "whitespace-nowrap rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-[#061223] sm:px-3 sm:py-2 sm:text-sm"
-        : "whitespace-nowrap rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-sm";
+  const onConsultants = pathname.startsWith("/admin/consultants");
 
   async function handleLogout() {
     await fetch("/api/admin/auth/logout", { method: "POST" });
@@ -44,57 +15,33 @@ export function AdminHeader({
   }
 
   return (
-    <>
-    {showGuide ? (
-      <div className="mb-3 flex justify-end">
-        <PlatformGuide />
-      </div>
-    ) : null}
-    <header className={light
-      ? "mb-5 rounded-3xl border border-[#eceef2] bg-white px-4 py-3.5 text-[#1c1c1c] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:mb-8 sm:px-6 sm:py-5"
-      : "mb-6 flex flex-col gap-3 rounded-2xl bg-[var(--kf-bg)] px-4 py-4 text-[#e6edf8] shadow-[0_8px_24px_rgba(10,15,29,0.16)] sm:mb-8 sm:px-6 sm:py-5"}>
-      <div className={light
-        ? "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-        : "flex flex-wrap items-start justify-between gap-3"}>
-      <div className="min-w-0">
-        <p className={light ? "text-xs font-medium text-[#8b909a]" : "text-xs font-semibold text-[#cfe3ff]/80"}>ملتقى تحليل البيانات ٢</p>
-        <p className="mt-0.5 text-lg font-bold leading-snug">{title}</p>
-        {subtitle ? <p className={light ? "mt-1 text-sm text-[#6b7280]" : "mt-1 text-sm font-medium text-[#cfe3ff]"}>{subtitle}</p> : null}
-        {showName ? <p className={light ? "text-sm text-[#6b7280]" : "text-sm font-medium text-[#cfe3ff]"}>{adminName}</p> : null}
-      </div>
-
-      <div className={light ? "flex w-full min-w-0 items-center gap-2 sm:w-auto" : "flex items-center gap-2"}>
-        {showDirectory ? (
-          <>
-            <Link href="/admin" className={tabClass(pathname === "/admin")}>
-              طلبات الاستشارات
-            </Link>
-            <Link href="/admin/consultants" className={tabClass(pathname.startsWith("/admin/consultants"))}>
-              المستشارون
-            </Link>
-          </>
-        ) : (
-          <Link
-            href={homeHref}
-            className={light
-              ? "whitespace-nowrap rounded-full bg-[#f4f5f7] px-3 py-1.5 text-xs font-semibold text-[#4b5563] transition hover:bg-[#eef0f3] sm:text-sm"
-              : "whitespace-nowrap rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-sm"}
-          >
-            طلبات الاستشارات
+    <div className="mb-5">
+      <div className="mb-2.5 flex items-center justify-between gap-3">
+        <img src="/images/kafaat-logo.png?v=5" alt="جمعية كفاءات الأهلية" width={800} height={579} className="h-32 w-auto max-w-[62%] shrink-0 object-contain" />
+        <nav className="flex shrink-0 flex-col items-start gap-1.5 text-[11px] font-medium leading-none">
+          <Link href="/admin" className={onConsultants ? "text-[#8b93ab]" : "text-[#3e4c86]"}>
+            الاستشارات
           </Link>
-        )}
-        <button
-          type="button"
-          onClick={handleLogout}
-          className={light
-            ? "whitespace-nowrap rounded-full border border-[#e6e8ec] bg-white px-3 py-1.5 text-xs font-semibold text-[#374151] transition hover:bg-[#f7f8fa] sm:text-sm"
-            : "whitespace-nowrap rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:py-2 sm:text-sm"}
-        >
-          خروج
-        </button>
+          <Link href="/admin/consultants" className={onConsultants ? "text-[#3e4c86]" : "text-[#8b93ab]"}>
+            المستشارون
+          </Link>
+        </nav>
       </div>
-      </div>
-    </header>
-    </>
+      <header className="rounded-2xl bg-[linear-gradient(168deg,#121c33_0%,#1a2849_32%,#0e1528_68%,#0b0f1c_100%)] px-6 py-5 text-white shadow-[0_10px_24px_rgba(11,15,28,0.28)] sm:px-7 sm:py-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-lg font-bold leading-7 sm:text-xl">استشارات ملتقى تحليل البيانات</p>
+            <p className="mt-2 text-sm font-medium leading-6 text-white/75">مرحباً، {adminName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full border border-white/15 bg-[#1a2744] px-2.5 text-[11px] font-semibold text-white transition hover:bg-[#243656]"
+          >
+            تسجيل خروج
+          </button>
+        </div>
+      </header>
+    </div>
   );
 }

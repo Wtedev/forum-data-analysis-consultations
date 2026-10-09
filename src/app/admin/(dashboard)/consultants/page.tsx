@@ -40,69 +40,40 @@ export default async function ConsultantsPage() {
   return (
     <div className="space-y-6">
       <InviteConsultantForm />
-      <div className="overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
-        <table className="min-w-full text-sm">
-          <thead className="bg-[#f7f8fa] text-[#6b7280]">
-            <tr>
-              <th className="px-4 py-3 text-start font-medium">الاسم</th>
-              <th className="px-4 py-3 text-start font-medium">البريد</th>
-              <th className="px-4 py-3 text-start font-medium">الحالة</th>
-              <th className="px-4 py-3 text-start font-medium">الاستشارات</th>
-              <th className="px-4 py-3 text-start font-medium">إجراء</th>
-            </tr>
-          </thead>
-          <tbody>
-            {consultants.length === 0 && waiting.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center font-medium text-[#6b7280]">
-                  لا يوجد مستشارون بعد
-                </td>
-              </tr>
-            ) : (
-              <>
-                {consultants.map((consultant) => {
-                  const count =
-                    (assignedCount.get(consultant.id) ?? 0) +
-                    (consultant.consultantKey ? preferredCount.get(consultant.consultantKey) ?? 0 : 0);
-                  return (
-                    <tr key={consultant.id} className="border-t border-[#eef0f3]">
-                      <td className="px-4 py-3 font-bold text-[#111827]">{consultant.name}</td>
-                      <td className="px-4 py-3 font-medium text-[#374151]" dir="ltr">
-                        {consultant.email}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-[#e7f6ec] px-2.5 py-1 text-xs font-medium text-[#157a43]">
-                          مفعّل
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-bold text-[#111827]">{count}</td>
-                      <td className="px-4 py-3">
-                        <DeleteConsultantButton id={consultant.id} name={consultant.name} kind="account" />
-                      </td>
-                    </tr>
-                  );
-                })}
-                {waiting.map((invite) => (
-                  <tr key={invite.id} className="border-t border-[#eef0f3]">
-                    <td className="px-4 py-3 font-bold text-[#111827]">{invite.name}</td>
-                    <td className="px-4 py-3 font-medium text-[#374151]" dir="ltr">
-                      {invite.email}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex rounded-full bg-[#fff4dc] px-2.5 py-1 text-xs font-medium text-[#a16207]">
-                        بانتظار قبول الدعوة
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-[#6b7280]">—</td>
-                    <td className="px-4 py-3">
-                      <DeleteConsultantButton id={invite.id} name={invite.name} kind="invite" />
-                    </td>
-                  </tr>
-                ))}
-              </>
-            )}
-          </tbody>
-        </table>
+      <div className="space-y-3">
+        {consultants.length === 0 && waiting.length === 0 ? (
+          <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#8b93ab] shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+            لا يوجد مستشارون بعد
+          </div>
+        ) : (
+          <>
+            {consultants.map((consultant) => {
+              const count =
+                (assignedCount.get(consultant.id) ?? 0) +
+                (consultant.consultantKey ? preferredCount.get(consultant.consultantKey) ?? 0 : 0);
+              return (
+                <article key={consultant.id} className="flex items-center gap-3 rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-[15px] font-bold leading-6 text-[#3e4c86]">{consultant.name}</h2>
+                    <p className="mt-1 truncate text-[13px] leading-5 text-[#8b93ab]" dir="ltr">{consultant.email}</p>
+                    <p className="mt-1 text-[13px] font-medium text-[#8b93ab]">مفعّل · {count} استشارة</p>
+                  </div>
+                  <DeleteConsultantButton id={consultant.id} name={consultant.name} kind="account" />
+                </article>
+              );
+            })}
+            {waiting.map((invite) => (
+              <article key={invite.id} className="flex items-center gap-3 rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-[15px] font-bold leading-6 text-[#3e4c86]">{invite.name}</h2>
+                  <p className="mt-1 truncate text-[13px] leading-5 text-[#8b93ab]" dir="ltr">{invite.email}</p>
+                  <p className="mt-1 text-[13px] font-medium text-[#8b93ab]">بانتظار قبول الدعوة</p>
+                </div>
+                <DeleteConsultantButton id={invite.id} name={invite.name} kind="invite" />
+              </article>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

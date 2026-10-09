@@ -24,10 +24,13 @@ export default async function AdminDashboardLayout({
   }
 
   return (
-    <main className="min-h-dvh bg-[#f4f6f8] px-4 py-6 text-[#111827] sm:px-6 lg:py-10">
-      <div className="mx-auto max-w-6xl">
-        <AdminHeader adminName={session.name} title="إدارة طلبات الاستشارات" showDirectory />
-        {children}
+    <main className="flex min-h-dvh flex-col overflow-x-clip bg-[#f3f4fb] px-4 py-5 text-[#1c1c1c] sm:px-6 sm:py-6 lg:py-10">
+      <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col">
+        <AdminHeader adminName={session.name} />
+        <div className="flex-1">{children}</div>
+        <p className="mt-10 text-center text-xs font-medium leading-5 text-[#8b93ab]">
+          جميع الحقوق محفوظة لجمعية كفاءات الأهلية
+        </p>
       </div>
     </main>
   );

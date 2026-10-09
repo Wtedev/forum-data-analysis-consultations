@@ -45,16 +45,16 @@ export function InviteConsultantForm() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+    <div className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-[#111827]">المستشارون</h2>
-          <p className="mt-1 text-sm text-[#6b7280]">كل مستشار وعدد الاستشارات الظاهرة له.</p>
+          <h2 className="text-base font-bold text-[#3e4c86]">المستشارون</h2>
+          <p className="mt-1 text-sm font-medium text-[#8b93ab]">كل مستشار وعدد الاستشارات الظاهرة له.</p>
         </div>
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#111827] px-5 text-sm font-semibold text-white transition hover:bg-black"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272]"
         >
           دعوة مستشار
         </button>
@@ -94,7 +94,7 @@ export function InviteConsultantForm() {
           <button
             type="submit"
             disabled={sending}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#157a43] px-5 text-sm font-semibold text-white transition hover:bg-[#126838] disabled:opacity-40"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272] disabled:opacity-40"
           >
             {sending ? "جاري الإرسال..." : "إرسال الدعوة"}
           </button>

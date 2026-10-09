@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { ConsultationDetailPanel } from "@/components/admin/consultation-detail-panel";
@@ -30,15 +29,5 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
     notFound();
   }
 
-  return (
-    <div className="space-y-4">
-      <Link
-        href="/admin"
-        className="inline-flex text-sm font-medium text-[#1c1c1c] hover:underline"
-      >
-        ← العودة لطلبات الاستشارات
-      </Link>
-      <ConsultationDetailPanel initialData={consultation} mode="admin" assignees={assignees} />
-    </div>
-  );
+  return <ConsultationDetailPanel initialData={consultation} mode="admin" assignees={assignees} />;
 }
