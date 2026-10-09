@@ -74,6 +74,35 @@ export function ConsultationsTable({
 
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <StatCard
+          label="إجمالي الطلبات"
+          value={initialStats.total}
+          tone="neutral"
+          active={!status && !q.trim()}
+          onClick={() => {
+            setQ("");
+            setStatus("");
+            router.push(basePath);
+          }}
+        />
+        <StatCard
+          label="طلبات جديدة"
+          value={initialStats.new}
+          tone="warm"
+          active={status === "NEW"}
+          onClick={() => {
+            setStatus("NEW");
+            applyFilters(1, { status: "NEW" });
+          }}
+        />
+        <StatCard
+          label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
+          value={filtersActive ? total : openCount}
+          tone="fresh"
+        />
+      </div>
+
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
           {heading ? <h1 className="text-lg font-semibold text-[#111827]">{heading}</h1> : <span />}
@@ -194,36 +223,6 @@ export function ConsultationsTable({
           ) : null}
         </div>
       ) : null}
-
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <StatCard
-          label="إجمالي الطلبات"
-          value={initialStats.total}
-          tone="neutral"
-          active={!status && !q.trim()}
-          onClick={() => {
-            setQ("");
-            setStatus("");
-            router.push(basePath);
-          }}
-        />
-        <StatCard
-          label="طلبات جديدة"
-          value={initialStats.new}
-          tone="warm"
-          active={status === "NEW"}
-          onClick={() => {
-            setStatus("NEW");
-            applyFilters(1, { status: "NEW" });
-          }}
-        />
-        <StatCard
-          label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
-          value={filtersActive ? total : openCount}
-          tone="fresh"
-        />
-      </div>
-
 
       <div className="space-y-3 md:hidden">
         {initialData.length === 0 ? (
