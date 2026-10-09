@@ -31,7 +31,7 @@ export function MobileStepper({
                   className={clsx(
                     "h-0.5 flex-1 rounded-full transition-colors",
                     completedSteps.has(FORM_STEPS[index - 1].id) || isSuccess
-                      ? "bg-madrak-primary"
+                      ? "bg-forum-primary"
                       : "bg-white/10",
                   )}
                   aria-hidden
@@ -45,7 +45,7 @@ export function MobileStepper({
                     done
                       ? "border-transparent kf-gradient-bg text-[#061223]"
                       : current
-                        ? "border-madrak-primary bg-madrak-primary/15 text-madrak-primary ring-4 ring-madrak-primary/10"
+                        ? "border-forum-primary bg-forum-primary/15 text-forum-primary ring-4 ring-forum-primary/10"
                         : "border-white/10 bg-white/[0.04] text-slate-400",
                   )}
                 >
@@ -58,7 +58,7 @@ export function MobileStepper({
                 <span
                   className={clsx(
                     "mt-2 max-w-[4.5rem] truncate text-center text-[11px] font-medium leading-tight",
-                    current || done ? "text-madrak-primary" : "text-slate-400",
+                    current || done ? "text-forum-primary" : "text-slate-400",
                   )}
                 >
                   {step.shortLabel}

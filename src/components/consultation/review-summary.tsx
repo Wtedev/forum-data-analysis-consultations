@@ -41,7 +41,7 @@ function ReviewRow({
         <button
           type="button"
           onClick={onEdit}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-madrak-primary transition hover:bg-madrak-primary/10"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-forum-primary transition hover:bg-forum-primary/10"
           aria-label={`تعديل ${label}`}
         >
           <Pencil className="h-4 w-4" />

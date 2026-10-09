@@ -52,7 +52,7 @@ export function StepSidebar({
                 <div
                   className={clsx(
                     "me-5 h-5 w-0.5 rounded-full",
-                    prevDone ? "bg-madrak-primary" : "bg-white/15",
+                    prevDone ? "bg-forum-primary" : "bg-white/15",
                   )}
                   aria-hidden
                 />
@@ -70,7 +70,7 @@ export function StepSidebar({
                     done
                       ? "border-transparent kf-gradient-bg text-[#061223]"
                       : current
-                        ? "border-madrak-primary bg-madrak-primary/15 text-madrak-primary ring-4 ring-madrak-primary/10"
+                        ? "border-forum-primary bg-forum-primary/15 text-forum-primary ring-4 ring-forum-primary/10"
                         : "border-white/15 bg-white/[0.04] text-slate-400",
                   )}
                 >
@@ -99,7 +99,7 @@ export function StepSidebar({
         {isSuccess ? (
           <>
             <div
-              className="me-5 h-5 w-0.5 rounded-full bg-madrak-primary"
+              className="me-5 h-5 w-0.5 rounded-full bg-forum-primary"
               aria-hidden
             />
             <div className="flex items-start gap-3 rounded-xl bg-white/[0.06] px-2 py-2 ring-1 ring-white/10">

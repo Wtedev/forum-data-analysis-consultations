@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import type { ReactNode } from "react";
 
 export const inputClassName =
-  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white shadow-none outline-none transition placeholder:text-slate-400 focus:border-madrak-primary focus:ring-[3px] focus:ring-madrak-primary/15 [color-scheme:dark] [&>option]:bg-[#0f1729]";
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white shadow-none outline-none transition placeholder:text-slate-400 focus:border-forum-primary focus:ring-[3px] focus:ring-forum-primary/15 [color-scheme:dark] [&>option]:bg-[#0f1729]";
 
 export const labelClassName = "mb-2 block text-sm font-medium text-slate-200";
 
@@ -18,7 +18,7 @@ export function FieldError({ message }: { message?: string }) {
 
 export function RequiredMark() {
   return (
-    <span className="text-madrak-primary" aria-hidden="true">
+    <span className="text-forum-primary" aria-hidden="true">
       {" "}
       *
     </span>
@@ -71,8 +71,8 @@ export function RadioOption({
       className={clsx(
         "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
         checked
-          ? "border-madrak-primary/70 bg-madrak-primary/15 text-white ring-1 ring-madrak-primary/40"
-          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-madrak-primary/40 hover:bg-madrak-primary/5",
+          ? "border-forum-primary/70 bg-forum-primary/15 text-white ring-1 ring-forum-primary/40"
+          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-forum-primary/40 hover:bg-forum-primary/5",
       )}
     >
       <input
@@ -107,7 +107,7 @@ export function PrimaryButton({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "inline-flex min-h-[48px] items-center justify-center rounded-xl kf-gradient-bg px-6 py-3 text-sm font-bold text-[#061223] shadow-lg shadow-emerald-400/10 transition hover:brightness-110 focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/30 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex min-h-[48px] items-center justify-center rounded-xl kf-gradient-bg px-6 py-3 text-sm font-bold text-[#061223] shadow-lg shadow-emerald-400/10 transition hover:brightness-110 focus:outline-none focus:ring-[3px] focus:ring-forum-primary/30 disabled:cursor-not-allowed disabled:opacity-55",
         className,
       )}
     >
@@ -135,7 +135,7 @@ export function SecondaryButton({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-slate-200 transition hover:border-madrak-primary/30 hover:bg-white/[0.06] focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/15 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-slate-200 transition hover:border-forum-primary/30 hover:bg-white/[0.06] focus:outline-none focus:ring-[3px] focus:ring-forum-primary/15 disabled:cursor-not-allowed disabled:opacity-55",
         className,
       )}
     >
@@ -162,8 +162,8 @@ export function CheckboxOption({
       className={clsx(
         "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
         checked
-          ? "border-madrak-primary/70 bg-madrak-primary/15 text-white ring-1 ring-madrak-primary/40"
-          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-madrak-primary/40 hover:bg-madrak-primary/5",
+          ? "border-forum-primary/70 bg-forum-primary/15 text-white ring-1 ring-forum-primary/40"
+          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-forum-primary/40 hover:bg-forum-primary/5",
       )}
     >
       <input

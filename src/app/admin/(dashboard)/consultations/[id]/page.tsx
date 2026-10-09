@@ -20,7 +20,7 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
     <div className="space-y-4">
       <Link
         href="/admin"
-        className="inline-flex text-sm font-medium text-madrak-primary hover:underline"
+        className="inline-flex text-sm font-medium text-forum-primary hover:underline"
       >
         ← العودة للطلبات
       </Link>

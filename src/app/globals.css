@@ -3,8 +3,8 @@
 :root {
   --foreground: #e6edf8;
   /* هوية ملتقى تحليل البيانات — كفاءات */
-  --madrak-primary: #5cc9b0;
-  --madrak-secondary: #7fb8ff;
+  --forum-primary: #5cc9b0;
+  --forum-secondary: #7fb8ff;
   --kf-bg: #0a0f1d;
   --kf-green: #4fd39b;
   --kf-teal: #5cc9b0;
@@ -13,14 +13,14 @@
 
 @theme inline {
   --color-foreground: var(--foreground);
-  --color-madrak-primary: var(--madrak-primary);
-  --color-madrak-secondary: var(--madrak-secondary);
-  --font-family-madrak: var(--font-madrak), Tahoma, Arial, sans-serif;
+  --color-forum-primary: var(--forum-primary);
+  --color-forum-secondary: var(--forum-secondary);
+  --font-family-forum: var(--font-forum);
 }
 
 body {
   color: var(--foreground);
-  font-family: var(--font-madrak);
+  font-family: var(--font-forum);
   -webkit-font-smoothing: antialiased;
 }
 

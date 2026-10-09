@@ -1,30 +1,31 @@
 import localFont from "next/font/local";
 
 /**
- * الخط الرسمي للنظام — Lenos (ملفات محلية)
- * المسار: public/fonts/lenos/
+ * الخط الوحيد للموقع — شامل (FF Shamel Family Sans One)
+ * المسار: src/fonts/shamel/
  */
-export const fontMadrak = localFont({
-  variable: "--font-madrak",
+export const fontForum = localFont({
+  variable: "--font-forum",
   display: "swap",
+  adjustFontFallback: false,
   src: [
     {
-      path: "../../public/fonts/lenos/Lenos-Regular.otf",
+      path: "../fonts/shamel/FFShamelFamily-SansOneBook.ttf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/lenos/Lenos-Medium.otf",
+      path: "../fonts/shamel/FFShamelFamily-SansOneBook.ttf",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../../public/fonts/lenos/Lenos-SemiBold.otf",
+      path: "../fonts/shamel/FFShamelFamily-SansOneBold.ttf",
       weight: "600",
       style: "normal",
     },
     {
-      path: "../../public/fonts/lenos/Lenos-Bold.otf",
+      path: "../fonts/shamel/FFShamelFamily-SansOneBold.ttf",
       weight: "700",
       style: "normal",
     },

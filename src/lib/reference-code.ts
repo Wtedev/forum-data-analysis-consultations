@@ -7,7 +7,7 @@ export async function generateReferenceCode(
   date = new Date(),
 ): Promise<string> {
   const year = date.getFullYear();
-  const prefix = `MDK-${year}-`;
+  const prefix = `MLT-${year}-`;
 
   const last = await db.consultation.findFirst({
     where: {

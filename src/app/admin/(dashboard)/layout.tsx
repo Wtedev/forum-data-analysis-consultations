@@ -20,7 +20,7 @@ export default async function AdminDashboardLayout({
   }
 
   return (
-    <main className="min-h-full bg-slate-50 px-4 py-6 sm:px-6 lg:py-10">
+    <main className="min-h-dvh bg-slate-50 px-4 py-6 sm:px-6 lg:py-10">
       <div className="mx-auto max-w-6xl">
         <AdminHeader adminName={session.name} />
         {children}

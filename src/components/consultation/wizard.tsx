@@ -237,9 +237,9 @@ export function ConsultationWizard() {
                 شكرًا لتواصلك معنا. سيقوم فريق الاستشارات بمراجعة طلبك والتواصل معك
                 قريبًا.
               </p>
-              <div className="mt-8 w-full max-w-sm rounded-2xl border-2 border-dashed border-madrak-primary/25 bg-gradient-to-b from-madrak-primary/5 to-white px-6 py-6">
-                <p className="text-xs font-medium text-slate-400">الرقم المرجعي لطلبك</p>
-                <p className="mt-2 kf-gradient-text font-mono text-2xl font-bold tracking-wide">
+              <div className="mt-8 w-full max-w-sm rounded-2xl border border-dashed border-[#5cc9b0]/35 bg-[#5cc9b0]/10 px-6 py-6">
+                <p className="text-xs font-medium text-slate-300">الرقم المرجعي لطلبك</p>
+                <p className="mt-2 text-2xl font-bold tracking-wide text-[#7dffe0]">
                   {referenceCode}
                 </p>
               </div>
@@ -257,8 +257,8 @@ export function ConsultationWizard() {
               ) : null}
 
               {currentStep === 1 ? (
-                <div className="mb-5 flex gap-2.5 rounded-xl border border-madrak-primary/20 bg-madrak-primary/[0.07] px-3.5 py-3 text-sm leading-relaxed text-slate-200">
-                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-madrak-primary" aria-hidden />
+                <div className="mb-5 flex gap-2.5 rounded-xl border border-forum-primary/20 bg-forum-primary/[0.07] px-3.5 py-3 text-sm leading-relaxed text-slate-200">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-forum-primary" aria-hidden />
                   <p>
                     استشارات تحليل البيانات متاحة للمستفيدين بدون الحاجة إلى إنشاء
                     حساب.

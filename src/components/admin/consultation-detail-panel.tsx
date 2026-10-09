@@ -100,7 +100,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
       <header className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-sm text-slate-500">{data.referenceCode}</p>
+            <p className="text-sm text-slate-500">{data.referenceCode}</p>
             <h1 className="mt-1 text-2xl font-bold text-slate-800">{data.fullName}</h1>
             <p className="mt-1 text-sm text-slate-500">
               {data.createdAtLabel} · {data.consultationTypeLabel}
@@ -111,7 +111,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
               "rounded-full px-3 py-1 text-sm font-medium",
               data.status === "NEW" && "bg-amber-100 text-amber-800",
               data.status === "CLOSED" && "bg-slate-200 text-slate-700",
-              data.status !== "NEW" && data.status !== "CLOSED" && "bg-madrak-primary/10 text-madrak-primary",
+              data.status !== "NEW" && data.status !== "CLOSED" && "bg-forum-primary/10 text-forum-primary",
             )}
           >
             {data.statusLabel}
@@ -134,7 +134,7 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
               label="رابط البيانات"
               value={
                 data.link ? (
-                  <a href={data.link} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-madrak-primary underline">
+                  <a href={data.link} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-forum-primary underline">
                     {data.link}
                   </a>
                 ) : (

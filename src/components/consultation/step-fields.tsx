@@ -82,7 +82,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
 
         <fieldset>
           <legend className="mb-3 block text-sm font-medium text-slate-200">
-            الجنس <span className="text-madrak-primary">*</span>
+            الجنس <span className="text-forum-primary">*</span>
           </legend>
           <div className="grid grid-cols-2 gap-3">
             {GENDER_LABELS.map((option) => (

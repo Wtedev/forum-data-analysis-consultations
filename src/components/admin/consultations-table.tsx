@@ -134,7 +134,7 @@ export function ConsultationsTable({
               ) : (
                 initialData.map((row) => (
                   <tr key={row.id} className="border-t border-slate-100">
-                    <td className="px-4 py-3 font-mono text-xs">{row.referenceCode}</td>
+                    <td className="px-4 py-3 text-xs">{row.referenceCode}</td>
                     <td className="px-4 py-3 font-medium">{row.fullName}</td>
                     <td className="px-4 py-3">{row.consultationTypeLabel}</td>
                     <td className="px-4 py-3">
@@ -144,7 +144,7 @@ export function ConsultationsTable({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/consultations/${row.id}`}
-                        className="font-medium text-madrak-primary hover:underline"
+                        className="font-medium text-forum-primary hover:underline"
                       >
                         عرض
                       </Link>
@@ -196,7 +196,7 @@ function StatCard({
       className={clsx(
         "rounded-2xl px-5 py-4 shadow-sm ring-1",
         accent
-          ? "bg-madrak-primary text-white ring-madrak-primary/30"
+          ? "bg-forum-primary text-white ring-forum-primary/30"
           : "bg-white text-slate-800 ring-slate-100",
       )}
     >

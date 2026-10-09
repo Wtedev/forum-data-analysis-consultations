@@ -19,7 +19,7 @@ export function AdminHeader({ adminName }: AdminHeaderProps) {
   }
 
   return (
-    <header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-b from-madrak-primary to-[#056b6f] px-6 py-5 text-white shadow-lg shadow-madrak-primary/20">
+    <header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-b from-forum-primary to-[#056b6f] px-6 py-5 text-white shadow-lg shadow-forum-primary/20">
       <div className="flex items-center gap-4">
         <p className="text-sm font-bold leading-snug">
           ملتقى تحليل البيانات

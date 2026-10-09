@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { fontMadrak } from "@/lib/fonts";
+import { fontForum } from "@/lib/fonts";
 
 import "./globals.css";
 
@@ -18,9 +18,9 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${fontMadrak.variable} h-full antialiased`}
+      className={`${fontForum.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-madrak">{children}</body>
+      <body className="flex min-h-dvh flex-col bg-[var(--kf-bg)] font-forum">{children}</body>
     </html>
   );
 }

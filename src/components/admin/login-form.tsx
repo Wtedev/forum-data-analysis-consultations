@@ -49,18 +49,21 @@ export function AdminLoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl shadow-slate-200/60 ring-1 ring-slate-100"
+      className="kf-glass w-full max-w-md rounded-3xl p-8 shadow-2xl shadow-black/40"
     >
-      <h1 className="text-center text-xl font-semibold text-slate-800">
+      <p className="text-center text-sm font-semibold text-[#cfe3ff]">
+        ملتقى تحليل البيانات <span className="text-[#4fd39b]">٢</span>
+      </p>
+      <h1 className="mt-3 text-center text-xl font-semibold text-white">
         لوحة إدارة الاستشارات
       </h1>
-      <p className="mt-2 text-center text-sm text-slate-500">
+      <p className="mt-2 text-center text-sm text-slate-300">
         سجّل الدخول لإدارة طلبات استشارات تحليل البيانات
       </p>
 
       <div className="mt-8 space-y-5">
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-200">
             البريد الإلكتروني
           </label>
           <input
@@ -68,6 +71,7 @@ export function AdminLoginForm() {
             type="email"
             autoComplete="email"
             dir="ltr"
+            placeholder="name@example.com"
             className={inputClassName}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -76,7 +80,7 @@ export function AdminLoginForm() {
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-200">
             كلمة المرور
           </label>
           <input

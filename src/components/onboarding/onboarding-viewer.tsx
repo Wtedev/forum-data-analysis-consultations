@@ -20,7 +20,7 @@ function ctaStyle(zone: OnboardingCtaZone): React.CSSProperties {
 }
 
 const ctaLinkClassName =
-  "absolute z-10 -translate-x-1/2 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-madrak-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
+  "absolute z-10 -translate-x-1/2 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-forum-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
 
 function OnboardingSlide({ screen }: { screen: OnboardingScreen }) {
   const { cta } = screen;
