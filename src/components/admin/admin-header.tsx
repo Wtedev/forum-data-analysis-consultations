@@ -17,7 +17,7 @@ export function AdminHeader({ adminName }: { adminName: string }) {
   return (
     <div className="mb-5">
       <div className="mb-2.5 flex items-center justify-between gap-3">
-        <img src="/images/kafaat-logo.png?v=5" alt="جمعية كفاءات الأهلية" width={800} height={579} className="h-20 w-auto max-w-[46%] shrink-0 object-contain" />
+        <img src="/images/kafaat-logo.png?v=5" alt="جمعية كفاءات الأهلية" width={800} height={579} className="h-14 w-auto max-w-[40%] shrink-0 object-contain" />
         <nav className="flex shrink-0 flex-col items-start gap-1.5 text-[11px] font-medium leading-none">
           <Link href="/admin" className={onConsultants ? "text-[#8b93ab]" : "text-[#3e4c86]"}>
             الاستشارات
