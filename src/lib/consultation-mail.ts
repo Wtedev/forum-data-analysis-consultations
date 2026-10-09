@@ -328,8 +328,8 @@ export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: 
     subject: "دعوة للانضمام إلى فريق المستشارين – ملتقى تحليل البيانات في القطاع غير الربحي 2",
     html: `<div dir="rtl" style="margin:0;padding:24px 12px;background:#f4f6f8;font-family:Tahoma,Arial,sans-serif;color:#111827">
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e6e8ec;border-radius:20px;overflow:hidden">
-        <div style="padding:28px 24px 0;text-align:center">
-          <img src="${escapeHtml(`${appUrl()}/images/kafaat-logo.jpg`)}" alt="جمعية كفاءات الأهلية" width="132" height="132" style="display:inline-block;width:132px;height:132px;border:0;border-radius:18px">
+        <div style="padding:32px 24px 4px;text-align:center">
+          <img src="${escapeHtml(`${appUrl()}/images/kafaat-logo.jpg?v=2`)}" alt="كفاءات" width="128" height="68" style="display:inline-block;width:128px;height:auto;border:0">
         </div>
         <div style="padding:20px 24px 28px;font-size:16px;line-height:1.9">
           <p style="margin:0 0 12px">مرحباً ${name}،</p>
