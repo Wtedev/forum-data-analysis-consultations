@@ -23,6 +23,7 @@ export type ConsultationListItem = {
   referenceCode: string;
   fullName: string;
   phone: string;
+  question: string;
   consultationTypeLabel: string;
   preferredConsultantId: string;
   preferredConsultantLabel: string;
@@ -72,6 +73,7 @@ export function serializeConsultationListItem(
     referenceCode: row.referenceCode,
     fullName: row.fullName,
     phone: row.phone,
+    question: row.question,
     consultationTypeLabel: TYPE_DB_LABELS[row.consultationType],
     preferredConsultantId: row.preferredConsultant,
     preferredConsultantLabel: consultantShortLabel(row.preferredConsultant),

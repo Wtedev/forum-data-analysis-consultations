@@ -51,9 +51,11 @@ export function AdminHeader({
       </div>
     ) : null}
     <header className={light
-      ? "mb-6 rounded-3xl border border-[#eceef2] bg-white px-4 py-4 text-[#1c1c1c] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:mb-8 sm:px-6 sm:py-5"
+      ? "mb-5 rounded-3xl border border-[#eceef2] bg-white px-4 py-3.5 text-[#1c1c1c] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:mb-8 sm:px-6 sm:py-5"
       : "mb-6 flex flex-col gap-3 rounded-2xl bg-[var(--kf-bg)] px-4 py-4 text-[#e6edf8] shadow-[0_8px_24px_rgba(10,15,29,0.16)] sm:mb-8 sm:px-6 sm:py-5"}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className={light
+        ? "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        : "flex flex-wrap items-start justify-between gap-3"}>
       <div className="min-w-0">
         <p className={light ? "text-xs font-medium text-[#8b909a]" : "text-xs font-semibold text-[#cfe3ff]/80"}>ملتقى تحليل البيانات ٢</p>
         <p className="mt-0.5 text-lg font-bold leading-snug">{title}</p>
@@ -61,7 +63,7 @@ export function AdminHeader({
         {showName ? <p className={light ? "text-sm text-[#6b7280]" : "text-sm font-medium text-[#cfe3ff]"}>{adminName}</p> : null}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className={light ? "flex w-full min-w-0 items-center gap-2 sm:w-auto" : "flex items-center gap-2"}>
         {showDirectory ? (
           <>
             <Link href="/admin" className={tabClass(pathname === "/admin")}>

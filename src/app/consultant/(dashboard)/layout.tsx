@@ -24,8 +24,8 @@ export default async function ConsultantDashboardLayout({
   }
 
   return (
-    <main className="min-h-dvh bg-[#f6f7f9] px-4 py-6 text-[#1c1c1c] sm:px-6 lg:py-10">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-dvh overflow-x-clip bg-[#f6f7f9] px-4 py-5 text-[#1c1c1c] sm:px-6 sm:py-6 lg:py-10">
+      <div className="mx-auto w-full min-w-0 max-w-6xl">
         <AdminHeader
           adminName={session.name}
           title={`مرحباً ${session.name}`}
