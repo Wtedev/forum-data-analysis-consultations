@@ -387,15 +387,28 @@ function ConsultantRequestCard({
 }) {
   const collected = contact === "always" ? Boolean(row.phone) : Boolean(row.assignedTo && row.phone);
   const canTake = canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo;
+  const closed = row.status === "CLOSED";
 
   return (
-    <article className="flex min-w-0 items-center gap-3 rounded-2xl bg-white px-3.5 py-3.5 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
-      <div className="min-w-0 flex-1 text-start">
-        <h2 className="line-clamp-2 text-[15px] font-bold leading-6 text-[#3e4c86]" title={row.question}>
+    <article
+      className={clsx(
+        "flex min-w-0 items-center gap-3 rounded-2xl px-3.5 py-3.5 ring-1",
+        closed
+          ? "bg-[#eef0f4] shadow-none ring-[#e4e7ee]"
+          : "bg-white shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-[#eef0f6]",
+      )}
+    >
+      <Link href={`${basePath}/consultations/${row.id}`} className="min-w-0 flex-1 text-start">
+        <h2
+          className={clsx("line-clamp-2 text-[15px] font-bold leading-6", closed ? "text-[#8b93ab]" : "text-[#3e4c86]")}
+          title={row.question}
+        >
           {row.question}
         </h2>
-        <p className="mt-1 truncate text-[13px] leading-5 text-[#8b93ab]">{row.fullName}</p>
-      </div>
+        <p className={clsx("mt-1 truncate text-[13px] leading-5", closed ? "text-[#a8b0c2]" : "text-[#8b93ab]")}>
+          {row.fullName}
+        </p>
+      </Link>
       <div className="flex shrink-0 items-center gap-2">
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
         {collected ? (
@@ -421,7 +434,10 @@ function ConsultantRequestCard({
         <Link
           href={`${basePath}/consultations/${row.id}`}
           aria-label="اطلع على التفاصيل"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#354272]"
+          className={clsx(
+            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white transition",
+            closed ? "bg-[#b7beca] hover:bg-[#a3abbb]" : "bg-[#3e4c86] hover:bg-[#354272]",
+          )}
         >
           <ArrowLeft className="h-5 w-5" aria-hidden />
         </Link>
