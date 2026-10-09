@@ -2,7 +2,7 @@ import "server-only";
 
 import { randomBytes } from "node:crypto";
 
-import { CONSULTANTS } from "@/lib/consultants";
+import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 import { getPrisma } from "@/lib/prisma";
 
 export type ConsultantOption = {
@@ -17,23 +17,17 @@ export async function listPublicConsultantOptions(): Promise<ConsultantOption[]>
     orderBy: { name: "asc" },
   });
 
-  const options: ConsultantOption[] = CONSULTANTS.map((item) => ({
-    id: item.id,
-    label: item.label,
-  }));
-
-  for (const account of accounts) {
-    if (!account.consultantKey || options.some((item) => item.id === account.consultantKey)) continue;
-    options.push({ id: account.consultantKey, label: account.name });
-  }
-
-  return options;
+  return [
+    NO_PREFERENCE_CHOICE,
+    ...accounts.flatMap((account) =>
+      account.consultantKey ? [{ id: account.consultantKey, label: account.name }] : [],
+    ),
+  ];
 }
 
 export async function resolveConsultantChoice(label: string) {
   const normalized = label.trim();
-  const known = CONSULTANTS.find((item) => item.label === normalized);
-  if (known) return known.id;
+  if (normalized === NO_PREFERENCE_CHOICE.label) return NO_PREFERENCE_CHOICE.id;
 
   const account = await getPrisma().adminUser.findFirst({
     where: { role: "CONSULTANT", name: normalized, consultantKey: { not: null } },
@@ -43,12 +37,7 @@ export async function resolveConsultantChoice(label: string) {
   return account?.consultantKey ?? null;
 }
 
-export function consultantKeyForInvite(name: string) {
-  const normalized = name.trim();
-  const known = CONSULTANTS.find(
-    (item) => item.id !== "NO_PREFERENCE" && (item.shortLabel === normalized || item.label === normalized),
-  );
-  if (known) return known.id;
+export function consultantKeyForInvite() {
   return `c_${randomBytes(8).toString("hex")}`;
 }
 

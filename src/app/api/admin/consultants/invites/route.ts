@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   const email = parsed.data.email.trim().toLowerCase();
   const name = parsed.data.name.trim();
-  const consultantKey = consultantKeyForInvite(name);
+  const consultantKey = consultantKeyForInvite();
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 
   if (adminEmail && email === adminEmail) {

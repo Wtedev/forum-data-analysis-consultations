@@ -1,6 +1,6 @@
 import { ConsultationWizard } from "@/components/consultation/wizard";
 import { listPublicConsultantOptions } from "@/lib/consultant-directory";
-import { CONSULTANTS } from "@/lib/consultants";
+import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 
 export const metadata = {
   title: "طلب استشارة | ملتقى تحليل البيانات في القطاع غير الربحي 2",
@@ -11,7 +11,7 @@ export const metadata = {
 export default async function ConsultationPage() {
   const consultants = await listPublicConsultantOptions().catch((error) => {
     console.error("Failed to load consultant choices", error);
-    return CONSULTANTS.map((item) => ({ id: item.id, label: item.label }));
+    return [NO_PREFERENCE_CHOICE];
   });
 
   return (

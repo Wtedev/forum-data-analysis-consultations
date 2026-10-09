@@ -1,6 +1,6 @@
 "use client";
 
-import { CONSULTANTS } from "@/lib/consultants";
+import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 import {
   CONSULTATION_TYPE_LABELS,
   CURRENT_STAGE_LABELS,
@@ -36,7 +36,7 @@ export function StepFields({
   step,
   form,
   errors,
-  consultants = CONSULTANTS.map((item) => ({ id: item.id, label: item.label })),
+  consultants = [NO_PREFERENCE_CHOICE],
   onChange,
 }: StepFieldsProps) {
   if (step === 1) {

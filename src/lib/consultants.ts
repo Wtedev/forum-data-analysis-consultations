@@ -11,6 +11,11 @@ export const CONSULTANTS = [
   },
 ] as const;
 
+export const NO_PREFERENCE_CHOICE = {
+  id: CONSULTANTS[0].id,
+  label: CONSULTANTS[0].label,
+};
+
 export type ConsultantId = (typeof CONSULTANTS)[number]["id"];
 export type ConsultantLabel = (typeof CONSULTANTS)[number]["label"];
 
