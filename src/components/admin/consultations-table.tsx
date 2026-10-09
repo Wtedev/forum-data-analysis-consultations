@@ -297,7 +297,7 @@ export function ConsultationsTable({
         )}
       </div>
 
-      <div className={clsx("hidden overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] md:block", iconTools && "md:hidden")}>
+      {iconTools ? null : <div className="hidden overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec] md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-[#f7f8fa] text-[#6b7280]">
@@ -347,7 +347,7 @@ export function ConsultationsTable({
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
 
       {totalPages > 1 ? (
         <div className="flex items-center justify-center gap-3">
