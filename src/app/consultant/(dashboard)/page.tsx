@@ -38,12 +38,13 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
     status,
     page,
     access: consultationAccessWhere(session),
+    assigneeId: session.sub,
   });
 
   return (
     <Suspense>
       <ConsultationsTable
-        heading="طلبات الاستشارة"
+        heading="كل الاستشارات"
         basePath="/consultant"
         canClaim
         iconTools

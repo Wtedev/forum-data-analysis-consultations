@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AdminHeader } from "@/components/admin/admin-header";
+import { ConsultantBanner } from "@/components/consultant/consultant-banner";
 import { getAdminSession } from "@/lib/admin-auth";
 
 export const metadata = {
@@ -24,17 +24,9 @@ export default async function ConsultantDashboardLayout({
   }
 
   return (
-    <main className="min-h-dvh overflow-x-clip bg-[#f6f7f9] px-4 py-5 text-[#1c1c1c] sm:px-6 sm:py-6 lg:py-10">
+    <main className="min-h-dvh overflow-x-clip bg-[#f3f4fb] px-4 py-5 text-[#1c1c1c] sm:px-6 sm:py-6 lg:py-10">
       <div className="mx-auto w-full min-w-0 max-w-6xl">
-        <AdminHeader
-          adminName={session.name}
-          title={`مرحباً ${session.name}`}
-          subtitle="تجد طلباتك هنا"
-          showName={false}
-          showGuide
-          light
-          homeHref="/consultant"
-        />
+        <ConsultantBanner name={session.name} />
         {children}
       </div>
     </main>

@@ -16,6 +16,8 @@ import { whatsappUrl } from "@/lib/phone";
 type Stats = {
   total: number;
   new: number;
+  mine?: number;
+  unassigned?: number;
   byStatus: Record<string, number>;
 };
 
@@ -75,34 +77,42 @@ export function ConsultationsTable({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <StatCard
-          label="إجمالي الطلبات"
-          value={initialStats.total}
-          tone="neutral"
-          active={!status && !q.trim()}
-          onClick={() => {
-            setQ("");
-            setStatus("");
-            router.push(basePath);
-          }}
-        />
-        <StatCard
-          label="طلبات جديدة"
-          value={initialStats.new}
-          tone="warm"
-          active={status === "NEW"}
-          onClick={() => {
-            setStatus("NEW");
-            applyFilters(1, { status: "NEW" });
-          }}
-        />
-        <StatCard
-          label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
-          value={filtersActive ? total : openCount}
-          tone="fresh"
-        />
-      </div>
+      {iconTools ? (
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <DeskStat label="جميع الاستشارات" value={initialStats.total} />
+          <DeskStat label="استشاراتي" value={initialStats.mine ?? 0} />
+          <DeskStat label="الاستشارات غير المسندة" value={initialStats.unassigned ?? 0} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <StatCard
+            label="إجمالي الطلبات"
+            value={initialStats.total}
+            tone="neutral"
+            active={!status && !q.trim()}
+            onClick={() => {
+              setQ("");
+              setStatus("");
+              router.push(basePath);
+            }}
+          />
+          <StatCard
+            label="طلبات جديدة"
+            value={initialStats.new}
+            tone="warm"
+            active={status === "NEW"}
+            onClick={() => {
+              setStatus("NEW");
+              applyFilters(1, { status: "NEW" });
+            }}
+          />
+          <StatCard
+            label={filtersActive ? "نتائج التصفية" : "طلبات مفتوحة"}
+            value={filtersActive ? total : openCount}
+            tone="fresh"
+          />
+        </div>
+      )}
 
       {heading || iconTools ? (
         <div className="flex items-center justify-between gap-3">
@@ -428,6 +438,15 @@ function ConsultationActions({
         {detailsLabel === "اطلع على التفاصيل" ? <Eye className="h-4 w-4" aria-hidden /> : null}
         {detailsLabel}
       </Link>
+    </div>
+  );
+}
+
+function DeskStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex min-w-0 flex-col items-center rounded-2xl bg-white px-2 py-4 text-center shadow-[0_8px_24px_rgba(62,76,134,0.05)]">
+      <p className="text-2xl font-bold text-[#3e4c86]">{value}</p>
+      <p className="mt-2 text-[11px] font-medium leading-5 text-[#8b93ab] sm:text-xs">{label}</p>
     </div>
   );
 }

@@ -25,7 +25,7 @@ const STEPS = [
   },
 ] as const;
 
-export function PlatformGuide() {
+export function PlatformGuide({ tone = "default" }: { tone?: "default" | "onDark" }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const current = STEPS[step];
@@ -55,10 +55,21 @@ export function PlatformGuide() {
           setStep(0);
           setOpen(true);
         }}
-        className="inline-flex items-center gap-1 text-sm font-semibold text-[#335382] transition hover:text-[#2a446c]"
+        className={
+          tone === "onDark"
+            ? "inline-flex items-center gap-1.5 text-sm font-medium text-white/90 transition hover:text-white"
+            : "inline-flex items-center gap-1 text-sm font-semibold text-[#335382] transition hover:text-[#2a446c]"
+        }
         dir="ltr"
       >
-        <span className="text-sm leading-none" aria-hidden="true">
+        <span
+          className={
+            tone === "onDark"
+              ? "inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/80 text-xs leading-none"
+              : "text-sm leading-none"
+          }
+          aria-hidden="true"
+        >
           ?
         </span>
         <span className="whitespace-nowrap">كيف أستخدم المنصة</span>

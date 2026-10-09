@@ -24,6 +24,7 @@ export async function listConsultationsForAdmin(options: {
   page?: number;
   limit?: number;
   access?: Prisma.ConsultationWhereInput;
+  assigneeId?: string;
 }) {
   const page = options.page ?? 1;
   const limit = options.limit ?? 20;
@@ -49,7 +50,14 @@ export async function listConsultationsForAdmin(options: {
 
   const where: Prisma.ConsultationWhereInput = { AND: filters };
 
-  const [total, rows, statusCounts, newCount, allTotal] = await Promise.all([
+  const mineWhere: Prisma.ConsultationWhereInput | null = options.assigneeId
+    ? { AND: [scope, { assignedToId: options.assigneeId }] }
+    : null;
+  const openPoolWhere: Prisma.ConsultationWhereInput | null = options.assigneeId
+    ? { AND: [scope, { assignedToId: null }] }
+    : null;
+
+  const [total, rows, statusCounts, newCount, allTotal, mineCount, unassignedCount] = await Promise.all([
     getPrisma().consultation.count({ where }),
     getPrisma().consultation.findMany({
       where,
@@ -65,6 +73,8 @@ export async function listConsultationsForAdmin(options: {
     }),
     getPrisma().consultation.count({ where: { ...scope, status: "NEW" } }),
     getPrisma().consultation.count({ where: scope }),
+    mineWhere ? getPrisma().consultation.count({ where: mineWhere }) : Promise.resolve(0),
+    openPoolWhere ? getPrisma().consultation.count({ where: openPoolWhere }) : Promise.resolve(0),
   ]);
 
   const names = await consultantNamesByKey(rows.map((row) => row.preferredConsultant));
@@ -84,6 +94,8 @@ export async function listConsultationsForAdmin(options: {
     stats: {
       total: allTotal,
       new: newCount,
+      mine: mineCount,
+      unassigned: unassignedCount,
       byStatus: Object.fromEntries(
         statusCounts.map((item) => [item.status, item._count._all]),
       ),
