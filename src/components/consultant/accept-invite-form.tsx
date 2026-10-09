@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FieldError, inputClassName, PrimaryButton } from "@/components/consultation/ui";
+import { PasswordField } from "@/components/consultation/password-field";
+import { FieldError, PrimaryButton } from "@/components/consultation/ui";
 
 export function AcceptInviteForm({
   token,
@@ -65,32 +66,26 @@ export function AcceptInviteForm({
           <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-200">
             كلمة المرور
           </label>
-          <input
+          <PasswordField
             id="password"
-            type="password"
             autoComplete="new-password"
-            dir="ltr"
             minLength={8}
             required
-            className={inputClassName}
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={setPassword}
           />
         </div>
         <div>
           <label htmlFor="confirm-password" className="mb-2 block text-sm font-medium text-slate-200">
             تأكيد كلمة المرور
           </label>
-          <input
+          <PasswordField
             id="confirm-password"
-            type="password"
             autoComplete="new-password"
-            dir="ltr"
             minLength={8}
             required
-            className={inputClassName}
             value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+            onChange={setConfirmPassword}
           />
         </div>
         {error ? <FieldError message={error} /> : null}

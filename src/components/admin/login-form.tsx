@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { PasswordField } from "@/components/consultation/password-field";
 import { FieldError, inputClassName, PrimaryButton } from "@/components/consultation/ui";
 
 export function AdminLoginForm() {
@@ -89,15 +90,12 @@ export function AdminLoginForm() {
           <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-200">
             كلمة المرور
           </label>
-          <input
+          <PasswordField
             id="password"
-            type="password"
             autoComplete="current-password"
-            dir="ltr"
-            className={inputClassName}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
             required
+            value={password}
+            onChange={setPassword}
           />
         </div>
 
