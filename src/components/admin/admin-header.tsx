@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
+import { PlatformGuide } from "@/components/consultant/platform-guide";
+
 type AdminHeaderProps = {
   adminName: string;
   title?: string;
@@ -10,6 +12,7 @@ type AdminHeaderProps = {
   showName?: boolean;
   homeHref?: string;
   showDirectory?: boolean;
+  showGuide?: boolean;
 };
 
 export function AdminHeader({
@@ -19,6 +22,7 @@ export function AdminHeader({
   showName = true,
   homeHref = "/admin",
   showDirectory = false,
+  showGuide = false,
 }: AdminHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -67,6 +71,7 @@ export function AdminHeader({
         >
           خروج
         </button>
+        {showGuide ? <PlatformGuide /> : null}
       </div>
     </header>
   );

@@ -31,6 +31,7 @@ export default async function ConsultantDashboardLayout({
           title={`مرحباً ${session.name}`}
           subtitle="تجد طلباتك هنا"
           showName={false}
+          showGuide
           homeHref="/consultant"
         />
         {children}
