@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 import { ConsultationWizard } from "@/components/consultation/wizard";
 import { listPublicConsultantOptions } from "@/lib/consultant-directory";
 import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
@@ -9,6 +11,7 @@ export const metadata = {
 };
 
 export default async function ConsultationPage() {
+  await connection();
   const consultants = await listPublicConsultantOptions().catch((error) => {
     console.error("Failed to load consultant choices", error);
     return [NO_PREFERENCE_CHOICE];
