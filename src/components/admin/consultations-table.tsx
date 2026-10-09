@@ -64,7 +64,7 @@ export function ConsultationsTable({
 
   return (
     <div className="space-y-6">
-      {heading ? <h1 className="text-lg font-semibold text-[#1c1c1c]">{heading}</h1> : null}
+      {heading ? <h1 className="text-lg font-semibold text-[#111827]">{heading}</h1> : null}
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label="إجمالي الطلبات"
@@ -94,10 +94,10 @@ export function ConsultationsTable({
         />
       </div>
 
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[#ececec]">
+      <div className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="min-w-0 flex-1">
-            <label htmlFor="search" className="mb-2 block text-sm font-semibold text-[#3d3d3d]">
+            <label htmlFor="search" className="mb-2 block text-sm font-semibold text-[#374151]">
               بحث
             </label>
             <input
@@ -135,7 +135,7 @@ export function ConsultationsTable({
         </div>
 
         <div className="mt-4">
-          <p className="mb-2 text-sm font-semibold text-[#3d3d3d]">الحالة</p>
+          <p className="mb-2 text-sm font-semibold text-[#374151]">الحالة</p>
           <div className="flex flex-wrap gap-2">
             <StatusChip
               label="الكل"
@@ -161,10 +161,10 @@ export function ConsultationsTable({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#ececec]">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-[#f1f1ef] text-[#5c5c5c]">
+            <thead className="bg-[#f7f8fa] text-[#6b7280]">
               <tr>
                 <th className="px-4 py-3 text-start font-medium">المرجع</th>
                 <th className="px-4 py-3 text-start font-medium">الاسم</th>
@@ -178,21 +178,21 @@ export function ConsultationsTable({
             <tbody>
               {initialData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center font-medium text-[#5c5c5c]">
+                  <td colSpan={7} className="px-4 py-10 text-center font-medium text-[#6b7280]">
                     {emptyMessage}
                   </td>
                 </tr>
               ) : (
                 initialData.map((row) => (
-                  <tr key={row.id} className="border-t border-[#ececec] transition hover:bg-[#fafaf8]">
-                    <td className="px-4 py-3 text-xs font-semibold text-[#3d3d3d]">{row.referenceCode}</td>
-                    <td className="px-4 py-3 font-bold text-[#1c1c1c]">{row.fullName}</td>
-                    <td className="px-4 py-3 font-medium text-[#3d3d3d]">{row.consultationTypeLabel}</td>
-                    <td className="px-4 py-3 font-medium text-[#3d3d3d]">{row.preferredConsultantLabel}</td>
+                  <tr key={row.id} className="border-t border-[#eef0f3] transition hover:bg-[#f8f9fb]">
+                    <td className="px-4 py-3 text-xs font-semibold text-[#4b5563]">{row.referenceCode}</td>
+                    <td className="px-4 py-3 font-bold text-[#111827]">{row.fullName}</td>
+                    <td className="px-4 py-3 font-medium text-[#374151]">{row.consultationTypeLabel}</td>
+                    <td className="px-4 py-3 font-medium text-[#374151]">{row.preferredConsultantLabel}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={row.status} label={row.statusLabel} />
                     </td>
-                    <td className="px-4 py-3 font-medium text-[#5c5c5c]">{row.createdAtLabel}</td>
+                    <td className="px-4 py-3 font-medium text-[#6b7280]">{row.createdAtLabel}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <a
@@ -206,7 +206,7 @@ export function ConsultationsTable({
                         </a>
                         <Link
                           href={`${basePath}/consultations/${row.id}`}
-                          className="inline-flex rounded-lg bg-[#f1f1ef] px-3 py-1.5 text-sm font-semibold text-[#1c1c1c] transition hover:bg-[#e7e7e5]"
+                          className="inline-flex rounded-lg bg-[#f3f4f6] px-3 py-1.5 text-sm font-semibold text-[#111827] transition hover:bg-[#e8eaee]"
                         >
                           عرض
                         </Link>
@@ -229,7 +229,7 @@ export function ConsultationsTable({
           >
             السابق
           </StaffSecondaryButton>
-          <span className="text-sm text-[#5c5c5c]">
+          <span className="text-sm text-[#6b7280]">
             صفحة {initialPage} من {totalPages}
           </span>
           <StaffSecondaryButton
@@ -261,7 +261,7 @@ function StatCard({
   const className = clsx(
     "rounded-2xl px-5 py-4 text-start shadow-sm ring-1 ring-transparent transition",
     tone === "warm" && "bg-[#fff4dc]",
-    tone === "neutral" && "bg-white ring-[#ececec]",
+    tone === "neutral" && "bg-white ring-[#e6e8ec]",
     tone === "fresh" && "bg-[#e7f6ec]",
     onClick && "hover:brightness-[0.98]",
     active && "ring-2 ring-black/10",
@@ -269,13 +269,13 @@ function StatCard({
   const labelClass = clsx(
     "text-sm font-medium",
     tone === "warm" && "text-[#a16207]",
-    tone === "neutral" && "text-[#5c5c5c]",
+    tone === "neutral" && "text-[#6b7280]",
     tone === "fresh" && "text-[#157a43]",
   );
   const body = (
     <>
       <p className={labelClass}>{label}</p>
-      <p className="mt-1 text-2xl font-bold text-[#161616]">{value}</p>
+      <p className="mt-1 text-2xl font-bold text-[#111827]">{value}</p>
     </>
   );
 
@@ -308,11 +308,11 @@ function StatusChip({
       aria-pressed={active}
       className={clsx(
         "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition",
-        active ? "bg-[#ececea] text-[#1c1c1c]" : "border border-[#e4e4e2] bg-white text-[#3d3d3d] hover:bg-[#f6f6f4]",
+        active ? "bg-[#e8eaee] text-[#111827]" : "bg-[#f3f4f6] text-[#374151] hover:bg-[#e8eaee]",
       )}
     >
       {label}
-      {typeof count === "number" ? <span className="text-xs text-[#5c5c5c]">{count}</span> : null}
+      {typeof count === "number" ? <span className="text-xs text-[#6b7280]">{count}</span> : null}
     </button>
   );
 }
@@ -335,7 +335,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
         status === "CONTACTED" && "bg-[#f3eaff] text-[#7a45c4]",
         status === "ANSWERED" && "bg-[#e7f6ec] text-[#157a43]",
         status === "NEEDS_FOLLOW_UP" && "bg-[#fff1e4] text-[#c26a12]",
-        status === "CLOSED" && "bg-[#f1f1ef] text-[#5c5c5c]",
+        status === "CLOSED" && "bg-[#f3f4f6] text-[#6b7280]",
       )}
     >
       {label}
