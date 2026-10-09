@@ -306,9 +306,9 @@ export async function notifyConsultationAssigned(consultation: ConsultationMailC
 }
 
 function inviteButton(href: string, label: string, tone: "primary" | "secondary") {
-  const background = tone === "primary" ? "#5cc9b0" : "#ffffff";
-  const color = tone === "primary" ? "#061223" : "#111827";
-  const border = tone === "primary" ? "#5cc9b0" : "#d7dbe2";
+  const background = tone === "primary" ? "#335382" : "#ffffff";
+  const color = tone === "primary" ? "#ffffff" : "#335382";
+  const border = tone === "primary" ? "#335382" : "#335382";
 
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 8px">
     <tr>
@@ -329,7 +329,7 @@ export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: 
     html: `<div dir="rtl" style="margin:0;padding:24px 12px;background:#f4f6f8;font-family:Tahoma,Arial,sans-serif;color:#111827">
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e6e8ec;border-radius:20px;overflow:hidden">
         <div style="padding:32px 24px 4px;text-align:center">
-          <img src="${escapeHtml(`${appUrl()}/images/kafaat-logo.jpg?v=2`)}" alt="كفاءات" width="128" height="68" style="display:inline-block;width:128px;height:auto;border:0">
+          <img src="${escapeHtml(`${appUrl()}/images/kafaat-logo.jpg?v=3`)}" alt="كفاءات" width="76" height="76" style="display:inline-block;width:76px;height:76px;border:0">
         </div>
         <div style="padding:20px 24px 28px;font-size:16px;line-height:1.9">
           <p style="margin:0 0 12px">مرحباً ${name}،</p>
