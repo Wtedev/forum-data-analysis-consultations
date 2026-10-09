@@ -4,10 +4,12 @@ import {
   CONSULTATION_TYPE_LABELS,
   CURRENT_STAGE_LABELS,
   GENDER_LABELS,
+  TOOL_LABELS,
 } from "@/lib/consultation-mappers";
 
 import type { ConsultationFormState } from "@/components/consultation/types";
 import {
+  CheckboxOption,
   FormField,
   RadioOption,
   inputClassName,
@@ -79,7 +81,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
         </div>
 
         <fieldset>
-          <legend className="mb-3 block text-sm font-medium text-slate-700">
+          <legend className="mb-3 block text-sm font-medium text-slate-200">
             الجنس <span className="text-madrak-primary">*</span>
           </legend>
           <div className="grid grid-cols-2 gap-3">
@@ -95,7 +97,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
             ))}
           </div>
           {errors.gender ? (
-            <p className="mt-1.5 text-xs font-medium text-red-600">{errors.gender}</p>
+            <p className="mt-1.5 text-xs font-medium text-red-400">{errors.gender}</p>
           ) : null}
         </fieldset>
       </div>
@@ -106,7 +108,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
     return (
       <div className="space-y-5">
         <FormField
-          label="المرحلة الحالية"
+          label="صفة المستفيد"
           htmlFor="currentStage"
           required
           error={errors.currentStage}
@@ -118,7 +120,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
             value={form.currentStage}
             onChange={(e) => onChange("currentStage", e.target.value)}
           >
-            <option value="">اختر المرحلة</option>
+            <option value="">اختر صفتك</option>
             {CURRENT_STAGE_LABELS.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -128,7 +130,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
         </FormField>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormField label="الجامعة" htmlFor="university" error={errors.university}>
+          <FormField label="الجهة أو جهة العمل" htmlFor="university" error={errors.university}>
             <input
               id="university"
               name="university"
@@ -136,12 +138,12 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
               className={inputClassName}
               value={form.university}
               onChange={(e) => onChange("university", e.target.value)}
-              placeholder="اسم الجامعة (إن وجد)"
+              placeholder="اسم الجهة (إن وجد)"
             />
           </FormField>
 
           <FormField
-            label="التخصص الحالي أو المهتم به"
+            label="المجال أو التخصص"
             htmlFor="majorInterest"
             error={errors.majorInterest}
           >
@@ -152,7 +154,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
               className={inputClassName}
               value={form.majorInterest}
               onChange={(e) => onChange("majorInterest", e.target.value)}
-              placeholder="مثال: علوم الحاسب"
+              placeholder="مثال: التسويق، الصحة، التعليم"
             />
           </FormField>
         </div>
@@ -185,11 +187,40 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
           </select>
         </FormField>
 
+        <fieldset>
+          <legend className="mb-1 block text-sm font-medium text-slate-200">
+            الأدوات التي تستخدمها
+          </legend>
+          <p className="mb-3 text-xs text-slate-400">اختر كل ما ينطبق، أو اتركها فارغة</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {TOOL_LABELS.map((option) => {
+              const checked = form.tools.includes(option);
+              return (
+                <CheckboxOption
+                  key={option}
+                  name="tools"
+                  value={option}
+                  label={option}
+                  checked={checked}
+                  onChange={() =>
+                    onChange(
+                      "tools",
+                      checked
+                        ? form.tools.filter((tool) => tool !== option)
+                        : [...form.tools, option],
+                    )
+                  }
+                />
+              );
+            })}
+          </div>
+        </fieldset>
+
         <FormField
-          label="اكتب سؤالك أو استفسارك الأكاديمي"
+          label="اكتب استفسارك أو تفاصيل استشارتك"
           htmlFor="question"
           required
-          hint="اشرح استفسارك بوضوح لنساعدك بأفضل شكل"
+          hint="اشرح بياناتك وما تحتاجه بوضوح لنساعدك بأفضل شكل"
           error={errors.question}
         >
           <textarea
@@ -200,6 +231,24 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
             value={form.question}
             onChange={(e) => onChange("question", e.target.value)}
             placeholder="اكتب تفاصيل استفسارك هنا..."
+          />
+        </FormField>
+
+        <FormField
+          label="رابط البيانات أو الملف"
+          htmlFor="link"
+          hint="اختياري: رابط Google Drive أو OneDrive أو غيرها"
+          error={errors.link}
+        >
+          <input
+            id="link"
+            name="link"
+            type="url"
+            dir="ltr"
+            className={`${inputClassName} text-left`}
+            value={form.link}
+            onChange={(e) => onChange("link", e.target.value)}
+            placeholder="https://"
           />
         </FormField>
       </div>

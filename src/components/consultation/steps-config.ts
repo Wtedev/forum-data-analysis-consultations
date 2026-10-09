@@ -1,6 +1,6 @@
 import {
-  GraduationCap,
-  MessageSquareText,
+  BarChart3,
+  Building2,
   Send,
   UserRound,
   type LucideIcon,
@@ -26,17 +26,17 @@ export const FORM_STEPS: FormStepConfig[] = [
   },
   {
     id: 2,
-    title: "الحالة الأكاديمية",
-    shortLabel: "أكاديمي",
-    description: "مرحلتك الدراسية وتخصصك",
-    icon: GraduationCap,
+    title: "بيانات المستفيد",
+    shortLabel: "المستفيد",
+    description: "صفتك وجهتك ومجالك",
+    icon: Building2,
   },
   {
     id: 3,
     title: "نوع الاستشارة",
     shortLabel: "الاستشارة",
-    description: "تفاصيل طلبك الأكاديمي",
-    icon: MessageSquareText,
+    description: "تفاصيل طلبك في تحليل البيانات",
+    icon: BarChart3,
   },
   {
     id: 4,

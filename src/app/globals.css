@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --foreground: #1a2e30;
-  --madrak-primary: #068b90;
-  --madrak-secondary: #fcc565;
+  --foreground: #e6edf8;
+  /* هوية ملتقى تحليل البيانات — كفاءات */
+  --madrak-primary: #5cc9b0;
+  --madrak-secondary: #7fb8ff;
+  --kf-bg: #0a0f1d;
+  --kf-green: #4fd39b;
+  --kf-teal: #5cc9b0;
+  --kf-blue: #8ec1ff;
 }
 
 @theme inline {
@@ -186,4 +191,33 @@ body {
 .consultation-hero__glass {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
+}
+
+/* ===== Data analysis forum theme ===== */
+.kf-page {
+  background-color: var(--kf-bg);
+  background-image:
+    radial-gradient(ellipse 60% 45% at 100% 35%, rgba(59, 108, 196, 0.28), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(79, 211, 155, 0.07), transparent 70%),
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(30, 58, 110, 0.35), transparent 70%);
+  background-attachment: fixed;
+  color: var(--foreground);
+}
+
+.kf-gradient-text {
+  background: linear-gradient(90deg, var(--kf-green) 0%, var(--kf-teal) 45%, var(--kf-blue) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.kf-gradient-bg {
+  background: linear-gradient(90deg, var(--kf-green) 0%, var(--kf-teal) 45%, var(--kf-blue) 100%);
+}
+
+.kf-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }

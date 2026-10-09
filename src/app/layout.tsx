@@ -5,8 +5,8 @@ import { fontMadrak } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "بوصلتك الجامعية | نموذج الاستشارات الأكاديمية",
-  description: "نموذج الاستشارات الأكاديمية — بوصلتك الجامعية من مدرك.",
+  title: "طلب استشارة | ملتقى تحليل البيانات في القطاع غير الربحي 2",
+  description: "نموذج طلب استشارات تحليل البيانات — ملتقى تحليل البيانات في القطاع غير الربحي 2.",
 };
 
 export default function RootLayout({

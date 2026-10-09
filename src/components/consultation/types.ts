@@ -7,7 +7,9 @@ export type ConsultationFormState = {
   university: string;
   majorInterest: string;
   consultationType: string;
+  tools: string[];
   question: string;
+  link: string;
 };
 
 export const initialConsultationForm: ConsultationFormState = {
@@ -19,5 +21,7 @@ export const initialConsultationForm: ConsultationFormState = {
   university: "",
   majorInterest: "",
   consultationType: "",
+  tools: [],
   question: "",
+  link: "",
 };

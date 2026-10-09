@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -22,13 +21,10 @@ export function AdminHeader({ adminName }: AdminHeaderProps) {
   return (
     <header className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-b from-madrak-primary to-[#056b6f] px-6 py-5 text-white shadow-lg shadow-madrak-primary/20">
       <div className="flex items-center gap-4">
-        <Image
-          src="/images/madrak-logo.svg"
-          alt="مدرك"
-          width={88}
-          height={36}
-          className="h-9 w-auto brightness-0 invert"
-        />
+        <p className="text-sm font-bold leading-snug">
+          ملتقى تحليل البيانات
+          <span className="ms-1 text-base">٢</span>
+        </p>
         <div>
           <p className="text-sm text-white/75">لوحة الإدارة</p>
           <p className="font-semibold">{adminName}</p>

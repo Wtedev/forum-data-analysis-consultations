@@ -1,6 +1,6 @@
-# بوصلتك الجامعية | نموذج الاستشارات الأكاديمية
+# استشارات ملتقى تحليل البيانات ٢
 
-**madrak-consultations** — Arabic academic consultation request system (Madrak). This repository contains the Next.js application foundation, Prisma data layer, and deployment configuration.
+نموذج طلب استشارات ملتقى تحليل البيانات في القطاع غير الربحي، النسخة الثانية.
 
 ## Tech stack
 
@@ -51,7 +51,7 @@
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string (`postgresql://...`) |
 | `JWT_SECRET` | Yes | Secret for signing admin JWTs (use a long random value in production) |
-| `NEXT_PUBLIC_APP_NAME` | No | Public app display name (default in example: بوصلتك الجامعية) |
+| `NEXT_PUBLIC_APP_NAME` | No | Public app display name (default in example: استشارات ملتقى تحليل البيانات ٢) |
 
 Copy from `.env.example` only — **never commit `.env`**.
 
@@ -93,7 +93,7 @@ The seed script creates or updates:
 
 | Field | Value |
 |-------|--------|
-| Email | `admin@madrak.sa` |
+| Email | `admin@example.com` |
 | Password | `admin12345` |
 | Role | `ADMIN` |
 

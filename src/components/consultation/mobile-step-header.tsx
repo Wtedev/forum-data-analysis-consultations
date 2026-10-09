@@ -19,11 +19,11 @@ export function MobileStepHeader({ step, variant = "default" }: MobileStepHeader
         variant === "review" ? "mb-5" : "mb-6",
       )}
     >
-      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-madrak-primary/15 to-madrak-primary/5 shadow-sm ring-1 ring-madrak-primary/10">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
         <Icon className="h-7 w-7 text-madrak-primary" strokeWidth={1.75} />
       </span>
-      <h2 className="mt-4 text-lg font-semibold text-slate-800">{step.title}</h2>
-      <p className="mt-1 max-w-xs text-sm text-slate-500">{step.description}</p>
+      <h2 className="mt-4 text-lg font-semibold text-white">{step.title}</h2>
+      <p className="mt-1 max-w-xs text-sm text-slate-400">{step.description}</p>
     </div>
   );
 }

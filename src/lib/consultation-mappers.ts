@@ -7,17 +7,28 @@ import type {
 
 export const GENDER_LABELS = ["ذكر", "أنثى"] as const;
 export const CURRENT_STAGE_LABELS = [
-  "ثانوي",
-  "مستجد جامعي",
-  "طالب جامعي",
+  "فرد",
+  "باحث",
+  "موظف",
+  "صاحب منشأة",
+  "أخرى",
 ] as const;
 export const CONSULTATION_TYPE_LABELS = [
-  "اختيار التخصص",
-  "التحويل بين التخصصات",
-  "التهيئة للحياة الجامعية",
-  "الفرص التطوعية والأنشطة",
-  "التدريب والتطوير",
+  "التحليل الإحصائي",
+  "تنظيف البيانات وتجهيزها",
+  "لوحات المعلومات والتقارير",
+  "تصميم الاستبانات",
+  "اختيار الأداة المناسبة",
+  "تفسير النتائج",
   "أخرى",
+] as const;
+export const TOOL_LABELS = [
+  "Excel",
+  "Power BI",
+  "SQL",
+  "Python",
+  "SPSS",
+  "Tableau",
 ] as const;
 export const CONTACT_METHOD_LABELS = ["واتساب", "اتصال"] as const;
 
@@ -32,17 +43,20 @@ const genderMap: Record<GenderLabel, Gender> = {
 };
 
 const currentStageMap: Record<CurrentStageLabel, CurrentStage> = {
-  ثانوي: "HIGH_SCHOOL",
-  "مستجد جامعي": "NEW_UNIVERSITY_STUDENT",
-  "طالب جامعي": "UNIVERSITY_STUDENT",
+  فرد: "INDIVIDUAL",
+  باحث: "RESEARCHER",
+  موظف: "EMPLOYEE",
+  "صاحب منشأة": "BUSINESS_OWNER",
+  أخرى: "OTHER",
 };
 
 const consultationTypeMap: Record<ConsultationTypeLabel, ConsultationType> = {
-  "اختيار التخصص": "MAJOR_SELECTION",
-  "التحويل بين التخصصات": "MAJOR_TRANSFER",
-  "التهيئة للحياة الجامعية": "UNIVERSITY_LIFE_PREPARATION",
-  "الفرص التطوعية والأنشطة": "VOLUNTEERING_AND_ACTIVITIES",
-  "التدريب والتطوير": "TRAINING_AND_DEVELOPMENT",
+  "التحليل الإحصائي": "STATISTICAL_ANALYSIS",
+  "تنظيف البيانات وتجهيزها": "DATA_CLEANING",
+  "لوحات المعلومات والتقارير": "DASHBOARDS_AND_REPORTS",
+  "تصميم الاستبانات": "SURVEY_DESIGN",
+  "اختيار الأداة المناسبة": "TOOL_SELECTION",
+  "تفسير النتائج": "RESULTS_INTERPRETATION",
   أخرى: "OTHER",
 };
 

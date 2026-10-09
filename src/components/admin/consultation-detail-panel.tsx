@@ -126,9 +126,22 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
             <DetailRow label="الجوال" value={data.phone} dir="ltr" />
             <DetailRow label="البريد" value={data.email ?? "—"} dir="ltr" />
             <DetailRow label="الجنس" value={data.genderLabel} />
-            <DetailRow label="المرحلة" value={data.currentStageLabel} />
-            <DetailRow label="الجامعة" value={data.university ?? "—"} />
-            <DetailRow label="التخصص المهتم به" value={data.majorInterest ?? "—"} />
+            <DetailRow label="صفة المستفيد" value={data.currentStageLabel} />
+            <DetailRow label="الجهة" value={data.university ?? "—"} />
+            <DetailRow label="المجال" value={data.majorInterest ?? "—"} />
+            <DetailRow label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
+            <DetailRow
+              label="رابط البيانات"
+              value={
+                data.link ? (
+                  <a href={data.link} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-madrak-primary underline">
+                    {data.link}
+                  </a>
+                ) : (
+                  "—"
+                )
+              }
+            />
             <DetailRow label="الأولوية" value={data.priorityLabel} />
           </dl>
         </section>
@@ -243,7 +256,7 @@ function DetailRow({
   dir,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   dir?: "ltr" | "rtl";
 }) {
   return (

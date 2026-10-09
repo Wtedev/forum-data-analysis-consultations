@@ -4,7 +4,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { requireAdmin } from "@/lib/admin-auth";
 
 export const metadata = {
-  title: "لوحة الإدارة | بوصلتك الجامعية",
+  title: "لوحة الإدارة | ملتقى تحليل البيانات في القطاع غير الربحي 2",
 };
 
 export default async function AdminDashboardLayout({

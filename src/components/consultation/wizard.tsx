@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { CheckCircle2, Info } from "lucide-react";
 
+import { ForumLogosBar, ForumPill, ForumTitle } from "@/components/consultation/forum-brand";
 import { MobileStepHeader } from "@/components/consultation/mobile-step-header";
 import { MobileStepper } from "@/components/consultation/mobile-stepper";
 import { ReviewSummary } from "@/components/consultation/review-summary";
@@ -99,7 +99,9 @@ export function ConsultationWizard() {
             university: 2,
             majorInterest: 2,
             consultationType: 3,
+            tools: 3,
             question: 3,
+            link: 3,
           };
           setCurrentStep(stepMap[firstErrorField] ?? 1);
         } else {
@@ -121,7 +123,7 @@ export function ConsultationWizard() {
   }
 
   const formFooter = (
-    <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-between lg:flex-row lg:gap-3">
+    <div className="mt-8 flex flex-col-reverse gap-3 border-t border-white/[0.08] pt-6 sm:flex-row sm:justify-between lg:flex-row lg:gap-3">
       {currentStep > 1 ? (
         <SecondaryButton
           onClick={goBack}
@@ -155,7 +157,7 @@ export function ConsultationWizard() {
   );
 
   const mobileFooter = !isSuccess && (
-    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200/80 bg-[#f0f9f9]/95 px-4 py-4 backdrop-blur-md lg:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-[#0a0f1d]/90 px-4 py-4 backdrop-blur-md lg:hidden">
       <div className={currentStep > 1 ? "flex gap-3" : ""}>
         {currentStep > 1 ? (
           <SecondaryButton onClick={goBack} disabled={submitting} className="flex-1">
@@ -185,25 +187,17 @@ export function ConsultationWizard() {
 
   return (
     <div className="mx-auto max-w-6xl pb-28 lg:pb-0">
-      {/* Mobile page header — matches desktop sidebar */}
-      <header className="mb-5 -mx-4 -mt-6 overflow-hidden rounded-b-3xl bg-gradient-to-b from-madrak-primary to-[#056b6f] px-5 pb-6 pt-6 text-center text-white shadow-xl shadow-madrak-primary/20 sm:-mx-6 sm:-mt-10 sm:px-6 sm:pb-7 lg:hidden">
-        <Image
-          src="/images/madrak-logo.svg"
-          alt="مدرك"
-          width={100}
-          height={40}
-          className="mx-auto h-10 w-auto brightness-0 invert"
-          priority
-        />
-        <p className="mt-5 text-sm font-medium text-white/80">بوصلتك الجامعية</p>
-        <h1 className="mt-1 text-lg font-semibold leading-snug sm:text-xl">
-          نموذج الاستشارات الأكاديمية
-        </h1>
-        <p className="mt-2 text-sm text-white/65">
-          أكمل الخطوات لإرسال طلب الاستشارة
-        </p>
-        <div className="mt-5 flex justify-center">
-          <span className="rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white">
+      <ForumLogosBar className="mb-6 sm:mb-8" />
+
+      {/* Mobile page header — forum identity */}
+      <header className="mb-5 text-center lg:hidden">
+        <ForumPill>ملتقى</ForumPill>
+        <div className="mt-4">
+          <ForumTitle size="md" />
+        </div>
+        <p className="mt-3 text-sm font-semibold text-[#cfe3ff]">نموذج طلب الاستشارة</p>
+        <div className="mt-4 flex justify-center">
+          <span className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-1.5 text-xs font-semibold text-[#cfe3ff]">
             {isSuccess
               ? "تم إرسال الطلب"
               : `الخطوة ${currentStep} من ${FORM_STEPS.length}`}
@@ -227,29 +221,29 @@ export function ConsultationWizard() {
           isSuccess={isSuccess}
         />
 
-        <div className="flex min-h-[480px] flex-col rounded-3xl bg-white p-5 shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 sm:p-8 lg:min-h-[520px]">
+        <div className="flex min-h-[480px] flex-col kf-glass rounded-3xl p-5 shadow-2xl shadow-black/40 sm:p-8 lg:min-h-[520px]">
           {isSuccess ? (
             <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
-              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-madrak-primary shadow-lg shadow-madrak-primary/30">
+              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full kf-gradient-bg shadow-lg shadow-emerald-400/20">
                 <CheckCircle2
-                  className="h-10 w-10 text-white"
+                  className="h-10 w-10 text-[#061223]"
                   strokeWidth={1.5}
                 />
               </div>
-              <h2 className="text-xl font-semibold text-slate-800 sm:text-2xl">
+              <h2 className="text-xl font-semibold text-white sm:text-2xl">
                 تم استلام طلبك بنجاح
               </h2>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">
                 شكرًا لتواصلك معنا. سيقوم فريق الاستشارات بمراجعة طلبك والتواصل معك
                 قريبًا.
               </p>
               <div className="mt-8 w-full max-w-sm rounded-2xl border-2 border-dashed border-madrak-primary/25 bg-gradient-to-b from-madrak-primary/5 to-white px-6 py-6">
-                <p className="text-xs font-medium text-slate-500">الرقم المرجعي لطلبك</p>
-                <p className="mt-2 font-mono text-2xl font-bold tracking-wide text-madrak-primary">
+                <p className="text-xs font-medium text-slate-400">الرقم المرجعي لطلبك</p>
+                <p className="mt-2 kf-gradient-text font-mono text-2xl font-bold tracking-wide">
                   {referenceCode}
                 </p>
               </div>
-              <p className="mt-6 max-w-md text-xs leading-relaxed text-slate-500">
+              <p className="mt-6 max-w-md text-xs leading-relaxed text-slate-400">
                 احتفظ بهذا الرقم لمتابعة طلبك. سيتم التواصل معك بعد مراجعة الطلب.
               </p>
             </div>
@@ -263,10 +257,10 @@ export function ConsultationWizard() {
               ) : null}
 
               {currentStep === 1 ? (
-                <div className="mb-5 flex gap-2.5 rounded-xl border border-madrak-primary/10 bg-madrak-primary/5 px-3.5 py-3 text-sm leading-relaxed text-slate-700">
+                <div className="mb-5 flex gap-2.5 rounded-xl border border-madrak-primary/20 bg-madrak-primary/[0.07] px-3.5 py-3 text-sm leading-relaxed text-slate-200">
                   <Info className="mt-0.5 h-4 w-4 shrink-0 text-madrak-primary" aria-hidden />
                   <p>
-                    الاستشارات الأكاديمية متاحة للمستفيدين بدون الحاجة إلى إنشاء
+                    استشارات تحليل البيانات متاحة للمستفيدين بدون الحاجة إلى إنشاء
                     حساب.
                   </p>
                 </div>
@@ -286,9 +280,9 @@ export function ConsultationWizard() {
                       form={form}
                       editable
                       onEditStep={goToStep}
-                      className="bg-white"
+                      className="bg-white/[0.04]"
                     />
-                    <p className="mt-4 text-center text-xs leading-relaxed text-slate-500 lg:text-start">
+                    <p className="mt-4 text-center text-xs leading-relaxed text-slate-400 lg:text-start">
                       بالضغط على «إرسال الطلب» تؤكد صحة البيانات المدخلة.
                     </p>
                     <p className="mt-2 text-center text-xs text-slate-400 lg:text-start">
@@ -299,7 +293,7 @@ export function ConsultationWizard() {
               </div>
 
               {submitError ? (
-                <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                <p className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">
                   {submitError}
                 </p>
               ) : null}

@@ -56,7 +56,9 @@ export async function POST(request: Request) {
           university: data.university,
           majorInterest: data.majorInterest,
           consultationType: mapConsultationType(data.consultationType),
+          tools: data.tools,
           question: data.question,
+          link: data.link,
           preferredContactMethod: "WHATSAPP",
         },
       });

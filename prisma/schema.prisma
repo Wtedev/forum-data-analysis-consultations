@@ -12,17 +12,20 @@ enum Gender {
 }
 
 enum CurrentStage {
-  HIGH_SCHOOL
-  NEW_UNIVERSITY_STUDENT
-  UNIVERSITY_STUDENT
+  INDIVIDUAL
+  RESEARCHER
+  EMPLOYEE
+  BUSINESS_OWNER
+  OTHER
 }
 
 enum ConsultationType {
-  MAJOR_SELECTION
-  MAJOR_TRANSFER
-  UNIVERSITY_LIFE_PREPARATION
-  VOLUNTEERING_AND_ACTIVITIES
-  TRAINING_AND_DEVELOPMENT
+  STATISTICAL_ANALYSIS
+  DATA_CLEANING
+  DASHBOARDS_AND_REPORTS
+  SURVEY_DESIGN
+  TOOL_SELECTION
+  RESULTS_INTERPRETATION
   OTHER
 }
 
@@ -63,7 +66,9 @@ model Consultation {
   university             String?
   majorInterest          String?
   consultationType       ConsultationType
+  tools                  String[]               @default([])
   question               String
+  link                   String?
   preferredContactMethod PreferredContactMethod
   status                 ConsultationStatus     @default(NEW)
   priority               Priority               @default(NORMAL)

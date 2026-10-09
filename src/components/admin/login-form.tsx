@@ -55,7 +55,7 @@ export function AdminLoginForm() {
         لوحة إدارة الاستشارات
       </h1>
       <p className="mt-2 text-center text-sm text-slate-500">
-        سجّل الدخول لإدارة طلبات بوصلتك الجامعية
+        سجّل الدخول لإدارة طلبات استشارات تحليل البيانات
       </p>
 
       <div className="mt-8 space-y-5">

@@ -32,7 +32,7 @@ export function MobileStepper({
                     "h-0.5 flex-1 rounded-full transition-colors",
                     completedSteps.has(FORM_STEPS[index - 1].id) || isSuccess
                       ? "bg-madrak-primary"
-                      : "bg-slate-200",
+                      : "bg-white/10",
                   )}
                   aria-hidden
                 />
@@ -43,10 +43,10 @@ export function MobileStepper({
                   className={clsx(
                     "flex h-11 w-11 items-center justify-center rounded-full border-2 transition-all",
                     done
-                      ? "border-madrak-primary bg-madrak-primary text-white shadow-md shadow-madrak-primary/25"
+                      ? "border-transparent kf-gradient-bg text-[#061223]"
                       : current
-                        ? "border-madrak-primary bg-white text-madrak-primary shadow-md shadow-madrak-primary/15 ring-4 ring-madrak-primary/10"
-                        : "border-slate-200 bg-white text-slate-400",
+                        ? "border-madrak-primary bg-madrak-primary/15 text-madrak-primary ring-4 ring-madrak-primary/10"
+                        : "border-white/10 bg-white/[0.04] text-slate-400",
                   )}
                 >
                   {done ? (

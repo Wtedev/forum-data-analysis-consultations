@@ -37,7 +37,9 @@ export type ConsultationDetail = ConsultationListItem & {
   currentStageLabel: string;
   university: string | null;
   majorInterest: string | null;
+  tools: string[];
   question: string;
+  link: string | null;
   preferredContactMethodLabel: string;
   updatedAt: string;
   updatedAtLabel: string;
@@ -90,7 +92,9 @@ export function serializeConsultationDetail(
     currentStageLabel: STAGE_DB_LABELS[row.currentStage],
     university: row.university,
     majorInterest: row.majorInterest,
+    tools: row.tools,
     question: row.question,
+    link: row.link,
     preferredContactMethodLabel: CONTACT_DB_LABELS[row.preferredContactMethod],
     updatedAt: row.updatedAt.toISOString(),
     updatedAtLabel: formatDateTime(row.updatedAt),

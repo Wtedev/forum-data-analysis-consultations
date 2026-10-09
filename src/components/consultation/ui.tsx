@@ -2,15 +2,15 @@ import { clsx } from "clsx";
 import type { ReactNode } from "react";
 
 export const inputClassName =
-  "w-full rounded-xl border border-slate-200/90 bg-white px-4 py-3.5 text-[15px] text-foreground shadow-sm outline-none transition placeholder:text-slate-400 focus:border-madrak-primary focus:ring-[3px] focus:ring-madrak-primary/15";
+  "w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-[15px] text-white shadow-none outline-none transition placeholder:text-slate-400 focus:border-madrak-primary focus:ring-[3px] focus:ring-madrak-primary/15 [color-scheme:dark] [&>option]:bg-[#0f1729]";
 
-export const labelClassName = "mb-2 block text-sm font-medium text-slate-700";
+export const labelClassName = "mb-2 block text-sm font-medium text-slate-200";
 
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
-    <p className="mt-1.5 text-xs font-medium text-red-600" role="alert">
+    <p className="mt-1.5 text-xs font-medium text-red-400" role="alert">
       {message}
     </p>
   );
@@ -46,7 +46,7 @@ export function FormField({
         {label}
         {required ? <RequiredMark /> : null}
       </label>
-      {hint ? <p className="-mt-1 mb-2 text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p className="-mt-1 mb-2 text-xs text-slate-400">{hint}</p> : null}
       {children}
       <FieldError message={error} />
     </div>
@@ -71,8 +71,8 @@ export function RadioOption({
       className={clsx(
         "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
         checked
-          ? "border-madrak-primary bg-madrak-primary text-white shadow-md shadow-madrak-primary/20"
-          : "border-slate-200 bg-white text-slate-700 hover:border-madrak-primary/40 hover:bg-madrak-primary/5",
+          ? "border-madrak-primary/70 bg-madrak-primary/15 text-white ring-1 ring-madrak-primary/40"
+          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-madrak-primary/40 hover:bg-madrak-primary/5",
       )}
     >
       <input
@@ -107,7 +107,7 @@ export function PrimaryButton({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "inline-flex min-h-[48px] items-center justify-center rounded-xl bg-madrak-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-madrak-primary/25 transition hover:bg-[#057a7f] focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/30 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex min-h-[48px] items-center justify-center rounded-xl kf-gradient-bg px-6 py-3 text-sm font-bold text-[#061223] shadow-lg shadow-emerald-400/10 transition hover:brightness-110 focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/30 disabled:cursor-not-allowed disabled:opacity-55",
         className,
       )}
     >
@@ -135,11 +135,46 @@ export function SecondaryButton({
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "inline-flex min-h-[48px] items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-madrak-primary/30 hover:bg-slate-50 focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/15 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-slate-200 transition hover:border-madrak-primary/30 hover:bg-white/[0.06] focus:outline-none focus:ring-[3px] focus:ring-madrak-primary/15 disabled:cursor-not-allowed disabled:opacity-55",
         className,
       )}
     >
       {children}
     </button>
+  );
+}
+
+export function CheckboxOption({
+  name,
+  value,
+  label,
+  checked,
+  onChange,
+}: {
+  name: string;
+  value: string;
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label
+      className={clsx(
+        "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition",
+        checked
+          ? "border-madrak-primary/70 bg-madrak-primary/15 text-white ring-1 ring-madrak-primary/40"
+          : "border-white/10 bg-white/[0.04] text-slate-200 hover:border-madrak-primary/40 hover:bg-madrak-primary/5",
+      )}
+    >
+      <input
+        type="checkbox"
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+      />
+      <span dir="ltr">{label}</span>
+    </label>
   );
 }

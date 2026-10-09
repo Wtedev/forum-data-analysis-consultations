@@ -25,13 +25,13 @@ function ReviewRow({
   const display = value?.trim() ? value : "لم يُذكر";
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-100 py-3.5 last:border-0">
+    <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] py-3.5 last:border-0">
       <div className="min-w-0 flex-1 text-start">
-        <p className="text-xs font-medium text-slate-500">{label}</p>
+        <p className="text-xs font-medium text-slate-400">{label}</p>
         <p
           className={clsx(
             "mt-0.5 text-sm font-medium",
-            value?.trim() ? "text-slate-800" : "text-slate-400",
+            value?.trim() ? "text-white" : "text-slate-400",
           )}
         >
           {display}
@@ -67,32 +67,34 @@ export function ReviewSummary({
     { label: "رقم الجوال", value: form.phone, step: 1 },
     { label: "البريد الإلكتروني", value: form.email, step: 1 },
     { label: "الجنس", value: form.gender, step: 1 },
-    { label: "المرحلة الحالية", value: form.currentStage, step: 2 },
-    { label: "الجامعة", value: form.university, step: 2 },
-    { label: "التخصص", value: form.majorInterest, step: 2 },
+    { label: "صفة المستفيد", value: form.currentStage, step: 2 },
+    { label: "الجهة", value: form.university, step: 2 },
+    { label: "المجال", value: form.majorInterest, step: 2 },
     { label: "نوع الاستشارة", value: form.consultationType, step: 3 },
+    { label: "الأدوات", value: form.tools.join("، "), step: 3 },
     {
-      label: "السؤال",
+      label: "الاستفسار",
       value:
         form.question.length > 100
           ? `${form.question.slice(0, 100)}…`
           : form.question,
       step: 3,
     },
+    { label: "رابط البيانات", value: form.link, step: 3 },
   ];
 
   return (
     <div
       className={clsx(
-        "rounded-2xl border border-slate-100 bg-slate-50/60",
+        "rounded-2xl border border-white/[0.08] bg-white/[0.03]",
         editable ? "p-1" : "p-4 sm:p-5",
         className,
       )}
     >
       {!editable ? (
         <>
-          <h3 className="mb-1 text-sm font-semibold text-slate-800">ملخص الطلب</h3>
-          <p className="mb-3 text-xs text-slate-500">
+          <h3 className="mb-1 text-sm font-semibold text-white">ملخص الطلب</h3>
+          <p className="mb-3 text-xs text-slate-400">
             راجع بياناتك قبل إرسال طلب الاستشارة
           </p>
         </>

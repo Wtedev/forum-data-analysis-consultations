@@ -8,11 +8,11 @@ async function main() {
   const passwordHash = await bcrypt.hash("admin12345", 10);
 
   await getPrisma().adminUser.upsert({
-    where: { email: "admin@madrak.sa" },
+    where: { email: "admin@example.com" },
     update: {},
     create: {
       name: "مدير النظام",
-      email: "admin@madrak.sa",
+      email: "admin@example.com",
       passwordHash,
       role: "ADMIN",
     },

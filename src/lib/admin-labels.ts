@@ -1,7 +1,7 @@
 import type {
   ConsultationStatus,
-  ConsultationType,
   CurrentStage,
+  ConsultationType,
   Gender,
   PreferredContactMethod,
   Priority,
@@ -28,17 +28,20 @@ export const GENDER_DB_LABELS: Record<Gender, string> = {
 };
 
 export const STAGE_DB_LABELS: Record<CurrentStage, string> = {
-  HIGH_SCHOOL: "ثانوي",
-  NEW_UNIVERSITY_STUDENT: "مستجد جامعي",
-  UNIVERSITY_STUDENT: "طالب جامعي",
+  INDIVIDUAL: "فرد",
+  RESEARCHER: "باحث",
+  EMPLOYEE: "موظف",
+  BUSINESS_OWNER: "صاحب منشأة",
+  OTHER: "أخرى",
 };
 
 export const TYPE_DB_LABELS: Record<ConsultationType, string> = {
-  MAJOR_SELECTION: "اختيار التخصص",
-  MAJOR_TRANSFER: "التحويل بين التخصصات",
-  UNIVERSITY_LIFE_PREPARATION: "التهيئة للحياة الجامعية",
-  VOLUNTEERING_AND_ACTIVITIES: "الفرص التطوعية والأنشطة",
-  TRAINING_AND_DEVELOPMENT: "التدريب والتطوير",
+  STATISTICAL_ANALYSIS: "التحليل الإحصائي",
+  DATA_CLEANING: "تنظيف البيانات وتجهيزها",
+  DASHBOARDS_AND_REPORTS: "لوحات المعلومات والتقارير",
+  SURVEY_DESIGN: "تصميم الاستبانات",
+  TOOL_SELECTION: "اختيار الأداة المناسبة",
+  RESULTS_INTERPRETATION: "تفسير النتائج",
   OTHER: "أخرى",
 };
 

@@ -4,6 +4,7 @@ import {
   CONSULTATION_TYPE_LABELS,
   CURRENT_STAGE_LABELS,
   GENDER_LABELS,
+  TOOL_LABELS,
 } from "@/lib/consultation-mappers";
 import { isValidSaudiMobile, normalizePhone } from "@/lib/phone";
 
@@ -32,7 +33,7 @@ export const consultationFormSchema = z.object({
     .transform((value) => (value === "" ? undefined : value)),
   gender: z.enum(GENDER_LABELS, { message: "اختر الجنس" }),
   currentStage: z.enum(CURRENT_STAGE_LABELS, {
-    message: "اختر المرحلة الحالية",
+    message: "اختر صفتك",
   }),
   university: z
     .string()
@@ -47,11 +48,20 @@ export const consultationFormSchema = z.object({
   consultationType: z.enum(CONSULTATION_TYPE_LABELS, {
     message: "اختر نوع الاستشارة",
   }),
+  tools: z.array(z.enum(TOOL_LABELS)).default([]),
   question: z
     .string()
     .trim()
-    .min(10, "اكتب سؤالك أو استفسارك (10 أحرف على الأقل)")
+    .min(10, "اكتب تفاصيل استشارتك (10 أحرف على الأقل)")
     .max(5000, "النص طويل جداً"),
+  link: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || z.url().safeParse(value).success,
+      "أدخل رابطًا صحيحًا يبدأ بـ https://",
+    )
+    .transform((value) => (value === "" ? undefined : value)),
 });
 
 export type ConsultationFormInput = z.infer<typeof consultationFormSchema>;
@@ -71,7 +81,9 @@ export const consultationStep2Schema = consultationFormSchema.pick({
 
 export const consultationStep3Schema = consultationFormSchema.pick({
   consultationType: true,
+  tools: true,
   question: true,
+  link: true,
 });
 
 export const consultationStep4Schema = z.object({});
