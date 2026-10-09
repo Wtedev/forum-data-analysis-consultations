@@ -13,7 +13,7 @@ type AdminHeaderProps = {
 
 export function AdminHeader({
   adminName,
-  title = "لوحة الإدارة",
+  title = "إدارة طلبات الاستشارات",
   homeHref = "/admin",
 }: AdminHeaderProps) {
   const router = useRouter();
@@ -37,7 +37,7 @@ export function AdminHeader({
           href={homeHref}
           className="rounded-lg px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
         >
-          الطلبات
+          طلبات الاستشارات
         </Link>
         <SecondaryButton
           onClick={handleLogout}

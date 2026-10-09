@@ -28,7 +28,7 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
         href="/admin"
         className="inline-flex text-sm font-medium text-forum-primary hover:underline"
       >
-        ← العودة للطلبات
+        ← العودة لطلبات الاستشارات
       </Link>
       <ConsultationDetailPanel initialData={consultation} />
     </div>
