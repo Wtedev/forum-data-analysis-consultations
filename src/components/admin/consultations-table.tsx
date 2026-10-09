@@ -79,9 +79,9 @@ export function ConsultationsTable({
     <div className={iconTools ? "space-y-5" : "space-y-6"}>
       {iconTools ? (
         <div className="grid grid-cols-3 items-stretch gap-2.5 sm:gap-3">
-          <DeskStat label="جميع الاستشارات" value={initialStats.total} />
-          <DeskStat label="استشاراتي" value={initialStats.mine ?? 0} />
-          <DeskStat label="الاستشارات غير المسندة" value={initialStats.unassigned ?? 0} />
+          <DeskStat value={initialStats.total} lines={["جميع", "الاستشارات"]} />
+          <DeskStat value={initialStats.mine ?? 0} lines={["استشاراتي"]} />
+          <DeskStat value={initialStats.unassigned ?? 0} lines={["الاستشارات", "غير المسندة"]} />
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -444,11 +444,15 @@ function ConsultationActions({
   );
 }
 
-function DeskStat({ label, value }: { label: string; value: number }) {
+function DeskStat({ value, lines }: { value: number; lines: string[] }) {
   return (
-    <div className="flex h-full min-w-0 flex-col items-center rounded-2xl bg-white px-2 py-4 text-center shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
-      <p className="text-[1.65rem] font-bold leading-none tabular-nums text-[#3e4c86]">{value}</p>
-      <p className="mt-3 flex min-h-8 items-start justify-center text-center text-[11px] font-medium leading-4 text-[#8b93ab] sm:text-xs">{label}</p>
+    <div className="flex h-full min-h-[108px] min-w-0 flex-col items-center justify-center gap-3 rounded-2xl bg-white px-2 py-3.5 text-center shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+      <p className="text-[1.75rem] font-bold leading-none tabular-nums text-[#3e4c86]">{value}</p>
+      <p className="flex h-8 flex-col items-center justify-center text-[11px] font-medium leading-4 text-[#8b93ab] sm:text-xs">
+        {lines.map((line) => (
+          <span key={line}>{line}</span>
+        ))}
+      </p>
     </div>
   );
 }
