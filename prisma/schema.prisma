@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum CurrentStage {
+  HIGH_SCHOOL
+  NEW_UNIVERSITY_STUDENT
+  UNIVERSITY_STUDENT
+}
+
+enum ConsultationType {
+  MAJOR_SELECTION
+  MAJOR_TRANSFER
+  UNIVERSITY_LIFE_PREPARATION
+  VOLUNTEERING_AND_ACTIVITIES
+  TRAINING_AND_DEVELOPMENT
+  OTHER
+}
+
+enum PreferredContactMethod {
+  WHATSAPP
+  CALL
+}
+
+enum ConsultationStatus {
+  NEW
+  IN_REVIEW
+  CONTACTED
+  ANSWERED
+  NEEDS_FOLLOW_UP
+  CLOSED
+}
+
+enum Priority {
+  NORMAL
+  MEDIUM
+  HIGH
+}
+
+enum AdminRole {
+  ADMIN
+  CONSULTANT
+  VIEWER
+}
+
+model Consultation {
+  id                     String                 @id @default(cuid())
+  referenceCode          String                 @unique
+  fullName               String
+  phone                  String
+  email                  String?
+  gender                 Gender
+  currentStage           CurrentStage
+  university             String?
+  majorInterest          String?
+  consultationType       ConsultationType
+  question               String
+  preferredContactMethod PreferredContactMethod
+  status                 ConsultationStatus     @default(NEW)
+  priority               Priority               @default(NORMAL)
+
+  assignedToId           String?
+  assignedTo             AdminUser?             @relation("AssignedConsultations", fields: [assignedToId], references: [id])
+
+  notes                  ConsultationNote[]
+  activityLogs           ActivityLog[]
+  notifications          Notification[]
+
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  closedAt               DateTime?
+
+  @@index([phone])
+  @@index([fullName])
+  @@index([email])
+  @@index([status])
+  @@index([consultationType])
+  @@index([createdAt])
+}
+
+model AdminUser {
+  id                     String                 @id @default(cuid())
+  name                   String
+  email                  String                 @unique
+  passwordHash           String
+  role                   AdminRole              @default(CONSULTANT)
+
+  assignedConsultations  Consultation[]          @relation("AssignedConsultations")
+  notes                  ConsultationNote[]
+  activityLogs           ActivityLog[]
+
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+}
+
+model ConsultationNote {
+  id             String        @id @default(cuid())
+  consultationId String
+  adminUserId    String
+  note           String
+
+  consultation   Consultation  @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  adminUser      AdminUser     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime      @default(now())
+
+  @@index([consultationId])
+  @@index([adminUserId])
+}
+
+model ActivityLog {
+  id             String        @id @default(cuid())
+  adminUserId    String?
+  consultationId String?
+  actionType     String
+  description    String
+
+  adminUser      AdminUser?    @relation(fields: [adminUserId], references: [id])
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime      @default(now())
+
+  @@index([consultationId])
+  @@index([adminUserId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id             String        @id @default(cuid())
+  type           String
+  title          String
+  message        String
+  consultationId String?
+  isRead         Boolean       @default(false)
+
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime      @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}

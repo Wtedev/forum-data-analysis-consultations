@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+:root {
+  --foreground: #1a2e30;
+  --madrak-primary: #068b90;
+  --madrak-secondary: #fcc565;
+}
+
+@theme inline {
+  --color-foreground: var(--foreground);
+  --color-madrak-primary: var(--madrak-primary);
+  --color-madrak-secondary: var(--madrak-secondary);
+  --font-family-madrak: var(--font-madrak), Tahoma, Arial, sans-serif;
+}
+
+body {
+  color: var(--foreground);
+  font-family: var(--font-madrak);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes coming-soon-dot {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.coming-soon-dot {
+  animation: coming-soon-dot 1.6s ease-in-out infinite;
+}
+
+/* Consultation hero */
+@keyframes consultation-gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes consultation-float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(12px, -18px);
+  }
+}
+
+@keyframes consultation-float-medium {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-16px, 14px);
+  }
+}
+
+@keyframes logo-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.consultation-hero__gradient {
+  background: linear-gradient(
+    120deg,
+    #068b90 0%,
+    #0a9ea6 20%,
+    #14b8bf 45%,
+    #1ec8cf 55%,
+    #0ba8af 75%,
+    #068b90 100%
+  );
+  background-size: 180% 180%;
+  animation: consultation-gradient-shift 28s ease-in-out infinite;
+}
+
+.consultation-hero__gradient-overlay {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.08) 38%,
+    transparent 52%,
+    rgba(4, 90, 97, 0.1) 100%
+  );
+  background-size: 160% 160%;
+  animation: consultation-gradient-shift 32s ease-in-out infinite reverse;
+  opacity: 0.85;
+}
+
+.consultation-hero__shape--one {
+  animation: consultation-float-slow 18s ease-in-out infinite;
+}
+
+.consultation-hero__shape--two {
+  animation: consultation-float-medium 14s ease-in-out infinite;
+}
+
+.consultation-hero__shape--three {
+  animation: consultation-float-slow 20s ease-in-out infinite;
+}
+
+.consultation-hero__silhouette-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 90dvh;
+  pointer-events: none;
+}
+
+.consultation-hero__silhouette-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/onboarding/hero-main.webp");
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: auto 90dvh;
+  filter: brightness(0);
+  opacity: 0.15;
+}
+
+@media (min-width: 1024px) {
+  .consultation-hero__silhouette-wrap {
+    width: 52%;
+    height: 90%;
+  }
+
+  .consultation-hero__silhouette-wrap::before {
+    background-size: auto 90%;
+  }
+}
+
+.animate-logo-marquee {
+  width: max-content;
+  animation: logo-marquee 24s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consultation-hero__gradient,
+  .consultation-hero__gradient-overlay,
+  .animate-logo-marquee,
+  .consultation-hero__shape--one,
+  .consultation-hero__shape--two,
+  .consultation-hero__shape--three {
+    animation: none;
+  }
+}
+
+.partners-marquee-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 10%,
+    #000 90%,
+    transparent 100%
+  );
+}
+
+.partner-logo {
+  filter: brightness(0) invert(1);
+}
+
+.consultation-hero__glass {
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
