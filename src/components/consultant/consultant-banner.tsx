@@ -15,8 +15,9 @@ export function ConsultantBanner({ name }: { name: string }) {
 
   return (
     <div className="mb-5">
-      <div className="mb-2.5 flex justify-center">
+      <div className="mb-2.5 flex items-center justify-between gap-3">
         <img src="/images/kafaat-logo.png" alt="كفاءات" width={120} height={52} className="h-10 w-auto" />
+        <PlatformGuide />
       </div>
       <header className="rounded-2xl bg-[linear-gradient(168deg,#121c33_0%,#1a2849_32%,#0e1528_68%,#0b0f1c_100%)] px-4 py-3 text-white shadow-[0_10px_24px_rgba(11,15,28,0.28)] sm:px-5 sm:py-3.5">
         <div className="flex items-start justify-between gap-3">
@@ -31,9 +32,6 @@ export function ConsultantBanner({ name }: { name: string }) {
           >
             تسجيل خروج
           </button>
-        </div>
-        <div className="mt-3 flex justify-end">
-          <PlatformGuide tone="onDark" />
         </div>
       </header>
     </div>
