@@ -40,11 +40,11 @@ function escapeHtml(value: string) {
     .replaceAll('"', "&quot;");
 }
 
-function layout(body: string) {
+function layout(body: string, footer = true) {
   return `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;background:#f4f6f8;padding:24px;color:#111827">
     <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e6e8ec;border-radius:16px;padding:24px;line-height:1.8">
       ${body}
-      <p style="margin:24px 0 0;color:#6b7280;font-size:13px">ملتقى تحليل البيانات في القطاع غير الربحي 2</p>
+      ${footer ? `<p style="margin:24px 0 0;color:#6b7280;font-size:13px">ملتقى تحليل البيانات في القطاع غير الربحي 2</p>` : ""}
     </div>
   </div>`;
 }
@@ -306,15 +306,20 @@ export async function notifyConsultationAssigned(consultation: ConsultationMailC
 }
 
 export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: string }) {
+  const name = escapeHtml(input.name);
+  const acceptUrl = escapeHtml(input.acceptUrl);
+  const loginUrl = escapeHtml(input.loginUrl);
+
   return {
-    subject: "دعوة للانضمام كمستشار",
-    html: layout(`<p>مرحباً ${escapeHtml(input.name)}،</p>
-      <p>دعاك فريق ملتقى تحليل البيانات في القطاع غير الربحي 2 للدخول إلى واجهة المستشار.</p>
-      <p>أنشئ كلمة المرور من الرابط التالي، وهو صالح لمدة 7 أيام:</p>
-      <p><a href="${escapeHtml(input.acceptUrl)}">إنشاء كلمة المرور</a></p>
-      <p>بعد ذلك ادخل من هذا الرابط بالبريد نفسه وكلمة المرور التي اخترتها:</p>
-      <p><a href="${escapeHtml(input.loginUrl)}">رابط الدخول</a></p>
-      <p>كل استشارة تصل إليك يصلك عنها بريد.</p>`),
+    subject: "دعوة للانضمام إلى فريق المستشارين – ملتقى تحليل البيانات في القطاع غير الربحي 2",
+    html: layout(`<p>مرحباً ${name}،</p>
+      <p>يسعدنا انضمامك إلى فريق المستشارين في ملتقى تحليل البيانات في القطاع غير الربحي 2، وقد أُنشئ حسابك لاستقبال الاستشارات في منصة الاستشارات.</p>
+      <p>لتفعيل حسابك:</p>
+      <p>أنشئ كلمة المرور من الرابط التالي (صالح لمدة 7 أيام):<br><a href="${acceptUrl}">إنشاء كلمة المرور</a></p>
+      <p>سجّل الدخول ببريدك الإلكتروني نفسه وكلمة المرور التي اخترتها:<br><a href="${loginUrl}">تسجيل الدخول</a></p>
+      <p>ستصلك رسالة على بريدك عند وصول أي طلب استشارة جديد.</p>
+      <p>شاكرين لك مشاركتك، ونتطلع إلى الاستفادة من خبراتك.</p>
+      <p>مع التحية،<br>فريق ملتقى تحليل البيانات في القطاع غير الربحي 2</p>`, false),
   };
 }
 
