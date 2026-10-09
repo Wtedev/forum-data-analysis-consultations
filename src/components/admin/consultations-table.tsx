@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
@@ -31,6 +31,7 @@ type ConsultationsTableProps = {
   emptyMessage?: string;
   canClaim?: boolean;
   showSearchButton?: boolean;
+  iconTools?: boolean;
 };
 
 export function ConsultationsTable({
@@ -46,10 +47,13 @@ export function ConsultationsTable({
   emptyMessage = "لا توجد طلبات مطابقة",
   canClaim = false,
   showSearchButton = true,
+  iconTools = false,
 }: ConsultationsTableProps) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
   const [status, setStatus] = useState(initialStatus);
+  const [searchOpen, setSearchOpen] = useState(Boolean(initialQuery));
+  const [filtersOpen, setFiltersOpen] = useState(Boolean(initialStatus));
 
   const applyFilters = useCallback(
     (page = 1, next?: { q?: string; status?: string }) => {
@@ -70,7 +74,31 @@ export function ConsultationsTable({
 
   return (
     <div className="space-y-6">
-      {heading ? <h1 className="text-lg font-semibold text-[#111827]">{heading}</h1> : null}
+      {heading || iconTools ? (
+        <div className="flex items-center justify-between gap-3">
+          {heading ? <h1 className="text-lg font-semibold text-[#111827]">{heading}</h1> : <span />}
+          {iconTools ? (
+            <div className="flex items-center gap-2">
+              <ToolIconButton
+                label="بحث"
+                pressed={searchOpen}
+                marked={Boolean(q.trim())}
+                onClick={() => setSearchOpen((open) => !open)}
+              >
+                <SearchIcon />
+              </ToolIconButton>
+              <ToolIconButton
+                label="تصفية"
+                pressed={filtersOpen}
+                marked={Boolean(status)}
+                onClick={() => setFiltersOpen((open) => !open)}
+              >
+                <FilterIcon />
+              </ToolIconButton>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label="إجمالي الطلبات"
@@ -100,79 +128,100 @@ export function ConsultationsTable({
         />
       </div>
 
-      <div className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="min-w-0 flex-1">
-            <label htmlFor="search" className="mb-2 block text-sm font-semibold text-[#374151]">
-              بحث
-            </label>
-            <input
-              id="search"
-              className={staffInputClassName}
-              placeholder="الرقم المرجعي، الاسم، أو الجوال"
-              value={q}
-              onChange={(event) => setQ(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") applyFilters(1);
-              }}
-            />
-            {showSearchButton ? null : (
-              <p className="mt-2 text-xs font-medium text-[#6b7280]">اكتب ثم اضغط إدخال للبحث.</p>
-            )}
-          </div>
-          {showSearchButton || filtersActive ? (
-            <div className="flex gap-2">
-              {showSearchButton ? (
-                <button
-                  type="button"
-                  onClick={() => applyFilters(1)}
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#157a43] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#126838] sm:w-auto"
-                >
+      {!iconTools || searchOpen || filtersOpen ? (
+        <div className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
+          {!iconTools || searchOpen ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="min-w-0 flex-1">
+                <label htmlFor="search" className="mb-2 block text-sm font-semibold text-[#374151]">
                   بحث
-                </button>
-              ) : null}
-              {filtersActive ? (
-                <StaffSecondaryButton
-                  type="button"
-                  onClick={() => {
-                    setQ("");
-                    setStatus("");
-                    router.push(basePath);
+                </label>
+                <input
+                  id="search"
+                  className={staffInputClassName}
+                  placeholder="الرقم المرجعي، الاسم، أو الجوال"
+                  value={q}
+                  onChange={(event) => setQ(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") applyFilters(1);
                   }}
-                >
-                  إعادة ضبط
-                </StaffSecondaryButton>
+                />
+                {showSearchButton ? null : (
+                  <p className="mt-2 text-xs font-medium text-[#6b7280]">اكتب ثم اضغط إدخال للبحث.</p>
+                )}
+              </div>
+              {showSearchButton || filtersActive ? (
+                <div className="flex gap-2">
+                  {showSearchButton ? (
+                    <button
+                      type="button"
+                      onClick={() => applyFilters(1)}
+                      className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#157a43] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#126838] sm:w-auto"
+                    >
+                      بحث
+                    </button>
+                  ) : null}
+                  {filtersActive ? (
+                    <StaffSecondaryButton
+                      type="button"
+                      onClick={() => {
+                        setQ("");
+                        setStatus("");
+                        router.push(basePath);
+                      }}
+                    >
+                      إعادة ضبط
+                    </StaffSecondaryButton>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           ) : null}
-        </div>
 
-        <div className="mt-4">
-          <p className="mb-2 text-sm font-semibold text-[#374151]">الحالة</p>
-          <div className="flex flex-wrap gap-2">
-            <StatusChip
-              label="الكل"
-              active={!status}
-              onClick={() => {
-                setStatus("");
-                applyFilters(1, { status: "" });
-              }}
-            />
-            {ALL_STATUSES.map((item) => (
-              <StatusChip
-                key={item}
-                label={STATUS_LABELS[item]}
-                count={initialStats.byStatus[item] ?? 0}
-                active={status === item}
-                onClick={() => {
-                  setStatus(item);
-                  applyFilters(1, { status: item });
-                }}
-              />
-            ))}
-          </div>
+          {!iconTools || filtersOpen ? (
+            <div className={clsx((!iconTools || searchOpen) && "mt-4")}>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[#374151]">الحالة</p>
+                {iconTools && filtersActive ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQ("");
+                      setStatus("");
+                      router.push(basePath);
+                    }}
+                    className="text-sm font-semibold text-[#374151] underline"
+                  >
+                    إعادة ضبط
+                  </button>
+                ) : null}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <StatusChip
+                  label="الكل"
+                  active={!status}
+                  onClick={() => {
+                    setStatus("");
+                    applyFilters(1, { status: "" });
+                  }}
+                />
+                {ALL_STATUSES.map((item) => (
+                  <StatusChip
+                    key={item}
+                    label={STATUS_LABELS[item]}
+                    count={initialStats.byStatus[item] ?? 0}
+                    active={status === item}
+                    onClick={() => {
+                      setStatus(item);
+                      applyFilters(1, { status: item });
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
-      </div>
+      ) : null}
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
         <div className="overflow-x-auto">
@@ -304,6 +353,55 @@ function StatCard({
     <button type="button" onClick={onClick} className={className}>
       {body}
     </button>
+  );
+}
+
+function ToolIconButton({
+  label,
+  pressed,
+  marked,
+  onClick,
+  children,
+}: {
+  label: string;
+  pressed: boolean;
+  marked: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={pressed}
+      onClick={onClick}
+      className={clsx(
+        "relative inline-flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition",
+        pressed
+          ? "border-[#111827] bg-[#111827] text-white"
+          : "border-[#e6e8ec] bg-white text-[#374151] hover:bg-[#f7f8fa]",
+      )}
+    >
+      {children}
+      {marked ? <span className="absolute top-1.5 left-1.5 h-2 w-2 rounded-full bg-[#4fd39b]" /> : null}
+    </button>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+
+function FilterIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 6h16M7 12h10M10 18h4" />
+    </svg>
   );
 }
 

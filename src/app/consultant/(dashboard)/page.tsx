@@ -46,6 +46,7 @@ export default async function ConsultantDashboardPage({ searchParams }: PageProp
         heading="طلبات الاستشارة"
         basePath="/consultant"
         canClaim
+        iconTools
         showSearchButton={false}
         emptyMessage="لا توجد طلبات الآن. عندما يصل طلب موجه إليك، أو طلب بلا تفضيل، سيظهر هنا."
         initialData={result.data}
