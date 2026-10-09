@@ -7,6 +7,7 @@ import { ForumLogosBar, ForumPill, ForumTitle } from "@/components/consultation/
 import { MobileStepHeader } from "@/components/consultation/mobile-step-header";
 import { MobileStepper } from "@/components/consultation/mobile-stepper";
 import { ReviewSummary } from "@/components/consultation/review-summary";
+import { SuccessLinks } from "@/components/consultation/success-links";
 import { StepFields } from "@/components/consultation/step-fields";
 import { StepSidebar } from "@/components/consultation/step-sidebar";
 import { FORM_STEPS } from "@/components/consultation/steps-config";
@@ -241,6 +242,7 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
               <p className="mt-6 max-w-md text-xs leading-relaxed text-slate-400">
                 احتفظ بهذا الرقم لمتابعة طلبك. سيتم التواصل معك بعد مراجعة الطلب.
               </p>
+              <SuccessLinks />
             </div>
           ) : (
             <>
