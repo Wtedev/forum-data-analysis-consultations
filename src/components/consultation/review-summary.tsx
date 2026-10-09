@@ -82,6 +82,7 @@ export function ReviewSummary({
       step: 3,
     },
     { label: "رابط البيانات", value: form.link, step: 3 },
+    { label: "طريقة التواصل المفضلة", value: form.preferredContactMethod, step: 3 },
   ];
 
   return (

@@ -46,8 +46,9 @@ export const TYPE_DB_LABELS: Record<ConsultationType, string> = {
 };
 
 export const CONTACT_DB_LABELS: Record<PreferredContactMethod, string> = {
+  MEETING: "اجتماع",
   WHATSAPP: "واتساب",
-  CALL: "اتصال",
+  CALL: "مكالمة",
 };
 
 export const ALL_STATUSES = [

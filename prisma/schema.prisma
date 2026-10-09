@@ -32,6 +32,7 @@ enum ConsultationType {
 enum PreferredContactMethod {
   WHATSAPP
   CALL
+  MEETING
 }
 
 enum ConsultationStatus {

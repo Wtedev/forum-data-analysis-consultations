@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { useEffect, useState } from "react";
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
 import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
+import { CONTACT_METHOD_LABELS } from "@/lib/consultation-mappers";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
 import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 
@@ -123,8 +125,12 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
 
   return (
     <div className="space-y-3">
-      <Link href="/consultant" className="inline-flex text-[13px] font-semibold text-[#8b93ab]">
-        كل الاستشارات
+      <Link
+        href="/consultant"
+        aria-label="رجوع"
+        className="inline-flex h-9 w-9 items-center justify-center text-[#3e4c86]"
+      >
+        <ArrowRight className="h-5 w-5" aria-hidden />
       </Link>
 
       <div className="flex items-center gap-3">
@@ -172,8 +178,26 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
         <dl className="mt-4 space-y-3">
           <Info label="نوع الاستشارة" value={data.consultationTypeLabel} />
           <Info label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
-          <Info label="طريقة التواصل" value={data.preferredContactMethodLabel} />
-          <Info label="المستشار المفضل" value={data.preferredConsultantFullLabel} />
+          <div className="border-t border-[#f3f4f8] pt-3">
+            <p className="text-[13px] font-semibold text-[#8b93ab]">ما هي طريقة التواصل المفضلة؟</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {CONTACT_METHOD_LABELS.map((option) => {
+                const selected = option === data.preferredContactMethodLabel;
+                return (
+                  <span
+                    key={option}
+                    className={
+                      selected
+                        ? "inline-flex h-9 items-center rounded-full bg-[#3e4c86] px-3 text-[13px] font-bold text-white"
+                        : "inline-flex h-9 items-center rounded-full bg-[#eef1f8] px-3 text-[13px] font-semibold text-[#8b93ab]"
+                    }
+                  >
+                    {option}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
           <div className="border-t border-[#f3f4f8] pt-3">
             <dt className="text-[13px] font-semibold text-[#8b93ab]">السؤال</dt>
             <dd className="mt-1 whitespace-pre-wrap text-sm font-medium leading-7 text-[#3e4c86]">{data.question}</dd>

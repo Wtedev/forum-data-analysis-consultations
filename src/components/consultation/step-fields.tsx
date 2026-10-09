@@ -3,6 +3,7 @@
 import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 import {
   CONSULTATION_TYPE_LABELS,
+  CONTACT_METHOD_LABELS,
   CURRENT_STAGE_LABELS,
   GENDER_LABELS,
   TOOL_LABELS,
@@ -290,6 +291,27 @@ export function StepFields({
             placeholder="https://"
           />
         </FormField>
+
+        <fieldset>
+          <legend className="mb-3 block text-sm font-medium text-slate-200">
+            ما هي طريقة التواصل المفضلة؟ <span className="text-forum-primary">*</span>
+          </legend>
+          <div className="grid grid-cols-3 gap-3">
+            {CONTACT_METHOD_LABELS.map((option) => (
+              <RadioOption
+                key={option}
+                name="preferredContactMethod"
+                value={option}
+                label={option}
+                checked={form.preferredContactMethod === option}
+                onChange={() => onChange("preferredContactMethod", option)}
+              />
+            ))}
+          </div>
+          {errors.preferredContactMethod ? (
+            <p className="mt-1.5 text-xs font-medium text-red-400">{errors.preferredContactMethod}</p>
+          ) : null}
+        </fieldset>
       </div>
     );
   }

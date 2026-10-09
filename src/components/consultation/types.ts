@@ -11,6 +11,7 @@ export type ConsultationFormState = {
   tools: string[];
   question: string;
   link: string;
+  preferredContactMethod: string;
 };
 
 export const initialConsultationForm: ConsultationFormState = {
@@ -26,4 +27,5 @@ export const initialConsultationForm: ConsultationFormState = {
   tools: [],
   question: "",
   link: "",
+  preferredContactMethod: "",
 };

@@ -30,7 +30,7 @@ export const TOOL_LABELS = [
   "SPSS",
   "Tableau",
 ] as const;
-export const CONTACT_METHOD_LABELS = ["واتساب", "اتصال"] as const;
+export const CONTACT_METHOD_LABELS = ["اجتماع", "واتساب", "مكالمة"] as const;
 
 export type GenderLabel = (typeof GENDER_LABELS)[number];
 export type CurrentStageLabel = (typeof CURRENT_STAGE_LABELS)[number];
@@ -61,8 +61,9 @@ const consultationTypeMap: Record<ConsultationTypeLabel, ConsultationType> = {
 };
 
 const contactMethodMap: Record<ContactMethodLabel, PreferredContactMethod> = {
+  اجتماع: "MEETING",
   واتساب: "WHATSAPP",
-  اتصال: "CALL",
+  مكالمة: "CALL",
 };
 
 export function mapGender(label: GenderLabel): Gender {

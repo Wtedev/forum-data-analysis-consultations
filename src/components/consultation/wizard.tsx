@@ -108,6 +108,7 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
             tools: 3,
             question: 3,
             link: 3,
+            preferredContactMethod: 3,
           };
           setCurrentStep(stepMap[firstErrorField] ?? 1);
         } else {

@@ -4,6 +4,7 @@ import { resolveConsultantChoice } from "@/lib/consultant-directory";
 import { notifyConsultationCreated } from "@/lib/consultation-mail";
 import {
   mapConsultationType,
+  mapContactMethod,
   mapCurrentStage,
   mapGender,
 } from "@/lib/consultation-mappers";
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
           tools: data.tools,
           question: data.question,
           link: data.link,
-          preferredContactMethod: "WHATSAPP",
+          preferredContactMethod: mapContactMethod(data.preferredContactMethod),
         },
       });
 
