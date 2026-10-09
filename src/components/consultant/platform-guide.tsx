@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleHelp } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const STEPS = [
@@ -61,21 +62,12 @@ export function PlatformGuide({ tone = "default" }: { tone?: "default" | "onDark
         }}
         className={
           tone === "onDark"
-            ? "inline-flex items-center gap-1.5 text-[13px] font-medium leading-none text-white/85 transition hover:text-white"
-            : "inline-flex items-center gap-1 text-sm font-semibold text-[#335382] transition hover:text-[#2a446c]"
+            ? "inline-flex items-center gap-1 text-[10px] font-normal leading-none text-white/85 transition hover:text-white"
+            : "inline-flex items-center gap-1 text-[10px] font-normal leading-none text-[#8b93ab] transition hover:text-[#3e4c86]"
         }
         dir="ltr"
       >
-        <span
-          className={
-            tone === "onDark"
-              ? "inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-white/75 text-[11px] leading-none"
-              : "text-sm leading-none"
-          }
-          aria-hidden="true"
-        >
-          ?
-        </span>
+        <CircleHelp className="h-3 w-3 shrink-0" strokeWidth={1.75} aria-hidden />
         <span className="whitespace-nowrap">كيف أستخدم المنصة</span>
       </button>
 
