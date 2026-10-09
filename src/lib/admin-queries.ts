@@ -2,6 +2,7 @@ import type { ConsultationStatus, Prisma } from "@prisma/client";
 
 import { canAccessConsultation, type SessionPayload } from "@/lib/admin-auth";
 import { serializeConsultationDetail, serializeConsultationListItem } from "@/lib/admin-serialize";
+import { consultantNamesByKey } from "@/lib/consultant-directory";
 import { getPrisma } from "@/lib/prisma";
 
 export const consultationDetailInclude = {
@@ -66,8 +67,14 @@ export async function listConsultationsForAdmin(options: {
     getPrisma().consultation.count({ where: scope }),
   ]);
 
+  const names = await consultantNamesByKey(rows.map((row) => row.preferredConsultant));
+
   return {
-    data: rows.map(serializeConsultationListItem),
+    data: rows.map((row) => {
+      const item = serializeConsultationListItem(row);
+      const name = names[item.preferredConsultantId];
+      return name ? { ...item, preferredConsultantLabel: name } : item;
+    }),
     pagination: {
       page,
       limit,
@@ -93,5 +100,14 @@ export async function getConsultationDetailForAdmin(id: string, session?: Sessio
   if (!consultation) return null;
   if (session && !canAccessConsultation(session, consultation)) return null;
 
-  return serializeConsultationDetail(consultation);
+  const detail = serializeConsultationDetail(consultation);
+  const names = await consultantNamesByKey([consultation.preferredConsultant]);
+  const name = names[consultation.preferredConsultant];
+  if (!name) return detail;
+
+  return {
+    ...detail,
+    preferredConsultantLabel: name,
+    preferredConsultantFullLabel: name,
+  };
 }

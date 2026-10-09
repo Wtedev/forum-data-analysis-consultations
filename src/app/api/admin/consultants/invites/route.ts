@@ -3,19 +3,14 @@ import { z } from "zod";
 
 import { badRequest, requireAdminApi, serverError } from "@/lib/admin-api";
 import { appUrl } from "@/lib/app-url";
+import { consultantKeyForInvite } from "@/lib/consultant-directory";
 import { inviteEmail } from "@/lib/consultation-mail";
-import { ASSIGNABLE_CONSULTANTS, consultantShortLabel, isAssignableConsultant } from "@/lib/consultants";
 import { createInviteToken } from "@/lib/invite-token";
 import { sendEmail } from "@/lib/mail";
 import { getPrisma } from "@/lib/prisma";
 
-const consultantKeys = ASSIGNABLE_CONSULTANTS.map((item) => item.id) as [
-  (typeof ASSIGNABLE_CONSULTANTS)[number]["id"],
-  ...(typeof ASSIGNABLE_CONSULTANTS)[number]["id"][],
-];
-
 const inviteSchema = z.object({
-  consultantKey: z.enum(consultantKeys),
+  name: z.string().trim().min(2, "أدخل اسم المستشار").max(80),
   email: z.email("أدخل بريداً صحيحاً"),
 });
 
@@ -36,13 +31,13 @@ export async function POST(request: Request) {
   }
 
   const parsed = inviteSchema.safeParse(body);
-  if (!parsed.success || !isAssignableConsultant(parsed.data.consultantKey)) {
-    return badRequest("اختر المستشار وأدخل بريداً صحيحاً");
+  if (!parsed.success) {
+    return badRequest(parsed.error.issues[0]?.message ?? "أدخل الاسم والبريد");
   }
 
   const email = parsed.data.email.trim().toLowerCase();
-  const consultantKey = parsed.data.consultantKey;
-  const name = consultantShortLabel(consultantKey);
+  const name = parsed.data.name.trim();
+  const consultantKey = consultantKeyForInvite(name);
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 
   if (adminEmail && email === adminEmail) {
@@ -57,20 +52,17 @@ export async function POST(request: Request) {
       select: { email: true, consultantKey: true },
     });
 
-    if (existing?.consultantKey === consultantKey) {
-      return badRequest("لهذا المستشار حساب مفعّل بالفعل");
-    }
-
-    if (existing?.email === email) {
-      return badRequest("هذا البريد مرتبط بحساب آخر");
+    if (existing?.email === email || existing?.consultantKey === consultantKey) {
+      return badRequest("هذا المستشار لديه حساب بالفعل");
     }
 
     const { token, tokenHash } = createInviteToken();
     const expiresAt = new Date(Date.now() + INVITE_DAYS * 24 * 60 * 60 * 1000);
+    const loginUrl = `${appUrl()}/admin/login`;
 
     await getPrisma().$transaction([
       getPrisma().consultantInvite.deleteMany({
-        where: { consultantKey, acceptedAt: null },
+        where: { email, acceptedAt: null },
       }),
       getPrisma().consultantInvite.create({
         data: {
@@ -85,7 +77,7 @@ export async function POST(request: Request) {
     ]);
 
     const acceptUrl = `${appUrl()}/consultant/invite/${token}`;
-    const message = inviteEmail({ name, acceptUrl });
+    const message = inviteEmail({ name, acceptUrl, loginUrl });
     const sent = await sendEmail({ to: email, subject: message.subject, html: message.html });
 
     if (!sent.ok) {

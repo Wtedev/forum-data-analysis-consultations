@@ -17,7 +17,12 @@ import {
 import { PrimaryButton, SecondaryButton } from "@/components/consultation/ui";
 import { validateConsultationStep } from "@/lib/validators";
 
-export function ConsultationWizard() {
+type ConsultantChoice = {
+  id: string;
+  label: string;
+};
+
+export function ConsultationWizard({ consultants }: { consultants?: ConsultantChoice[] }) {
   const [form, setForm] = useState<ConsultationFormState>(initialConsultationForm);
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -260,6 +265,7 @@ export function ConsultationWizard() {
                   step={currentStep}
                   form={form}
                   errors={errors}
+                  consultants={consultants}
                   onChange={updateField}
                 />
 

@@ -2,10 +2,8 @@ import { Suspense } from "react";
 import type { ConsultationStatus } from "@prisma/client";
 
 import { ConsultationsTable } from "@/components/admin/consultations-table";
-import { InviteConsultantForm } from "@/components/admin/invite-consultant-form";
 import { ALL_STATUSES } from "@/lib/admin-labels";
 import { listConsultationsForAdmin } from "@/lib/admin-queries";
-import { ASSIGNABLE_CONSULTANTS } from "@/lib/consultants";
 
 type PageProps = {
   searchParams: Promise<{
@@ -32,9 +30,6 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <InviteConsultantForm
-        consultants={ASSIGNABLE_CONSULTANTS.map((item) => ({ id: item.id, label: item.shortLabel }))}
-      />
       <Suspense>
         <ConsultationsTable
           heading="كل طلبات الاستشارات"

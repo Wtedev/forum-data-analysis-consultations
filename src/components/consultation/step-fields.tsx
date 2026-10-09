@@ -8,6 +8,11 @@ import {
   TOOL_LABELS,
 } from "@/lib/consultation-mappers";
 
+type ConsultantChoice = {
+  id: string;
+  label: string;
+};
+
 import type { ConsultationFormState } from "@/components/consultation/types";
 import {
   CheckboxOption,
@@ -20,13 +25,20 @@ type StepFieldsProps = {
   step: number;
   form: ConsultationFormState;
   errors: Record<string, string>;
+  consultants?: ConsultantChoice[];
   onChange: <K extends keyof ConsultationFormState>(
     key: K,
     value: ConsultationFormState[K],
   ) => void;
 };
 
-export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
+export function StepFields({
+  step,
+  form,
+  errors,
+  consultants = CONSULTANTS.map((item) => ({ id: item.id, label: item.label })),
+  onChange,
+}: StepFieldsProps) {
   if (step === 1) {
     return (
       <div className="space-y-5">
@@ -196,7 +208,7 @@ export function StepFields({ step, form, errors, onChange }: StepFieldsProps) {
             اختر مستشارًا محددًا، أو اترك التعيين دون تفضيل
           </p>
           <div className="grid gap-3">
-            {CONSULTANTS.map((option) => (
+            {consultants.map((option) => (
               <RadioOption
                 key={option.id}
                 name="preferredConsultant"

@@ -305,12 +305,25 @@ export async function notifyConsultationAssigned(consultation: ConsultationMailC
   }
 }
 
-export function inviteEmail(input: { name: string; acceptUrl: string }) {
+export function inviteEmail(input: { name: string; acceptUrl: string; loginUrl: string }) {
   return {
     subject: "دعوة للانضمام كمستشار",
     html: layout(`<p>مرحباً ${escapeHtml(input.name)}،</p>
       <p>دعاك فريق ملتقى تحليل البيانات في القطاع غير الربحي 2 للدخول إلى واجهة المستشار.</p>
-      <p>الرابط صالح لمدة 7 أيام. بعد تعيين كلمة المرور تظهر لك الطلبات التي فضّلتك مستشاراً.</p>
-      <p><a href="${escapeHtml(input.acceptUrl)}">قبول الدعوة وتعيين كلمة المرور</a></p>`),
+      <p>أنشئ كلمة المرور من الرابط التالي، وهو صالح لمدة 7 أيام:</p>
+      <p><a href="${escapeHtml(input.acceptUrl)}">إنشاء كلمة المرور</a></p>
+      <p>بعد ذلك ادخل من هذا الرابط بالبريد نفسه وكلمة المرور التي اخترتها:</p>
+      <p><a href="${escapeHtml(input.loginUrl)}">رابط الدخول</a></p>
+      <p>كل استشارة تصل إليك يصلك عنها بريد.</p>`),
+  };
+}
+
+export function consultantLoginEmail(input: { name: string; loginUrl: string }) {
+  return {
+    subject: "رابط الدخول إلى واجهة المستشار",
+    html: layout(`<p>مرحباً ${escapeHtml(input.name)}،</p>
+      <p>تم تفعيل حسابك. ادخل من الرابط التالي باستخدام بريدك وكلمة المرور التي أنشأتها.</p>
+      <p><a href="${escapeHtml(input.loginUrl)}">دخول المستشار</a></p>
+      <p>كل استشارة جديدة تصل إليك يصلك عنها بريد.</p>`),
   };
 }

@@ -1,20 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type AdminHeaderProps = {
   adminName: string;
   title?: string;
   homeHref?: string;
+  showDirectory?: boolean;
 };
 
 export function AdminHeader({
   adminName,
   title = "إدارة طلبات الاستشارات",
   homeHref = "/admin",
+  showDirectory = false,
 }: AdminHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const tabClass = (active: boolean) =>
+    active
+      ? "rounded-lg bg-white px-3 py-2 text-sm font-semibold text-[#061223]"
+      : "rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15";
 
   async function handleLogout() {
     await fetch("/api/admin/auth/logout", { method: "POST" });
@@ -31,12 +38,23 @@ export function AdminHeader({
       </div>
 
       <div className="flex items-center gap-3">
-        <Link
-          href={homeHref}
-          className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
-        >
-          طلبات الاستشارات
-        </Link>
+        {showDirectory ? (
+          <>
+            <Link href="/admin" className={tabClass(pathname === "/admin")}>
+              طلبات الاستشارات
+            </Link>
+            <Link href="/admin/consultants" className={tabClass(pathname.startsWith("/admin/consultants"))}>
+              المستشارون
+            </Link>
+          </>
+        ) : (
+          <Link
+            href={homeHref}
+            className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+          >
+            طلبات الاستشارات
+          </Link>
+        )}
         <button
           type="button"
           onClick={handleLogout}

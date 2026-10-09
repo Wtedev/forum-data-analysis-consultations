@@ -3,7 +3,10 @@ import { z } from "zod";
 
 import { badRequest, serverError } from "@/lib/admin-api";
 import { setSessionCookie, signSession } from "@/lib/admin-auth";
+import { appUrl } from "@/lib/app-url";
+import { consultantLoginEmail } from "@/lib/consultation-mail";
 import { hashInviteToken } from "@/lib/invite-token";
+import { sendEmail } from "@/lib/mail";
 import { hashPassword } from "@/lib/password";
 import { getPrisma } from "@/lib/prisma";
 
@@ -73,6 +76,16 @@ export async function POST(request: Request) {
       consultantId: consultant.consultantKey,
     });
     await setSessionCookie(token);
+
+    const loginMessage = consultantLoginEmail({
+      name: consultant.name,
+      loginUrl: `${appUrl()}/admin/login`,
+    });
+    await sendEmail({
+      to: consultant.email,
+      subject: loginMessage.subject,
+      html: loginMessage.html,
+    });
 
     return NextResponse.json({
       success: true,
