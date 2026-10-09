@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 
 import { staffInputClassName } from "@/components/consultation/ui";
+import { whatsappUrl } from "@/lib/phone";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
 import type { ConsultationListItem } from "@/lib/admin-serialize";
 
@@ -189,9 +190,6 @@ export function ConsultationsTable({
                     >
                       {row.fullName}
                     </Link>
-                    <p className="mt-0.5 text-xs text-[#5c5c5c]" dir="ltr">
-                      {row.phone}
-                    </p>
                   </td>
                   <td className="px-3 py-4 text-[#3d3d3d]">{row.consultationTypeLabel}</td>
                   <td className="px-3 py-4 text-[#3d3d3d]">{row.preferredConsultantLabel}</td>
@@ -200,12 +198,23 @@ export function ConsultationsTable({
                   </td>
                   <td className="px-3 py-4 text-[#5c5c5c]">{row.createdAtLabel}</td>
                   <td className="px-3 py-4">
-                    <Link
-                      href={`${basePath}/consultations/${row.id}`}
-                      className="text-sm font-medium text-[#1c1c1c] underline-offset-4 hover:underline"
-                    >
-                      عرض
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={whatsappUrl(row.phone)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[#e7f6ec] px-3 py-1 text-sm font-medium text-[#157a43] transition hover:bg-[#d7f0e1]"
+                      >
+                        <WhatsAppIcon />
+                        واتساب
+                      </a>
+                      <Link
+                        href={`${basePath}/consultations/${row.id}`}
+                        className="text-sm font-medium text-[#1c1c1c] underline-offset-4 hover:underline"
+                      >
+                        عرض
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -316,6 +325,14 @@ function StatusChip({
       {label}
       {typeof count === "number" ? <span className="text-xs">{count}</span> : null}
     </button>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 0 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-3.5.7.7-3.4-.2-.3A9.1 9.1 0 1 1 12 20.5Zm5-6.8c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.4.1-.6l.4-.5.2-.3a.5.5 0 0 0 0-.5c0-.1-.6-1.4-.8-1.9s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.5 4 15 15 0 0 0 1.5.6 3.6 3.6 0 0 0 1.7.1 2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.1-.3-.2-.6-.3Z" />
+    </svg>
   );
 }
 

@@ -9,6 +9,7 @@ import {
   staffInputClassName,
 } from "@/components/consultation/ui";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/admin-labels";
+import { whatsappUrl } from "@/lib/phone";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
 
 type ConsultationDetailPanelProps = {
@@ -121,7 +122,22 @@ export function ConsultationDetailPanel({ initialData }: ConsultationDetailPanel
         <section className="rounded-2xl border border-[#ececec] bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">بيانات المتقدم</h2>
           <dl className="space-y-3 text-sm">
-            <DetailRow label="الجوال" value={data.phone} dir="ltr" />
+            <DetailRow
+              label="الجوال"
+              value={
+                <span className="inline-flex items-center gap-3">
+                  <span dir="ltr">{data.phone}</span>
+                  <a
+                    href={whatsappUrl(data.phone)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center rounded-full bg-[#e7f6ec] px-3 py-1 text-sm font-medium text-[#157a43] transition hover:bg-[#d7f0e1]"
+                  >
+                    واتساب
+                  </a>
+                </span>
+              }
+            />
             <DetailRow label="البريد" value={data.email ?? "—"} dir="ltr" />
             <DetailRow label="الجنس" value={data.genderLabel} />
             <DetailRow label="صفة المستفيد" value={data.currentStageLabel} />

@@ -18,3 +18,9 @@ export function normalizePhone(phone: string): string {
 export function isValidSaudiMobile(phone: string): boolean {
   return /^05\d{8}$/.test(normalizePhone(phone));
 }
+
+export function whatsappUrl(phone: string): string {
+  const local = normalizePhone(phone);
+  const international = local.startsWith("0") ? `966${local.slice(1)}` : local;
+  return `https://wa.me/${international}`;
+}
