@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
 import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
 import { ALL_STATUSES, STATUS_LABELS } from "@/lib/admin-labels";
-import { CONTACT_METHOD_LABELS } from "@/lib/consultation-mappers";
 import type { ConsultationDetail } from "@/lib/admin-serialize";
 import { consultationWhatsappMessage, whatsappUrl } from "@/lib/phone";
 
@@ -187,26 +186,12 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
         <dl className="mt-4 space-y-3">
           <Info label="نوع الاستشارة" value={data.consultationTypeLabel} />
           <Info label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
-          <div className="border-t border-[#f3f4f8] pt-3">
-            <p className="text-[13px] font-semibold text-[#8b93ab]">ما هي طريقة التواصل المفضلة؟</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {CONTACT_METHOD_LABELS.map((option) => {
-                const selected = option === data.preferredContactMethodLabel;
-                return (
-                  <span
-                    key={option}
-                    className={
-                      selected
-                        ? "inline-flex h-9 items-center gap-1.5 rounded-full bg-[#3e4c86] px-3 text-[13px] font-bold text-white"
-                        : "inline-flex h-9 items-center gap-1.5 rounded-full bg-[#eef1f8] px-3 text-[13px] font-semibold text-[#8b93ab]"
-                    }
-                  >
-                    <ContactChoiceIcon method={option} />
-                    {option}
-                  </span>
-                );
-              })}
-            </div>
+          <div className="flex items-center justify-between gap-4 border-b border-[#f3f4f8] pb-3">
+            <dt className="shrink-0 text-[13px] font-semibold text-[#8b93ab]">طريقة التواصل المفضلة</dt>
+            <dd className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#3e4c86]">
+              <ContactChoiceIcon method={data.preferredContactMethodLabel} />
+              {data.preferredContactMethodLabel}
+            </dd>
           </div>
           <div className="border-t border-[#f3f4f8] pt-3">
             <dt className="text-[13px] font-semibold text-[#8b93ab]">السؤال</dt>
