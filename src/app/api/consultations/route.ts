@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { resolveConsultantChoice } from "@/lib/consultant-directory";
+import { NO_PREFERENCE_CHOICE } from "@/lib/consultants";
 import { notifyConsultationCreated } from "@/lib/consultation-mail";
 import {
   mapConsultationType,
@@ -43,7 +44,9 @@ export async function POST(request: Request) {
   }
 
   const data = parsed.data;
-  const preferredConsultant = await resolveConsultantChoice(data.preferredConsultant);
+  const preferredConsultant = data.preferredConsultant
+    ? await resolveConsultantChoice(data.preferredConsultant)
+    : NO_PREFERENCE_CHOICE.id;
   if (!preferredConsultant) {
     return NextResponse.json(
       {
@@ -68,6 +71,7 @@ export async function POST(request: Request) {
           currentStage: mapCurrentStage(data.currentStage),
           university: data.university,
           majorInterest: data.majorInterest,
+          projectOrTeamName: data.projectOrTeamName,
           consultationType: mapConsultationType(data.consultationType),
           preferredConsultant,
           tools: data.tools,

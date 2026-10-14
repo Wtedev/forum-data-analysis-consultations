@@ -6,13 +6,7 @@ import type {
 } from "@prisma/client";
 
 export const GENDER_LABELS = ["ذكر", "أنثى"] as const;
-export const CURRENT_STAGE_LABELS = [
-  "فرد",
-  "باحث",
-  "موظف",
-  "صاحب منشأة",
-  "أخرى",
-] as const;
+export const CURRENT_STAGE_LABELS = ["مشارك فردي", "قائد فريق", "عضو فريق"] as const;
 export const CONSULTATION_TYPE_LABELS = [
   "التحليل الإحصائي",
   "تنظيف البيانات وتجهيزها",
@@ -20,6 +14,7 @@ export const CONSULTATION_TYPE_LABELS = [
   "تصميم الاستبانات",
   "اختيار الأداة المناسبة",
   "تفسير النتائج",
+  "منهجية المشروع وتحديد المشكلة",
   "أخرى",
 ] as const;
 export const TOOL_LABELS = [
@@ -43,11 +38,9 @@ const genderMap: Record<GenderLabel, Gender> = {
 };
 
 const currentStageMap: Record<CurrentStageLabel, CurrentStage> = {
-  فرد: "INDIVIDUAL",
-  باحث: "RESEARCHER",
-  موظف: "EMPLOYEE",
-  "صاحب منشأة": "BUSINESS_OWNER",
-  أخرى: "OTHER",
+  "مشارك فردي": "INDIVIDUAL_PARTICIPANT",
+  "قائد فريق": "TEAM_LEADER",
+  "عضو فريق": "TEAM_MEMBER",
 };
 
 const consultationTypeMap: Record<ConsultationTypeLabel, ConsultationType> = {
@@ -57,6 +50,7 @@ const consultationTypeMap: Record<ConsultationTypeLabel, ConsultationType> = {
   "تصميم الاستبانات": "SURVEY_DESIGN",
   "اختيار الأداة المناسبة": "TOOL_SELECTION",
   "تفسير النتائج": "RESULTS_INTERPRETATION",
+  "منهجية المشروع وتحديد المشكلة": "PROJECT_METHODOLOGY",
   أخرى: "OTHER",
 };
 

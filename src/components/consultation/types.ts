@@ -6,6 +6,7 @@ export type ConsultationFormState = {
   currentStage: string;
   university: string;
   majorInterest: string;
+  projectOrTeamName: string;
   consultationType: string;
   preferredConsultant: string;
   tools: string[];
@@ -22,6 +23,7 @@ export const initialConsultationForm: ConsultationFormState = {
   currentStage: "",
   university: "",
   majorInterest: "",
+  projectOrTeamName: "",
   consultationType: "",
   preferredConsultant: "",
   tools: [],

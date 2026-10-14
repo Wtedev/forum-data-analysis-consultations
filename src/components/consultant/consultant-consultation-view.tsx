@@ -176,6 +176,7 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
           <Info label="البريد" value={data.email ?? "—"} dir="ltr" />
           <Info label="الجنس" value={data.genderLabel} />
           <Info label="الصفة" value={data.currentStageLabel} />
+          <Info label="اسم المشروع أو الفريق" value={data.projectOrTeamName ?? "—"} />
           <Info label="الجهة" value={data.university ?? "—"} />
           <Info label="المجال" value={data.majorInterest ?? "—"} />
         </dl>
@@ -194,7 +195,7 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
             </dd>
           </div>
           <div className="border-t border-[#f3f4f8] pt-3">
-            <dt className="text-[13px] font-semibold text-[#8b93ab]">السؤال</dt>
+            <dt className="text-[13px] font-semibold text-[#8b93ab]">التحدي</dt>
             <dd className="mt-1 whitespace-pre-wrap text-sm font-medium leading-7 text-[#3e4c86]">{data.question}</dd>
           </div>
           {data.link ? (

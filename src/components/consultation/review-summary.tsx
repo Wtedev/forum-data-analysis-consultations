@@ -68,13 +68,18 @@ export function ReviewSummary({
     { label: "البريد الإلكتروني", value: form.email, step: 1 },
     { label: "الجنس", value: form.gender, step: 1 },
     { label: "صفة المستفيد", value: form.currentStage, step: 2 },
+    { label: "اسم المشروع أو الفريق", value: form.projectOrTeamName, step: 2 },
     { label: "الجهة", value: form.university, step: 2 },
     { label: "المجال", value: form.majorInterest, step: 2 },
     { label: "نوع الاستشارة", value: form.consultationType, step: 3 },
-    { label: "المستشار المفضل", value: form.preferredConsultant, step: 3 },
+    {
+      label: "المستشار المفضل",
+      value: form.preferredConsultant.trim() || "ليس لدي تفضيل معين",
+      step: 3,
+    },
     { label: "الأدوات", value: form.tools.join("، "), step: 3 },
     {
-      label: "الاستفسار",
+      label: "التحدي",
       value:
         form.question.length > 100
           ? `${form.question.slice(0, 100)}…`

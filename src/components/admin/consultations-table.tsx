@@ -408,6 +408,11 @@ function ConsultantRequestCard({
         <p className={clsx("mt-1 truncate text-[13px] leading-5", closed ? "text-[#a8b0c2]" : "text-[#8b93ab]")}>
           {row.fullName}
         </p>
+        {row.projectOrTeamName ? (
+          <p className={clsx("mt-0.5 truncate text-[12px] leading-5", closed ? "text-[#a8b0c2]" : "text-[#8b93ab]")}>
+            {row.projectOrTeamName}
+          </p>
+        ) : null}
       </Link>
       <div className="flex shrink-0 items-center gap-2">
         {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}

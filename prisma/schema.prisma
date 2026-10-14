@@ -17,6 +17,9 @@ enum CurrentStage {
   EMPLOYEE
   BUSINESS_OWNER
   OTHER
+  INDIVIDUAL_PARTICIPANT
+  TEAM_LEADER
+  TEAM_MEMBER
 }
 
 enum ConsultationType {
@@ -26,6 +29,7 @@ enum ConsultationType {
   SURVEY_DESIGN
   TOOL_SELECTION
   RESULTS_INTERPRETATION
+  PROJECT_METHODOLOGY
   OTHER
 }
 
@@ -66,6 +70,7 @@ model Consultation {
   currentStage           CurrentStage
   university             String?
   majorInterest          String?
+  projectOrTeamName      String?
   consultationType       ConsultationType
   tools                  String[]               @default([])
   question               String

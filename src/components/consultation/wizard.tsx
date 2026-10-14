@@ -104,6 +104,7 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
             currentStage: 2,
             university: 2,
             majorInterest: 2,
+            projectOrTeamName: 2,
             consultationType: 3,
             preferredConsultant: 3,
             tools: 3,
@@ -283,8 +284,8 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
                     <p className="mt-4 text-center text-xs leading-relaxed text-slate-400 lg:text-start">
                       بالضغط على «إرسال الطلب» تؤكد صحة البيانات المدخلة.
                     </p>
-                    <p className="mt-2 text-center text-xs text-slate-400 lg:text-start">
-                      سيتم التواصل معك بعد مراجعة الطلب.
+                    <p className="mt-2 text-center text-xs leading-relaxed text-slate-300 lg:text-start">
+                      تقديم طلب الاستشارة لا يعني تأكيد موعدها، وسيتم التواصل معكم بعد مراجعة الطلب وتنسيقه وفق تخصص المستشار وتوافره، مع مراعاة وسيلة التواصل المفضلة قدر الإمكان.
                     </p>
                   </div>
                 ) : null}

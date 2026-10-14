@@ -146,6 +146,22 @@ export function StepFields({
           </select>
         </FormField>
 
+        <FormField
+          label="اسم المشروع أو الفريق (إن وجد)"
+          htmlFor="projectOrTeamName"
+          error={errors.projectOrTeamName}
+        >
+          <input
+            id="projectOrTeamName"
+            name="projectOrTeamName"
+            type="text"
+            className={inputClassName}
+            value={form.projectOrTeamName}
+            onChange={(e) => onChange("projectOrTeamName", e.target.value)}
+            placeholder="اسم المشروع أو الفريق"
+          />
+        </FormField>
+
         <div className="grid gap-5 sm:grid-cols-2">
           <FormField label="الجهة أو جهة العمل" htmlFor="university" error={errors.university}>
             <input
@@ -206,10 +222,10 @@ export function StepFields({
 
         <fieldset>
           <legend className="mb-1 block text-sm font-medium text-slate-200">
-            المستشار المفضل <span className="text-forum-primary">*</span>
+            المستشار المفضل
           </legend>
-          <p className="mb-3 text-xs text-slate-400">
-            اختر مستشارًا محددًا، أو اترك التعيين دون تفضيل
+          <p className="mb-3 text-xs leading-relaxed text-slate-400">
+            اختياري. يمكنك اختيار «ليس لدي تفضيل معين». اختيار مستشار محدد لا يعني ضمان إسناد الاستشارة إليه، إذ يعتمد ذلك على تخصصه وتوافره.
           </p>
           <div className="grid gap-3">
             {consultants.map((option) => (
@@ -260,10 +276,10 @@ export function StepFields({
         </fieldset>
 
         <FormField
-          label="اكتب استفسارك أو تفاصيل استشارتك"
+          label="ما التحدي الذي تواجهه في مشروعك؟"
           htmlFor="question"
           required
-          hint="اشرح بياناتك وما تحتاجه بوضوح لنساعدك بأفضل شكل"
+          hint="اشرح التحدي الذي تواجهه، وما الذي أنجزته حتى الآن، ونوع المساعدة التي تحتاجها."
           error={errors.question}
         >
           <textarea
@@ -273,14 +289,14 @@ export function StepFields({
             className={`${inputClassName} min-h-[140px] resize-y`}
             value={form.question}
             onChange={(e) => onChange("question", e.target.value)}
-            placeholder="اكتب تفاصيل استفسارك هنا..."
+            placeholder="اشرح التحدي الذي تواجهه، وما الذي أنجزته حتى الآن، ونوع المساعدة التي تحتاجها."
           />
         </FormField>
 
         <FormField
           label="رابط البيانات أو الملف"
           htmlFor="link"
-          hint="اختياري: رابط Google Drive أو OneDrive أو غيرها"
+          hint="اختياري. يُرجى عدم إرفاق بيانات شخصية أو حساسة."
           error={errors.link}
         >
           <input
@@ -296,9 +312,12 @@ export function StepFields({
         </FormField>
 
         <fieldset>
-          <legend className="mb-3 block text-sm font-medium text-slate-200">
+          <legend className="mb-1 block text-sm font-medium text-slate-200">
             ما هي طريقة التواصل المفضلة؟ <span className="text-forum-primary">*</span>
           </legend>
+          <p className="mb-3 text-xs leading-relaxed text-slate-400">
+            وسيلة تواصل مفضلة وليست موعدًا مؤكدًا، والتنسيق النهائي يتم وفق توافر المستشار.
+          </p>
           <div className="grid grid-cols-3 gap-3">
             {CONTACT_METHOD_LABELS.map((option) => (
               <RadioOption

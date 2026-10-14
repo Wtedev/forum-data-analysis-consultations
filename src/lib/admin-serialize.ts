@@ -28,6 +28,7 @@ export type ConsultationListItem = {
   currentStageLabel: string;
   university: string | null;
   majorInterest: string | null;
+  projectOrTeamName: string | null;
   tools: string[];
   link: string | null;
   preferredConsultantId: string;
@@ -85,6 +86,7 @@ export function serializeConsultationListItem(
     currentStageLabel: STAGE_DB_LABELS[row.currentStage],
     university: row.university,
     majorInterest: row.majorInterest,
+    projectOrTeamName: row.projectOrTeamName,
     tools: row.tools,
     link: row.link,
     preferredConsultantId: row.preferredConsultant,

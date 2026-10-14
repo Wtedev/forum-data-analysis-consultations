@@ -33,6 +33,9 @@ export const STAGE_DB_LABELS: Record<CurrentStage, string> = {
   EMPLOYEE: "موظف",
   BUSINESS_OWNER: "صاحب منشأة",
   OTHER: "أخرى",
+  INDIVIDUAL_PARTICIPANT: "مشارك فردي",
+  TEAM_LEADER: "قائد فريق",
+  TEAM_MEMBER: "عضو فريق",
 };
 
 export const TYPE_DB_LABELS: Record<ConsultationType, string> = {
@@ -42,6 +45,7 @@ export const TYPE_DB_LABELS: Record<ConsultationType, string> = {
   SURVEY_DESIGN: "تصميم الاستبانات",
   TOOL_SELECTION: "اختيار الأداة المناسبة",
   RESULTS_INTERPRETATION: "تفسير النتائج",
+  PROJECT_METHODOLOGY: "منهجية المشروع وتحديد المشكلة",
   OTHER: "أخرى",
 };
 

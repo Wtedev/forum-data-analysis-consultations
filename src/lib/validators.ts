@@ -46,15 +46,21 @@ export const consultationFormSchema = z.object({
     .trim()
     .optional()
     .transform((value) => (value === "" ? undefined : value)),
+  projectOrTeamName: z
+    .string()
+    .trim()
+    .max(200, "اسم المشروع أو الفريق طويل جداً")
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
   consultationType: z.enum(CONSULTATION_TYPE_LABELS, {
     message: "اختر نوع الاستشارة",
   }),
-  preferredConsultant: z.string().trim().min(1, "اختر المستشار أو عدم التفضيل"),
+  preferredConsultant: z.string().trim().optional().transform((value) => value ?? ""),
   tools: z.array(z.enum(TOOL_LABELS)).default([]),
   question: z
     .string()
     .trim()
-    .min(10, "اكتب تفاصيل استشارتك (10 أحرف على الأقل)")
+    .min(10, "اشرح التحدي الذي تواجهه (10 أحرف على الأقل)")
     .max(5000, "النص طويل جداً"),
   link: z
     .string()
@@ -82,6 +88,7 @@ export const consultationStep2Schema = consultationFormSchema.pick({
   currentStage: true,
   university: true,
   majorInterest: true,
+  projectOrTeamName: true,
 });
 
 export const consultationStep3Schema = consultationFormSchema.pick({
