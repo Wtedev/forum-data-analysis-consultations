@@ -15,11 +15,11 @@ export async function listPublicConsultantOptions(): Promise<ConsultantOption[]>
   const [accounts, invites] = await Promise.all([
     getPrisma().adminUser.findMany({
       where: { role: "CONSULTANT", consultantKey: { not: null } },
-      select: { consultantKey: true, name: true, email: true },
+      select: { consultantKey: true, name: true, email: true, createdAt: true },
     }),
     getPrisma().consultantInvite.findMany({
       where: { acceptedAt: null, expiresAt: { gt: now } },
-      select: { consultantKey: true, name: true, email: true },
+      select: { consultantKey: true, name: true, email: true, createdAt: true },
     }),
   ]);
 
@@ -27,16 +27,27 @@ export async function listPublicConsultantOptions(): Promise<ConsultantOption[]>
   const activeKeys = new Set(accounts.flatMap((account) => (account.consultantKey ? [account.consultantKey] : [])));
   const options = [
     ...accounts.flatMap((account) =>
-      account.consultantKey ? [{ id: account.consultantKey, label: account.name }] : [],
+      account.consultantKey
+        ? [{ id: account.consultantKey, label: account.name, createdAt: account.createdAt }]
+        : [],
     ),
     ...invites.flatMap((invite) =>
       !activeEmails.has(invite.email) && !activeKeys.has(invite.consultantKey)
-        ? [{ id: invite.consultantKey, label: invite.name }]
+        ? [{ id: invite.consultantKey, label: invite.name, createdAt: invite.createdAt }]
         : [],
     ),
-  ].sort((a, b) => a.label.localeCompare(b.label, "ar"));
+  ].sort((a, b) => {
+    const aFirst = isAbdalsalam(a.label);
+    const bFirst = isAbdalsalam(b.label);
+    if (aFirst !== bFirst) return aFirst ? -1 : 1;
+    return a.createdAt.getTime() - b.createdAt.getTime();
+  });
 
-  return [NO_PREFERENCE_CHOICE, ...options];
+  return [...options.map(({ id, label }) => ({ id, label })), NO_PREFERENCE_CHOICE];
+}
+
+function isAbdalsalam(name: string) {
+  return name.replace(/\s+/g, "").includes("عبدالسلام");
 }
 
 export async function resolveConsultantChoice(label: string) {
