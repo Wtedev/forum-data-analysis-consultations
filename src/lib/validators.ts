@@ -9,7 +9,7 @@ import {
 } from "@/lib/consultation-mappers";
 import { isValidSaudiMobile, normalizePhone } from "@/lib/phone";
 
-export const consultationFormSchema = z.object({
+const consultationFormObject = z.object({
   fullName: z
     .string()
     .trim()
@@ -68,20 +68,22 @@ export const consultationFormSchema = z.object({
   preferredContactMethod: z.enum(CONTACT_METHOD_LABELS, {
     message: "اختر طريقة التواصل المفضلة",
   }),
-}).superRefine((data, ctx) => {
+});
+
+export const consultationFormSchema = consultationFormObject.superRefine((data, ctx) => {
   requireTeamMemberCount(data, ctx);
 });
 
 export type ConsultationFormInput = z.infer<typeof consultationFormSchema>;
 
-export const consultationStep1Schema = consultationFormSchema.pick({
+export const consultationStep1Schema = consultationFormObject.pick({
   fullName: true,
   phone: true,
   email: true,
   gender: true,
 });
 
-export const consultationStep2Schema = consultationFormSchema
+export const consultationStep2Schema = consultationFormObject
   .pick({
     currentStage: true,
     projectOrTeamName: true,
@@ -91,7 +93,7 @@ export const consultationStep2Schema = consultationFormSchema
     requireTeamMemberCount(data, ctx);
   });
 
-export const consultationStep3Schema = consultationFormSchema.pick({
+export const consultationStep3Schema = consultationFormObject.pick({
   consultationType: true,
   preferredConsultant: true,
   tools: true,
