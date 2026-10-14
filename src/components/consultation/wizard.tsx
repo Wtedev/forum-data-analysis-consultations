@@ -102,9 +102,8 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
             email: 1,
             gender: 1,
             currentStage: 2,
-            university: 2,
-            majorInterest: 2,
             projectOrTeamName: 2,
+            teamMemberCount: 2,
             consultationType: 3,
             preferredConsultant: 3,
             tools: 3,
@@ -228,11 +227,10 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
                 />
               </div>
               <h2 className="text-xl font-semibold text-white sm:text-2xl">
-                تم استلام طلبك بنجاح
+                تم استلام طلب استشارتك بنجاح
               </h2>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">
-                شكرًا لتواصلك معنا. سيقوم فريق الاستشارات بمراجعة طلبك والتواصل معك
-                قريبًا.
+                شكرًا لك، سيعمل فريق ملتقى تحليل البيانات 2 على مراجعة طلبك وتنسيقه مع المستشار المناسب وفق التخصص والتوافر.
               </p>
               <div className="mt-8 w-full max-w-sm rounded-2xl border border-dashed border-[#5cc9b0]/35 bg-[#5cc9b0]/10 px-6 py-6">
                 <p className="text-xs font-medium text-slate-300">الرقم المرجعي لطلبك</p>
@@ -241,7 +239,10 @@ export function ConsultationWizard({ consultants }: { consultants?: ConsultantCh
                 </p>
               </div>
               <p className="mt-6 max-w-md text-xs leading-relaxed text-slate-400">
-                احتفظ بهذا الرقم لمتابعة طلبك. سيتم التواصل معك بعد مراجعة الطلب.
+                تنويه: تقديم الطلب لا يعني تأكيد الاستشارة أو موعدها، وسيتم التواصل معك بعد مراجعة الطلب والتنسيق اللازم.
+              </p>
+              <p className="mt-3 max-w-md text-sm font-medium leading-relaxed text-slate-200">
+                نتمنى لك تجربة ثرية ومشروعًا متميزًا!
               </p>
               <SuccessLinks />
             </div>

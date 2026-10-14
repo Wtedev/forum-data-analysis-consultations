@@ -69,8 +69,9 @@ export function ReviewSummary({
     { label: "الجنس", value: form.gender, step: 1 },
     { label: "صفة المستفيد", value: form.currentStage, step: 2 },
     { label: "اسم المشروع أو الفريق", value: form.projectOrTeamName, step: 2 },
-    { label: "الجهة", value: form.university, step: 2 },
-    { label: "المجال", value: form.majorInterest, step: 2 },
+    ...(form.currentStage === "قائد فريق"
+      ? [{ label: "عدد أعضاء الفريق", value: form.teamMemberCount, step: 2 }]
+      : []),
     { label: "نوع الاستشارة", value: form.consultationType, step: 3 },
     {
       label: "المستشار المفضل",

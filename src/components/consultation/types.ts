@@ -4,9 +4,8 @@ export type ConsultationFormState = {
   email: string;
   gender: string;
   currentStage: string;
-  university: string;
-  majorInterest: string;
   projectOrTeamName: string;
+  teamMemberCount: string;
   consultationType: string;
   preferredConsultant: string;
   tools: string[];
@@ -21,9 +20,8 @@ export const initialConsultationForm: ConsultationFormState = {
   email: "",
   gender: "",
   currentStage: "",
-  university: "",
-  majorInterest: "",
   projectOrTeamName: "",
+  teamMemberCount: "",
   consultationType: "",
   preferredConsultant: "",
   tools: [],

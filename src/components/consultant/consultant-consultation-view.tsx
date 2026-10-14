@@ -177,8 +177,7 @@ export function ConsultantConsultationView({ initialData }: ConsultantConsultati
           <Info label="الجنس" value={data.genderLabel} />
           <Info label="الصفة" value={data.currentStageLabel} />
           <Info label="اسم المشروع أو الفريق" value={data.projectOrTeamName ?? "—"} />
-          <Info label="الجهة" value={data.university ?? "—"} />
-          <Info label="المجال" value={data.majorInterest ?? "—"} />
+          {data.teamMemberCount ? <Info label="عدد أعضاء الفريق" value={String(data.teamMemberCount)} /> : null}
         </dl>
       </section>
 

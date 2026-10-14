@@ -27,31 +27,26 @@ export const consultationFormSchema = z.object({
   email: z
     .string()
     .trim()
-    .refine(
-      (value) => value === "" || z.email().safeParse(value).success,
-      "أدخل بريدًا إلكترونيًا صحيحًا",
-    )
-    .transform((value) => (value === "" ? undefined : value)),
+    .min(1, "البريد الإلكتروني مطلوب")
+    .refine((value) => z.email().safeParse(value).success, "أدخل بريدًا إلكترونيًا صحيحًا"),
   gender: z.enum(GENDER_LABELS, { message: "اختر الجنس" }),
   currentStage: z.enum(CURRENT_STAGE_LABELS, {
     message: "اختر صفتك",
   }),
-  university: z
-    .string()
-    .trim()
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
-  majorInterest: z
-    .string()
-    .trim()
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
   projectOrTeamName: z
     .string()
     .trim()
     .max(200, "اسم المشروع أو الفريق طويل جداً")
     .optional()
     .transform((value) => (value === "" ? undefined : value)),
+  teamMemberCount: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((value) => {
+      if (value == null || value === "") return null;
+      const count = typeof value === "number" ? value : Number(value);
+      return Number.isInteger(count) ? count : Number.NaN;
+    }),
   consultationType: z.enum(CONSULTATION_TYPE_LABELS, {
     message: "اختر نوع الاستشارة",
   }),
@@ -73,6 +68,8 @@ export const consultationFormSchema = z.object({
   preferredContactMethod: z.enum(CONTACT_METHOD_LABELS, {
     message: "اختر طريقة التواصل المفضلة",
   }),
+}).superRefine((data, ctx) => {
+  requireTeamMemberCount(data, ctx);
 });
 
 export type ConsultationFormInput = z.infer<typeof consultationFormSchema>;
@@ -84,12 +81,15 @@ export const consultationStep1Schema = consultationFormSchema.pick({
   gender: true,
 });
 
-export const consultationStep2Schema = consultationFormSchema.pick({
-  currentStage: true,
-  university: true,
-  majorInterest: true,
-  projectOrTeamName: true,
-});
+export const consultationStep2Schema = consultationFormSchema
+  .pick({
+    currentStage: true,
+    projectOrTeamName: true,
+    teamMemberCount: true,
+  })
+  .superRefine((data, ctx) => {
+    requireTeamMemberCount(data, ctx);
+  });
 
 export const consultationStep3Schema = consultationFormSchema.pick({
   consultationType: true,
@@ -124,6 +124,21 @@ export function validateConsultationStep(
   }
 
   return formatZodErrors(result.error);
+}
+
+function requireTeamMemberCount(
+  data: { currentStage?: string; teamMemberCount?: number | null },
+  ctx: z.RefinementCtx,
+) {
+  if (data.currentStage !== "قائد فريق") return;
+  const count = data.teamMemberCount;
+  if (count == null || Number.isNaN(count) || count < 1 || count > 500) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["teamMemberCount"],
+      message: "أدخل عدد أعضاء الفريق",
+    });
+  }
 }
 
 export function formatZodErrors(

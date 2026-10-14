@@ -28,7 +28,7 @@ export const FORM_STEPS: FormStepConfig[] = [
     id: 2,
     title: "بيانات المستفيد",
     shortLabel: "المستفيد",
-    description: "صفتك وجهتك ومجالك",
+    description: "صفتك ومشروعك",
     icon: Building2,
   },
   {

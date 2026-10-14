@@ -71,6 +71,7 @@ model Consultation {
   university             String?
   majorInterest          String?
   projectOrTeamName      String?
+  teamMemberCount        Int?
   consultationType       ConsultationType
   tools                  String[]               @default([])
   question               String

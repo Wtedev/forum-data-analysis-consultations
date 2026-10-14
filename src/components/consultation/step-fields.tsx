@@ -83,7 +83,7 @@ export function StepFields({
             />
           </FormField>
 
-          <FormField label="البريد الإلكتروني" htmlFor="email" error={errors.email}>
+          <FormField label="البريد الإلكتروني" htmlFor="email" required error={errors.email}>
             <input
               id="email"
               name="email"
@@ -135,7 +135,11 @@ export function StepFields({
             name="currentStage"
             className={inputClassName}
             value={form.currentStage}
-            onChange={(e) => onChange("currentStage", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              onChange("currentStage", value);
+              if (value !== "قائد فريق") onChange("teamMemberCount", "");
+            }}
           >
             <option value="">اختر صفتك</option>
             {CURRENT_STAGE_LABELS.map((option) => (
@@ -162,35 +166,33 @@ export function StepFields({
           />
         </FormField>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <FormField label="الجهة أو جهة العمل" htmlFor="university" error={errors.university}>
-            <input
-              id="university"
-              name="university"
-              type="text"
-              className={inputClassName}
-              value={form.university}
-              onChange={(e) => onChange("university", e.target.value)}
-              placeholder="اسم الجهة (إن وجد)"
-            />
-          </FormField>
-
+        {form.currentStage === "قائد فريق" ? (
           <FormField
-            label="المجال أو التخصص"
-            htmlFor="majorInterest"
-            error={errors.majorInterest}
+            label="عدد أعضاء الفريق"
+            htmlFor="teamMemberCount"
+            required
+            error={errors.teamMemberCount}
           >
-            <input
-              id="majorInterest"
-              name="majorInterest"
-              type="text"
-              className={inputClassName}
-              value={form.majorInterest}
-              onChange={(e) => onChange("majorInterest", e.target.value)}
-              placeholder="مثال: التسويق، الصحة، التعليم"
-            />
+            <div className="relative">
+              <Users
+                className="pointer-events-none absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300"
+                aria-hidden
+              />
+              <input
+                id="teamMemberCount"
+                name="teamMemberCount"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={500}
+                className={`${inputClassName} ps-11`}
+                value={form.teamMemberCount}
+                onChange={(e) => onChange("teamMemberCount", e.target.value)}
+                placeholder="مثال: 5"
+              />
+            </div>
           </FormField>
-        </div>
+        ) : null}
       </div>
     );
   }

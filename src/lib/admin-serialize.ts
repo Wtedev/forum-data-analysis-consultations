@@ -29,6 +29,7 @@ export type ConsultationListItem = {
   university: string | null;
   majorInterest: string | null;
   projectOrTeamName: string | null;
+  teamMemberCount: number | null;
   tools: string[];
   link: string | null;
   preferredConsultantId: string;
@@ -87,6 +88,7 @@ export function serializeConsultationListItem(
     university: row.university,
     majorInterest: row.majorInterest,
     projectOrTeamName: row.projectOrTeamName,
+    teamMemberCount: row.teamMemberCount,
     tools: row.tools,
     link: row.link,
     preferredConsultantId: row.preferredConsultant,
