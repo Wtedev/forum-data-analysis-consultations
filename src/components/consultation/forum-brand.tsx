@@ -14,7 +14,7 @@ export function ForumLogosBar({ className }: { className?: string }) {
   return (
     <div
       className={clsx(
-        "kf-glass flex flex-wrap items-center justify-center gap-x-5 gap-y-3 rounded-2xl px-5 py-4 sm:gap-x-8 sm:px-8",
+        "kf-glass flex flex-nowrap items-center justify-center gap-x-1 rounded-2xl px-2 py-3 sm:flex-wrap sm:gap-x-8 sm:px-8 sm:py-4",
         className,
       )}
       aria-label="الجهات المنظمة والداعمة"
@@ -26,7 +26,7 @@ export function ForumLogosBar({ className }: { className?: string }) {
           alt={logo.alt}
           width={logo.w}
           height={logo.h}
-          className="h-8 w-auto object-contain opacity-90 sm:h-10"
+          className="h-[18px] w-auto shrink-0 object-contain opacity-90 sm:h-10"
           priority
         />
       ))}
