@@ -6,8 +6,8 @@ export const FORUM_LOGOS = [
   { src: "/images/partners/partners-06.png", alt: "جمعية كفاءات الأهلية", w: 175, h: 131 },
   { src: "/images/partners/partners-02.png", alt: "المركز الوطني لتنمية القطاع غير الربحي", w: 238, h: 103 },
   { src: "/images/partners/partners-04.png", alt: "وزارة الموارد البشرية والتنمية الاجتماعية", w: 286, h: 111 },
-  { src: "/images/partners/pasds.png", alt: "الجمعية المهنية للإحصائيين وعلماء البيانات", w: 965, h: 243, size: "h-10 sm:h-12" },
-  { src: "/images/partners/ai-year-2026.png", alt: "عام الذكاء الاصطناعي 2026", w: 931, h: 344, size: "h-16 sm:h-20" },
+  { src: "/images/partners/pasds.png", alt: "الجمعية المهنية للإحصائيين وعلماء البيانات", w: 965, h: 243 },
+  { src: "/images/partners/ai-year-2026.png", alt: "عام الذكاء الاصطناعي 2026", w: 931, h: 344 },
 ] as const;
 
 export function ForumLogosBar({ className }: { className?: string }) {
@@ -26,7 +26,7 @@ export function ForumLogosBar({ className }: { className?: string }) {
           alt={logo.alt}
           width={logo.w}
           height={logo.h}
-          className={clsx("w-auto object-contain opacity-90", "size" in logo ? logo.size : "h-8 sm:h-10")}
+          className="h-8 w-auto object-contain opacity-90 sm:h-10"
           priority
         />
       ))}
