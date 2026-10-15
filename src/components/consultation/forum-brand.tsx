@@ -14,7 +14,7 @@ export function ForumLogosBar({ className }: { className?: string }) {
   return (
     <div
       className={clsx(
-        "kf-glass flex flex-nowrap items-center justify-center gap-x-1 rounded-2xl px-2 py-3 sm:flex-wrap sm:gap-x-8 sm:px-8 sm:py-4",
+        "kf-glass flex flex-nowrap items-center justify-center gap-x-1 rounded-2xl px-2 py-5 sm:flex-wrap sm:gap-x-8 sm:px-8 sm:py-5",
         className,
       )}
       aria-label="الجهات المنظمة والداعمة"
