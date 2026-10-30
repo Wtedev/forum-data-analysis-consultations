@@ -38,6 +38,7 @@ type Stats = {
   byStatus: Record<string, number>;
   segments?: {
     mine: number;
+    assigned: number;
     unassigned: number;
     new: number;
     ongoing: number;
@@ -50,7 +51,7 @@ type ConsultationsTableProps = {
   initialStats: Stats;
   initialQuery: string;
   initialStatus: string;
-  initialScope?: "" | "mine" | "unassigned";
+  initialScope?: "" | "mine" | "assigned" | "unassigned";
   initialStage?: "" | "new" | "ongoing" | "closed";
   initialPage: number;
   totalPages: number;
@@ -101,7 +102,7 @@ export function ConsultationsTable({
   }, [initialQuery, initialStatus, initialScope, initialStage]);
 
   useEffect(() => {
-    if (!filtersOpen || desk !== "consultant") return;
+    if (!filtersOpen) return;
     function onPointer(event: MouseEvent) {
       if (filterMenuRef.current?.contains(event.target as Node)) return;
       event.preventDefault();
@@ -116,7 +117,7 @@ export function ConsultationsTable({
       document.removeEventListener("mousedown", onPointer);
       document.removeEventListener("keydown", onKey);
     };
-  }, [filtersOpen, desk]);
+  }, [filtersOpen]);
 
   const applyFilters = useCallback(
     (page = 1, next?: { q?: string; status?: string; scope?: string; stage?: string }) => {
@@ -146,19 +147,9 @@ export function ConsultationsTable({
     <div className={iconTools ? "space-y-5" : "space-y-6"}>
       {iconTools ? (
         <div className="grid grid-cols-3 items-stretch gap-2.5 sm:gap-3">
-          {desk === "admin" ? (
-            <>
-              <DeskStat value={initialStats.total} lines={["إجمالي", "الطلبات"]} />
-              <DeskStat value={initialStats.new} lines={["طلبات", "جديدة"]} />
-              <DeskStat value={openCount} lines={["طلبات", "مفتوحة"]} />
-            </>
-          ) : (
-            <>
-              <DeskStat value={initialStats.new} lines={["استشارات", "جديدة"]} />
-              <DeskStat value={ongoingCount} lines={["استشارات", "جارية"]} />
-              <DeskStat value={closedCount} lines={["استشارات", "مغلقة"]} />
-            </>
-          )}
+          <DeskStat value={initialStats.new} lines={["استشارات", "جديدة"]} />
+          <DeskStat value={ongoingCount} lines={["استشارات", "جارية"]} />
+          <DeskStat value={closedCount} lines={["استشارات", "مغلقة"]} />
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -302,7 +293,7 @@ export function ConsultationsTable({
             <div className="border-b border-[#eef0f6] px-3.5 py-3">
               <div className="flex items-center justify-between gap-3">
                 <h1 className="min-w-0 text-lg font-bold leading-none text-[#3e4c86]">{heading}</h1>
-                <div ref={desk === "consultant" ? filterMenuRef : undefined} className="relative flex shrink-0 items-center gap-1">
+                <div ref={filterMenuRef} className="relative flex shrink-0 items-center gap-1">
                   <ToolIconButton
                     label="بحث"
                     pressed={searchOpen}
@@ -315,20 +306,29 @@ export function ConsultationsTable({
                   <ToolIconButton
                     label="تصفية"
                     pressed={filtersOpen}
-                    marked={desk === "consultant" ? Boolean(scope || stage) : Boolean(status)}
+                    marked={Boolean(scope || stage || status)}
                     plain
                     onClick={() => setFiltersOpen((open) => !open)}
                   >
                     <FilterIcon />
                   </ToolIconButton>
-                  {desk === "consultant" && filtersOpen ? (
+                  {filtersOpen ? (
                     <ConsultantFilterMenu
                       scope={scope}
                       stage={stage}
                       counts={initialStats.segments}
+                      assignment={desk === "admin"
+                        ? [
+                            { id: "assigned", label: "مسندة", count: initialStats.segments?.assigned },
+                            { id: "unassigned", label: "غير مسندة", count: initialStats.segments?.unassigned },
+                          ]
+                        : [
+                            { id: "mine", label: "استشاراتي", count: initialStats.segments?.mine },
+                            { id: "unassigned", label: "استشارات غير مسندة", count: initialStats.segments?.unassigned },
+                          ]}
                       onScope={(id) => {
                         const next = scope === id ? "" : id;
-                        setScope(next as "" | "mine" | "unassigned");
+                        setScope(next as "" | "mine" | "assigned" | "unassigned");
                         applyFilters(1, { scope: next });
                       }}
                       onStage={(id) => {
@@ -345,7 +345,7 @@ export function ConsultationsTable({
                   ) : null}
                 </div>
               </div>
-              {desk === "consultant" && searchOpen ? (
+              {searchOpen ? (
                 <div className="mt-3">
                   <label htmlFor="desk-search" className="sr-only">بحث</label>
                   <input
@@ -360,75 +360,13 @@ export function ConsultationsTable({
                   />
                 </div>
               ) : null}
-              {desk !== "consultant" && (searchOpen || filtersOpen) ? (
-                <div className="mt-3 space-y-3">
-                  {searchOpen ? (
-                    <div>
-                      <label htmlFor="desk-search" className="sr-only">بحث</label>
-                      <input
-                        id="desk-search"
-                        className={staffInputClassName}
-                        placeholder="الرقم المرجعي، الاسم، أو الجوال"
-                        value={q}
-                        onChange={(event) => setQ(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") applyFilters(1);
-                        }}
-                      />
-                      <p className="mt-2 text-xs font-medium text-[#8b93ab]">اكتب ثم اضغط إدخال للبحث.</p>
-                    </div>
-                  ) : null}
-                  {filtersOpen ? (
-                    <div>
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-[#3e4c86]">الحالة</p>
-                        {filtersActive ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setQ("");
-                              setStatus("");
-                              router.push(basePath);
-                            }}
-                            className="text-sm font-semibold text-[#6d7588] underline"
-                          >
-                            إعادة ضبط
-                          </button>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <StatusChip
-                          label="الكل"
-                          active={!status}
-                          onClick={() => {
-                            setStatus("");
-                            applyFilters(1, { status: "" });
-                          }}
-                        />
-                        {ALL_STATUSES.map((item) => (
-                          <StatusChip
-                            key={item}
-                            label={STATUS_LABELS[item]}
-                            count={initialStats.byStatus[item] ?? 0}
-                            active={status === item}
-                            onClick={() => {
-                              setStatus(item);
-                              applyFilters(1, { status: item });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
             {initialData.length === 0 ? (
               <p className="overflow-hidden rounded-b-2xl px-4 py-8 text-center text-sm font-medium leading-7 text-[#8b93ab]">
                 {q.trim() || status || scope || stage ? "لا توجد استشارات مطابقة." : emptyMessage}
               </p>
             ) : (
-              <div className="divide-y divide-[#eef0f6] overflow-hidden rounded-b-2xl">
+              <div className="divide-y divide-[#eef0f6] rounded-b-2xl">
                 {initialData.map((row) => (
                   <ConsultantRequestCard
                     key={row.id}
@@ -638,11 +576,13 @@ function ConsultantRequestCard({
   const RoutingIcon = routing.icon;
   const teamName = row.projectOrTeamName?.trim() || row.fullName;
   const quiet = closed ? "text-[#a8b0c2]" : "text-[#8b93ab]";
+  const [assignOpen, setAssignOpen] = useState(false);
 
   return (
     <article
       className={clsx(
-        "min-w-0 px-3.5 py-3.5 transition",
+        "min-w-0 px-3.5 py-3.5 transition last:rounded-b-2xl",
+        assignOpen && "relative z-30",
         closed ? "bg-[#f7f8fb]" : "hover:bg-[#fafbfe]",
       )}
     >
@@ -670,7 +610,7 @@ function ConsultantRequestCard({
           </div>
         </div>
       </Link>
-      <div className="mt-2.5 flex items-center gap-3">
+      <div className="mt-2.5 flex items-start gap-3">
         <Link href={`${basePath}/consultations/${row.id}`} className="flex min-w-0 flex-1 items-start gap-3 text-start">
           <span
             className={clsx(
@@ -689,7 +629,8 @@ function ConsultantRequestCard({
             </p>
           </div>
         </Link>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
           {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" size="sm" /> : null}
           {collected ? (
             <a
@@ -723,15 +664,16 @@ function ConsultantRequestCard({
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
           </Link>
+          </div>
+          {!row.assignedTo && assignees.length > 0 ? (
+            <AssignConsultationControl
+              consultationId={row.id}
+              assignees={assignees}
+              onOpenChange={setAssignOpen}
+            />
+          ) : null}
         </div>
       </div>
-      {assignees.length > 0 ? (
-        <AssignConsultationControl
-          consultationId={row.id}
-          assignees={assignees}
-          currentId={row.assignedTo?.id ?? ""}
-        />
-      ) : null}
     </article>
   );
 }
@@ -739,24 +681,37 @@ function ConsultantRequestCard({
 function AssignConsultationControl({
   consultationId,
   assignees,
-  currentId,
+  onOpenChange,
 }: {
   consultationId: string;
   assignees: { id: string; name: string }[];
-  currentId: string;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const router = useRouter();
-  const [value, setValue] = useState(currentId);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ sent: boolean; message: string } | null>(null);
 
   useEffect(() => {
-    setValue(currentId);
-  }, [currentId]);
+    if (!open) return;
+    function onPointer(event: MouseEvent) {
+      if (rootRef.current?.contains(event.target as Node)) return;
+      setOpen(false);
+      setPendingId(null);
+    }
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [open]);
 
-  async function assign() {
-    if (!value || value === currentId) return;
+  async function assign(nextId: string) {
+    if (!nextId) return;
     setSaving(true);
     setError(null);
     setNotice(null);
@@ -764,7 +719,7 @@ function AssignConsultationControl({
       const response = await fetch(`/api/admin/consultations/${consultationId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedToId: value }),
+        body: JSON.stringify({ assignedToId: nextId }),
       });
       const result = (await response.json()) as {
         success?: boolean;
@@ -775,6 +730,7 @@ function AssignConsultationControl({
         setError(result.message ?? "تعذر الإسناد");
         return;
       }
+      setPendingId(null);
       if (result.emailNotice) setNotice(result.emailNotice);
       router.refresh();
     } catch {
@@ -785,36 +741,63 @@ function AssignConsultationControl({
   }
 
   return (
-    <div className="mt-3">
-      <div className="flex items-center gap-2">
-        <label className="sr-only" htmlFor={`assign-${consultationId}`}>
-          إسناد الاستشارة
-        </label>
-        <select
-          id={`assign-${consultationId}`}
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          className="h-10 min-w-0 flex-1 appearance-none rounded-full border border-[#d5d9e8] bg-white px-3 text-[13px] font-semibold text-[#3e4c86] outline-none"
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => {
+          setOpen((value) => !value);
+          setPendingId(null);
+        }}
+        className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#e3e7f4] bg-[#f4f6fb] px-2.5 text-[12px] font-semibold text-[#3e4c86] transition hover:bg-[#eef1fb]"
+      >
+        إسناد
+        <svg viewBox="0 0 12 12" aria-hidden="true" className={clsx("h-2.5 w-2.5 transition", open && "rotate-180")}>
+          <path d="M2.2 4.2 6 8.6 9.8 4.2Z" fill="currentColor" />
+        </svg>
+      </button>
+      {open ? (
+        <ul
+          role="listbox"
+          aria-label="المستشارون"
+          className="absolute end-0 top-full z-30 mt-1.5 w-48 overflow-hidden rounded-xl bg-white py-1 text-start shadow-[0_12px_32px_rgba(62,76,134,0.14)] ring-1 ring-[#eef0f6]"
         >
-          <option value="">إسناد إلى مستشار</option>
-          {assignees.map((assignee) => (
-            <option key={assignee.id} value={assignee.id}>
-              {assignee.name}
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={assign}
-          disabled={saving || !value || value === currentId}
-          className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272] disabled:opacity-40"
-        >
-          {saving ? "جاري الإسناد..." : "إسناد"}
-        </button>
-      </div>
-      {error ? <p className="mt-2 text-xs font-medium text-[#b42318]">{error}</p> : null}
+          {assignees.map((assignee) => {
+            const pending = pendingId === assignee.id;
+            return (
+              <li key={assignee.id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={pending}
+                  disabled={saving}
+                  onClick={() => {
+                    if (pending) {
+                      void assign(assignee.id);
+                      return;
+                    }
+                    setPendingId(assignee.id);
+                  }}
+                  className={clsx(
+                    "flex w-full items-center gap-2 px-3 py-2 text-start text-[13px] font-semibold transition disabled:opacity-40",
+                    pending ? "bg-[#f3faf6] text-[#1f7a4d]" : "text-[#3e4c86] hover:bg-[#f7f8fb]",
+                  )}
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {saving && pending ? "جاري الإسناد..." : assignee.name}
+                  </span>
+                  {pending && !saving ? (
+                    <span className="shrink-0 text-[11px] font-medium">تأكيد</span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+      {error ? <p className="mt-1.5 text-end text-[11px] font-medium text-[#b42318]">{error}</p> : null}
       {notice ? (
-        <p className={clsx("mt-2 text-xs font-medium", notice.sent ? "text-[#067647]" : "text-[#b42318]")}>
+        <p className={clsx("mt-1.5 max-w-44 text-end text-[11px] font-medium", notice.sent ? "text-[#067647]" : "text-[#b42318]")}>
           {notice.message}
         </p>
       ) : null}
@@ -990,6 +973,7 @@ function ConsultantFilterMenu({
   scope,
   stage,
   counts,
+  assignment,
   onScope,
   onStage,
   onClear,
@@ -997,14 +981,11 @@ function ConsultantFilterMenu({
   scope: string;
   stage: string;
   counts?: Stats["segments"];
+  assignment: { id: string; label: string; count?: number }[];
   onScope: (id: string) => void;
   onStage: (id: string) => void;
   onClear: () => void;
 }) {
-  const assignment = [
-    { id: "mine", label: "استشاراتي", count: counts?.mine },
-    { id: "unassigned", label: "استشارات غير مسندة", count: counts?.unassigned },
-  ];
   const stages = [
     { id: "new", label: "جديد", count: counts?.new },
     { id: "ongoing", label: "جاري", count: counts?.ongoing },

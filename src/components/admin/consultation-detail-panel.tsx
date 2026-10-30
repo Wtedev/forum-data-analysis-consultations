@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowRight, Phone, Users } from "lucide-react";
+import { ArrowRight, ChevronDown, Phone, Users } from "lucide-react";
+import { clsx } from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
 import { WhatsAppIcon } from "@/components/admin/whatsapp-link";
@@ -32,7 +33,7 @@ export function ConsultationDetailPanel({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [noteSaving, setNoteSaving] = useState(false);
-  const [assigneeId, setAssigneeId] = useState(data.assignedTo?.id ?? "");
+  const [pendingAssigneeId, setPendingAssigneeId] = useState<string | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [assignNotice, setAssignNotice] = useState<{ sent: boolean; message: string } | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export function ConsultationDetailPanel({
     setData(initialData);
     setStatus(initialData.status);
     setPriority(initialData.priority);
-    setAssigneeId(initialData.assignedTo?.id ?? "");
+    setPendingAssigneeId(null);
   }, [initialData]);
 
   async function handleUpdate(next?: { status?: ConsultationDetail["status"]; priority?: ConsultationDetail["priority"] }) {
@@ -120,8 +121,8 @@ export function ConsultationDetailPanel({
     }
   }
 
-  async function handleAssign() {
-    if (!assigneeId) return;
+  async function handleAssign(nextId: string) {
+    if (!nextId || data.assignedTo) return;
     setAssigning(true);
     setError(null);
     setAssignNotice(null);
@@ -130,7 +131,7 @@ export function ConsultationDetailPanel({
       const response = await fetch(`/api/admin/consultations/${data.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedToId: assigneeId }),
+        body: JSON.stringify({ assignedToId: nextId }),
       });
       const result = (await response.json()) as {
         success?: boolean;
@@ -145,7 +146,7 @@ export function ConsultationDetailPanel({
       }
 
       setData(result.data);
-      setAssigneeId(result.data.assignedTo?.id ?? "");
+      setPendingAssigneeId(null);
       if (result.emailNotice) setAssignNotice(result.emailNotice);
       router.refresh();
     } catch {
@@ -255,9 +256,92 @@ export function ConsultationDetailPanel({
         ) : null}
       </div>
 
-      <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-        <h2 className="text-base font-bold text-[#3e4c86]">بيانات المستفيد</h2>
-        <dl className="mt-4 space-y-3">
+      <section className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-[#3e4c86]">حالة الاستشارة</h2>
+            <p className="mt-1 text-[12px] font-medium leading-5 text-[#8b93ab]">
+              حدّث حالة الاستشارة حتى يعرف المسؤولون حجم الاستشارات المتبقية.
+            </p>
+          </div>
+          <FieldSelect
+            label="حالة الاستشارة"
+            value={status}
+            disabled={claimable || saving}
+            onChange={(value) => {
+              const next = value as ConsultationDetail["status"];
+              setStatus(next);
+              void handleUpdate({ status: next });
+            }}
+            options={ALL_STATUSES.map((item) => ({ value: item, label: STATUS_LABELS[item] }))}
+          />
+        </div>
+        {mode === "admin" ? (
+          <div className="flex items-center justify-between gap-3 border-t border-[#eef0f6] px-4 py-3.5">
+            <h2 className="text-base font-bold text-[#3e4c86]">الأولوية</h2>
+            <FieldSelect
+              label="الأولوية"
+              value={priority}
+              disabled={saving}
+              onChange={(value) => {
+                const next = value as ConsultationDetail["priority"];
+                setPriority(next);
+                void handleUpdate({ priority: next });
+              }}
+              options={ALL_PRIORITIES.map((item) => ({ value: item, label: PRIORITY_LABELS[item] }))}
+            />
+          </div>
+        ) : null}
+        {mode === "admin" ? (
+          <div className="border-t border-[#eef0f6] px-4 py-3.5">
+            <h2 className="text-base font-bold text-[#3e4c86]">الإسناد</h2>
+            {data.assignedTo ? (
+              <p className="mt-2 text-[12px] font-medium leading-5 text-[#8b93ab]">
+                مسندة إلى {data.assignedTo.name}. لا تُسند لمستشار آخر إلا بعد التفويض.
+              </p>
+            ) : assignees.length === 0 ? (
+              <p className="mt-2 text-[12px] font-medium leading-5 text-[#8b93ab]">لا يوجد مستشار مفعّل بعد. أرسل دعوة أولاً.</p>
+            ) : (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-[12px] font-medium text-[#8b93ab]">إسناد إلى</span>
+                {assignees.map((assignee) => {
+                  const pending = pendingAssigneeId === assignee.id;
+                  return (
+                    <button
+                      key={assignee.id}
+                      type="button"
+                      disabled={assigning}
+                      onClick={() => {
+                        if (pending) {
+                          void handleAssign(assignee.id);
+                          return;
+                        }
+                        setPendingAssigneeId(assignee.id);
+                      }}
+                      className={clsx(
+                        "inline-flex h-9 items-center rounded-full border px-3 text-[13px] font-semibold transition disabled:opacity-40",
+                        pending
+                          ? "border-[#d7eadf] bg-[#f3faf6] text-[#1f7a4d]"
+                          : "border-[#e3e7f4] bg-[#f4f6fb] text-[#3e4c86] hover:bg-[#eef1fb]",
+                      )}
+                    >
+                      {assigning && pending ? "جاري الإسناد..." : pending ? "تأكيد الإسناد" : assignee.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {assignNotice ? (
+              <p className={`mt-2 text-xs font-medium ${assignNotice.sent ? "text-[#067647]" : "text-[#b42318]"}`}>
+                {assignNotice.message}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
+
+      <ExpandableSection title="بيانات المستفيد">
+        <dl className="space-y-3">
           <Info label="الاسم" value={data.fullName} />
           <Info label="الجوال" value={data.phone || "—"} dir="ltr" />
           <Info label="البريد" value={data.email ?? "—"} dir="ltr" />
@@ -266,11 +350,10 @@ export function ConsultationDetailPanel({
           <Info label="اسم المشروع أو الفريق" value={data.projectOrTeamName ?? "—"} />
           {data.teamMemberCount ? <Info label="عدد أعضاء الفريق" value={String(data.teamMemberCount)} /> : null}
         </dl>
-      </section>
+      </ExpandableSection>
 
-      <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-        <h2 className="text-base font-bold text-[#3e4c86]">تفاصيل الاستشارة</h2>
-        <dl className="mt-4 space-y-3">
+      <ExpandableSection title="تفاصيل الاستشارة">
+        <dl className="space-y-3">
           <Info label="نوع الاستشارة" value={data.consultationTypeLabel} />
           <Info label="الأدوات" value={data.tools.length ? data.tools.join("، ") : "—"} />
           <div className="flex items-center justify-between gap-4 border-b border-[#f3f4f8] pb-3">
@@ -295,144 +378,94 @@ export function ConsultationDetailPanel({
             </div>
           ) : null}
         </dl>
-      </section>
+      </ExpandableSection>
 
-      <section className="space-y-3 rounded-2xl bg-white px-4 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base font-bold text-[#3e4c86]">حالة الاستشارة</h2>
-          <FieldSelect
-            label="حالة الاستشارة"
-            value={status}
-            disabled={claimable || saving}
-            onChange={(value) => {
-              const next = value as ConsultationDetail["status"];
-              setStatus(next);
-              void handleUpdate({ status: next });
-            }}
-            options={ALL_STATUSES.map((item) => ({ value: item, label: STATUS_LABELS[item] }))}
-          />
-        </div>
-        {mode === "admin" ? (
-          <div className="flex items-center justify-between gap-3 border-t border-[#f3f4f8] pt-3">
-            <h2 className="text-base font-bold text-[#3e4c86]">الأولوية</h2>
-            <FieldSelect
-              label="الأولوية"
-              value={priority}
-              disabled={saving}
-              onChange={(value) => {
-                const next = value as ConsultationDetail["priority"];
-                setPriority(next);
-                void handleUpdate({ priority: next });
-              }}
-              options={ALL_PRIORITIES.map((item) => ({ value: item, label: PRIORITY_LABELS[item] }))}
+      <ExpandableSection title="تعليقات داخلية">
+        <form onSubmit={handleAddNote}>
+          <div className="flex items-center gap-2">
+            <input
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              disabled={claimable || noteSaving}
+              placeholder={claimable ? "بعد استلام الاستشارة" : "أضف تعليقاً"}
+              className="h-10 min-w-0 flex-1 rounded-full border-0 bg-[#eef1f8] px-4 text-sm text-[#3e4c86] outline-none placeholder:text-[#a3abc2] disabled:opacity-60"
             />
+            <button
+              type="submit"
+              aria-label="إضافة تعليق"
+              disabled={claimable || noteSaving || !note.trim()}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#33406f] disabled:opacity-40"
+            >
+              <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
+                <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
-        ) : null}
-      </section>
-
-      {mode === "admin" ? (
-        <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-          <h2 className="text-base font-bold text-[#3e4c86]">إسناد المستشار</h2>
-          {assignees.length === 0 ? (
-            <p className="mt-3 text-sm font-medium text-[#8b93ab]">لا يوجد مستشار مفعّل بعد. أرسل دعوة أولاً.</p>
-          ) : (
-            <div className="mt-3 flex items-center gap-2">
-              <div className="relative min-w-0 flex-1">
-                <select
-                  aria-label="إسناد المستشار"
-                  value={assigneeId}
-                  onChange={(event) => setAssigneeId(event.target.value)}
-                  className="h-10 w-full appearance-none rounded-full border border-[#d5d9e8] bg-white py-0 pl-8 pr-3 text-[13px] font-semibold text-[#3e4c86] outline-none"
-                >
-                  <option value="">اختر مستشاراً</option>
-                  {assignees.map((assignee) => (
-                    <option key={assignee.id} value={assignee.id}>{assignee.name}</option>
-                  ))}
-                </select>
-                <Caret />
+          <p className="mt-2 text-[12px] font-medium leading-5 text-[#8b93ab]">
+            هذه الملاحظات للمستشارين والإدارة. يمكنك حذف أي تعليق.
+          </p>
+        </form>
+        {error ? <p className="mt-2 text-sm font-medium text-red-600">{error}</p> : null}
+        <ul className="mt-2 divide-y divide-[#e6e8ee]">
+          {timeline.map((item) => (
+            <li key={item.id} className="flex items-start justify-between gap-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold leading-6 text-[#3e4c86]">{item.title}</p>
+                {item.detail ? <p className="mt-0.5 text-[13px] leading-6 text-[#8b93ab]">{item.detail}</p> : null}
               </div>
-              <button
-                type="button"
-                onClick={handleAssign}
-                disabled={assigning || !assigneeId}
-                className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272] disabled:opacity-40"
-              >
-                {assigning ? "جاري الإسناد..." : "إسناد"}
-              </button>
-            </div>
-          )}
-          {assignNotice ? (
-            <p className={`mt-2 text-xs font-medium ${assignNotice.sent ? "text-[#067647]" : "text-[#b42318]"}`}>
-              {assignNotice.message}
-            </p>
-          ) : null}
-        </section>
-      ) : null}
-
-      <form onSubmit={handleAddNote} className="rounded-2xl bg-white px-3 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-        <div className="flex items-center gap-2">
-          <h2 className="shrink-0 text-sm font-bold text-[#3e4c86] sm:text-base">تعليقات داخلية</h2>
-          <input
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            disabled={claimable || noteSaving}
-            placeholder={claimable ? "بعد استلام الاستشارة" : "أضف تعليقاً"}
-            className="h-10 min-w-0 flex-1 rounded-full border-0 bg-[#eef1f8] px-4 text-sm text-[#3e4c86] outline-none placeholder:text-[#a3abc2] disabled:opacity-60"
-          />
-          <button
-            type="submit"
-            aria-label="إضافة تعليق"
-            disabled={claimable || noteSaving || !note.trim()}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#33406f] disabled:opacity-40"
-          >
-            <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
-              <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-        <p className="mt-2 px-1 text-[12px] font-medium leading-5 text-[#8b93ab]">
-          هذه الملاحظات تظهر للمستشارين فقط، وللتواصل مع المستفيد اضغط زر الواتساب.
-        </p>
-      </form>
-
-      {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
-
-      <ul className="divide-y divide-[#e6e8ee] px-1">
-        {timeline.map((item) => (
-          <li key={item.id} className="flex items-start justify-between gap-4 py-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold leading-6 text-[#3e4c86]">{item.title}</p>
-              {item.detail ? <p className="mt-0.5 text-[13px] leading-6 text-[#8b93ab]">{item.detail}</p> : null}
-            </div>
-            <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
-              <time className="text-end text-[12px] font-normal leading-5 text-[#8b93ab]">
-                {item.stamp ?? clock(item.at)}
-              </time>
-              {item.canDelete && item.noteId ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (pendingDeleteId === item.noteId) {
-                      void handleDeleteNote(item.noteId);
-                      return;
-                    }
-                    setPendingDeleteId(item.noteId);
-                  }}
-                  disabled={deletingId === item.noteId}
-                  className="text-[12px] font-medium text-[#b42318] disabled:opacity-40"
-                >
-                  {deletingId === item.noteId
-                    ? "جاري الحذف..."
-                    : pendingDeleteId === item.noteId
-                      ? "تأكيد الحذف"
-                      : "حذف"}
-                </button>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
+                <time className="text-end text-[12px] font-normal leading-5 text-[#8b93ab]">
+                  {item.stamp ?? clock(item.at)}
+                </time>
+                {item.canDelete && item.noteId ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const noteId = item.noteId;
+                      if (!noteId) return;
+                      if (pendingDeleteId === noteId) {
+                        void handleDeleteNote(noteId);
+                        return;
+                      }
+                      setPendingDeleteId(noteId);
+                    }}
+                    disabled={deletingId === item.noteId}
+                    className="text-[12px] font-medium text-[#b42318] disabled:opacity-40"
+                  >
+                    {deletingId === item.noteId
+                      ? "جاري الحذف..."
+                      : pendingDeleteId === item.noteId
+                        ? "تأكيد الحذف"
+                        : "حذف"}
+                  </button>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </ExpandableSection>
     </div>
+  );
+}
+
+function ExpandableSection({ title, children }: { title: string; children: ReactNode }) {
+  const [open, setOpen] = useState(true);
+  return (
+    <section className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-start"
+      >
+        <h2 className="text-base font-bold text-[#3e4c86]">{title}</h2>
+        <ChevronDown
+          aria-hidden
+          className={clsx("h-5 w-5 shrink-0 text-[#8b93ab] transition", open && "rotate-180")}
+        />
+      </button>
+      {open ? <div className="border-t border-[#eef0f6] px-4 py-4">{children}</div> : null}
+    </section>
   );
 }
 

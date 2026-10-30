@@ -20,7 +20,7 @@ export const consultationDetailInclude = {
 
 const ONGOING_STATUSES: ConsultationStatus[] = ["IN_REVIEW", "CONTACTED", "ANSWERED", "NEEDS_FOLLOW_UP"];
 
-export type ConsultationAssignmentFilter = "mine" | "unassigned";
+export type ConsultationAssignmentFilter = "mine" | "assigned" | "unassigned";
 export type ConsultationStageFilter = "new" | "ongoing" | "closed";
 
 function stageConstraint(stage?: ConsultationStageFilter): Prisma.ConsultationWhereInput {
@@ -35,6 +35,7 @@ function assignmentConstraint(
   assigneeId?: string,
 ): Prisma.ConsultationWhereInput {
   if (assignment === "mine" && assigneeId) return { assignedToId: assigneeId };
+  if (assignment === "assigned") return { assignedToId: { not: null } };
   if (assignment === "unassigned") return { assignedToId: null };
   return {};
 }
@@ -92,7 +93,7 @@ export async function listConsultationsForAdmin(options: {
   const countWhere = (extra: Prisma.ConsultationWhereInput) =>
     getPrisma().consultation.count({ where: { AND: [scope, extra] } });
 
-  const [total, rows, statusCounts, newCount, allTotal, mineCount, unassignedCount, segmentMine, segmentUnassigned, segmentNew, segmentOngoing, segmentClosed] = await Promise.all([
+  const [total, rows, statusCounts, newCount, allTotal, mineCount, unassignedCount, segmentMine, segmentAssigned, segmentUnassigned, segmentNew, segmentOngoing, segmentClosed] = await Promise.all([
     getPrisma().consultation.count({ where }),
     getPrisma().consultation.findMany({
       where,
@@ -111,7 +112,8 @@ export async function listConsultationsForAdmin(options: {
     mineWhere ? getPrisma().consultation.count({ where: mineWhere }) : Promise.resolve(0),
     openPoolWhere ? getPrisma().consultation.count({ where: openPoolWhere }) : Promise.resolve(0),
     options.assigneeId ? countWhere({ AND: [activeStage, { assignedToId: options.assigneeId }] }) : Promise.resolve(0),
-    options.assigneeId ? countWhere({ AND: [activeStage, { assignedToId: null }] }) : Promise.resolve(0),
+    countWhere({ AND: [activeStage, { assignedToId: { not: null } }] }),
+    countWhere({ AND: [activeStage, { assignedToId: null }] }),
     countWhere({ AND: [activeAssignment, { status: "NEW" }] }),
     countWhere({ AND: [activeAssignment, { status: { in: ONGOING_STATUSES } }] }),
     countWhere({ AND: [activeAssignment, { status: "CLOSED" }] }),
@@ -141,6 +143,7 @@ export async function listConsultationsForAdmin(options: {
       ),
       segments: {
         mine: segmentMine,
+        assigned: segmentAssigned,
         unassigned: segmentUnassigned,
         new: segmentNew,
         ongoing: segmentOngoing,

@@ -80,6 +80,13 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!canManageConsultation(auth.session, existing)) {
       return badRequest("اختر الطلب أولاً قبل تعديله");
     }
+    if (
+      parsed.data.assignedToId !== undefined &&
+      existing.assignedToId &&
+      parsed.data.assignedToId !== existing.assignedToId
+    ) {
+      return badRequest("لا يمكن إسناد استشارة مرتبطة بمستشار إلا بعد التفويض");
+    }
 
     const updates: {
       status?: ConsultationStatus;
