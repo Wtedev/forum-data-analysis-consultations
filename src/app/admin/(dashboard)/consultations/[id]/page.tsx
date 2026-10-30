@@ -29,5 +29,12 @@ export default async function AdminConsultationDetailPage({ params }: PageProps)
     notFound();
   }
 
-  return <ConsultationDetailPanel initialData={consultation} mode="admin" assignees={assignees} />;
+  return (
+    <ConsultationDetailPanel
+      initialData={consultation}
+      mode="admin"
+      assignees={assignees}
+      viewerId={session.sub}
+    />
+  );
 }

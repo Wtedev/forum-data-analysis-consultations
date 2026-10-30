@@ -14,7 +14,7 @@ export async function listPublicConsultantOptions(): Promise<ConsultantOption[]>
   const now = new Date();
   const [accounts, invites] = await Promise.all([
     getPrisma().adminUser.findMany({
-      where: { role: "CONSULTANT", consultantKey: { not: null } },
+      where: { role: "CONSULTANT", consultantKey: { not: null }, visibleToApplicants: true },
       select: { consultantKey: true, name: true, email: true, createdAt: true },
     }),
     getPrisma().consultantInvite.findMany({
@@ -55,7 +55,7 @@ export async function resolveConsultantChoice(label: string) {
   if (normalized === NO_PREFERENCE_CHOICE.label) return NO_PREFERENCE_CHOICE.id;
 
   const account = await getPrisma().adminUser.findFirst({
-    where: { role: "CONSULTANT", name: normalized, consultantKey: { not: null } },
+    where: { role: "CONSULTANT", name: normalized, consultantKey: { not: null }, visibleToApplicants: true },
     select: { consultantKey: true },
   });
   if (account?.consultantKey) return account.consultantKey;

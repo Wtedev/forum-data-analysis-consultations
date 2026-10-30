@@ -4,6 +4,7 @@ import type { ConsultationStatus } from "@prisma/client";
 import { ConsultationsTable } from "@/components/admin/consultations-table";
 import { ALL_STATUSES } from "@/lib/admin-labels";
 import { listConsultationsForAdmin } from "@/lib/admin-queries";
+import { getPrisma } from "@/lib/prisma";
 
 type PageProps = {
   searchParams: Promise<{
@@ -26,7 +27,14 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
   const status = parseStatus(params.status);
   const page = Math.max(1, Number(params.page) || 1);
 
-  const result = await listConsultationsForAdmin({ q, status, page });
+  const [result, assignees] = await Promise.all([
+    listConsultationsForAdmin({ q, status, page }),
+    getPrisma().adminUser.findMany({
+      where: { role: "CONSULTANT", consultantKey: { not: null } },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -43,6 +51,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
           initialPage={result.pagination.page}
           totalPages={result.pagination.totalPages}
           total={result.pagination.total}
+          assignees={assignees}
         />
       </Suspense>
     </div>

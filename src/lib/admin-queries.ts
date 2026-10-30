@@ -18,9 +18,32 @@ export const consultationDetailInclude = {
   },
 };
 
+const ONGOING_STATUSES: ConsultationStatus[] = ["IN_REVIEW", "CONTACTED", "ANSWERED", "NEEDS_FOLLOW_UP"];
+
+export type ConsultationAssignmentFilter = "mine" | "unassigned";
+export type ConsultationStageFilter = "new" | "ongoing" | "closed";
+
+function stageConstraint(stage?: ConsultationStageFilter): Prisma.ConsultationWhereInput {
+  if (stage === "new") return { status: "NEW" };
+  if (stage === "closed") return { status: "CLOSED" };
+  if (stage === "ongoing") return { status: { in: ONGOING_STATUSES } };
+  return {};
+}
+
+function assignmentConstraint(
+  assignment: ConsultationAssignmentFilter | undefined,
+  assigneeId?: string,
+): Prisma.ConsultationWhereInput {
+  if (assignment === "mine" && assigneeId) return { assignedToId: assigneeId };
+  if (assignment === "unassigned") return { assignedToId: null };
+  return {};
+}
+
 export async function listConsultationsForAdmin(options: {
   q?: string;
   status?: ConsultationStatus;
+  assignment?: ConsultationAssignmentFilter;
+  stage?: ConsultationStageFilter;
   page?: number;
   limit?: number;
   access?: Prisma.ConsultationWhereInput;
@@ -32,8 +55,17 @@ export async function listConsultationsForAdmin(options: {
   const scope: Prisma.ConsultationWhereInput = options.access ?? {};
   const filters: Prisma.ConsultationWhereInput[] = [scope];
 
-  if (options.status) {
+  const activeStage = stageConstraint(options.stage);
+  const activeAssignment = assignmentConstraint(options.assignment, options.assigneeId);
+
+  if (options.stage) {
+    filters.push(activeStage);
+  } else if (options.status) {
     filters.push({ status: options.status });
+  }
+
+  if (options.assignment) {
+    filters.push(activeAssignment);
   }
 
   if (options.q?.trim()) {
@@ -57,7 +89,10 @@ export async function listConsultationsForAdmin(options: {
     ? { AND: [scope, { assignedToId: null }] }
     : null;
 
-  const [total, rows, statusCounts, newCount, allTotal, mineCount, unassignedCount] = await Promise.all([
+  const countWhere = (extra: Prisma.ConsultationWhereInput) =>
+    getPrisma().consultation.count({ where: { AND: [scope, extra] } });
+
+  const [total, rows, statusCounts, newCount, allTotal, mineCount, unassignedCount, segmentMine, segmentUnassigned, segmentNew, segmentOngoing, segmentClosed] = await Promise.all([
     getPrisma().consultation.count({ where }),
     getPrisma().consultation.findMany({
       where,
@@ -75,6 +110,11 @@ export async function listConsultationsForAdmin(options: {
     getPrisma().consultation.count({ where: scope }),
     mineWhere ? getPrisma().consultation.count({ where: mineWhere }) : Promise.resolve(0),
     openPoolWhere ? getPrisma().consultation.count({ where: openPoolWhere }) : Promise.resolve(0),
+    options.assigneeId ? countWhere({ AND: [activeStage, { assignedToId: options.assigneeId }] }) : Promise.resolve(0),
+    options.assigneeId ? countWhere({ AND: [activeStage, { assignedToId: null }] }) : Promise.resolve(0),
+    countWhere({ AND: [activeAssignment, { status: "NEW" }] }),
+    countWhere({ AND: [activeAssignment, { status: { in: ONGOING_STATUSES } }] }),
+    countWhere({ AND: [activeAssignment, { status: "CLOSED" }] }),
   ]);
 
   const names = await consultantNamesByKey(rows.map((row) => row.preferredConsultant));
@@ -99,6 +139,13 @@ export async function listConsultationsForAdmin(options: {
       byStatus: Object.fromEntries(
         statusCounts.map((item) => [item.status, item._count._all]),
       ),
+      segments: {
+        mine: segmentMine,
+        unassigned: segmentUnassigned,
+        new: segmentNew,
+        ongoing: segmentOngoing,
+        closed: segmentClosed,
+      },
     },
   };
 }

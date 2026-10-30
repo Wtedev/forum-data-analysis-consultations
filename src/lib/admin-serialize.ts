@@ -63,6 +63,7 @@ export type ConsultationDetail = ConsultationListItem & {
     note: string;
     createdAt: string;
     createdAtLabel: string;
+    adminUserId: string;
     adminName: string;
   }[];
   activityLogs: {
@@ -125,6 +126,7 @@ export function serializeConsultationDetail(
       note: note.note,
       createdAt: note.createdAt.toISOString(),
       createdAtLabel: formatDateTime(note.createdAt),
+      adminUserId: note.adminUserId,
       adminName: note.adminUser.name,
     })),
     activityLogs: row.activityLogs.map((log) => ({

@@ -107,6 +107,7 @@ model AdminUser {
   passwordHash           String
   role                   AdminRole              @default(CONSULTANT)
   consultantKey          String?                @unique
+  visibleToApplicants    Boolean                @default(true)
 
   assignedConsultations  Consultation[]          @relation("AssignedConsultations")
   notes                  ConsultationNote[]
