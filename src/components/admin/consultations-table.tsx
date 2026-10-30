@@ -2,8 +2,25 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState, type ReactNode } from "react";
-import { ArrowLeft, Eye } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  ArrowLeft,
+  BarChart3,
+  CalendarDays,
+  Check,
+  CircleHelp,
+  ClipboardList,
+  Compass,
+  Eraser,
+  Eye,
+  Inbox,
+  LayoutDashboard,
+  MessageSquareText,
+  UserCheck,
+  UserRound,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { clsx } from "clsx";
 
 import { ClaimConsultationButton } from "@/components/admin/claim-consultation-button";
@@ -19,6 +36,13 @@ type Stats = {
   mine?: number;
   unassigned?: number;
   byStatus: Record<string, number>;
+  segments?: {
+    mine: number;
+    unassigned: number;
+    new: number;
+    ongoing: number;
+    closed: number;
+  };
 };
 
 type ConsultationsTableProps = {
@@ -26,6 +50,8 @@ type ConsultationsTableProps = {
   initialStats: Stats;
   initialQuery: string;
   initialStatus: string;
+  initialScope?: "" | "mine" | "unassigned";
+  initialStage?: "" | "new" | "ongoing" | "closed";
   initialPage: number;
   totalPages: number;
   total: number;
@@ -36,6 +62,7 @@ type ConsultationsTableProps = {
   showSearchButton?: boolean;
   iconTools?: boolean;
   desk?: "consultant" | "admin";
+  assignees?: { id: string; name: string }[];
 };
 
 export function ConsultationsTable({
@@ -43,6 +70,8 @@ export function ConsultationsTable({
   initialStats,
   initialQuery,
   initialStatus,
+  initialScope = "",
+  initialStage = "",
   initialPage,
   totalPages,
   total,
@@ -53,29 +82,65 @@ export function ConsultationsTable({
   showSearchButton = true,
   iconTools = false,
   desk = "consultant",
+  assignees = [],
 }: ConsultationsTableProps) {
   const router = useRouter();
   const [q, setQ] = useState(initialQuery);
   const [status, setStatus] = useState(initialStatus);
+  const [scope, setScope] = useState(initialScope);
+  const [stage, setStage] = useState(initialStage);
   const [searchOpen, setSearchOpen] = useState(Boolean(initialQuery));
   const [filtersOpen, setFiltersOpen] = useState(Boolean(initialStatus));
+  const filterMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setQ(initialQuery);
+    setStatus(initialStatus);
+    setScope(initialScope);
+    setStage(initialStage);
+  }, [initialQuery, initialStatus, initialScope, initialStage]);
+
+  useEffect(() => {
+    if (!filtersOpen || desk !== "consultant") return;
+    function onPointer(event: MouseEvent) {
+      if (filterMenuRef.current?.contains(event.target as Node)) return;
+      event.preventDefault();
+      setFiltersOpen(false);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setFiltersOpen(false);
+    }
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [filtersOpen, desk]);
 
   const applyFilters = useCallback(
-    (page = 1, next?: { q?: string; status?: string }) => {
+    (page = 1, next?: { q?: string; status?: string; scope?: string; stage?: string }) => {
       const queryText = (next?.q ?? q).trim();
       const queryStatus = next?.status ?? status;
+      const queryScope = next?.scope ?? scope;
+      const queryStage = next?.stage ?? stage;
       const params = new URLSearchParams();
       if (queryText) params.set("q", queryText);
       if (queryStatus) params.set("status", queryStatus);
+      if (queryScope) params.set("scope", queryScope);
+      if (queryStage) params.set("stage", queryStage);
       if (page > 1) params.set("page", String(page));
       const query = params.toString();
       router.push(query ? `${basePath}?${query}` : basePath);
     },
-    [q, status, router, basePath],
+    [q, status, scope, stage, router, basePath],
   );
 
+  const avatarTones = avatarTonesFor(initialData.map((item) => item.id));
   const filtersActive = Boolean(q.trim() || status);
-  const openCount = initialStats.total - (initialStats.byStatus.CLOSED ?? 0);
+  const closedCount = initialStats.byStatus.CLOSED ?? 0;
+  const openCount = initialStats.total - closedCount;
+  const ongoingCount = Math.max(0, initialStats.total - initialStats.new - closedCount);
 
   return (
     <div className={iconTools ? "space-y-5" : "space-y-6"}>
@@ -89,9 +154,9 @@ export function ConsultationsTable({
             </>
           ) : (
             <>
-              <DeskStat value={initialStats.total} lines={["جميع", "الاستشارات"]} />
-              <DeskStat value={initialStats.mine ?? 0} lines={["استشاراتي"]} />
-              <DeskStat value={initialStats.unassigned ?? 0} lines={["الاستشارات", "غير المسندة"]} />
+              <DeskStat value={initialStats.new} lines={["استشارات", "جديدة"]} />
+              <DeskStat value={ongoingCount} lines={["استشارات", "جارية"]} />
+              <DeskStat value={closedCount} lines={["استشارات", "مغلقة"]} />
             </>
           )}
         </div>
@@ -126,39 +191,11 @@ export function ConsultationsTable({
         </div>
       )}
 
-      {heading || iconTools ? (
-        <div className="flex items-center justify-between gap-3">
-          {heading ? (
-            <h1 className={iconTools ? "min-w-0 text-lg font-bold leading-none text-[#3e4c86]" : "min-w-0 text-lg font-semibold text-[#1c1c1c]"}>
-              {heading}
-            </h1>
-          ) : (
-            <span />
-          )}
-          {iconTools ? (
-            <div className="flex items-center gap-2">
-              <ToolIconButton
-                label="بحث"
-                pressed={searchOpen}
-                marked={Boolean(q.trim())}
-                onClick={() => setSearchOpen((open) => !open)}
-              >
-                <SearchIcon />
-              </ToolIconButton>
-              <ToolIconButton
-                label="تصفية"
-                pressed={filtersOpen}
-                marked={Boolean(status)}
-                onClick={() => setFiltersOpen((open) => !open)}
-              >
-                <FilterIcon />
-              </ToolIconButton>
-            </div>
-          ) : null}
-        </div>
+      {heading && !iconTools ? (
+        <h1 className="min-w-0 text-lg font-semibold text-[#1c1c1c]">{heading}</h1>
       ) : null}
 
-      {!iconTools || searchOpen || filtersOpen ? (
+      {!iconTools ? (
         <div className={iconTools
           ? "rounded-2xl bg-white p-4 shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]"
           : "rounded-3xl border border-[#eceef2] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5"}>
@@ -256,16 +293,156 @@ export function ConsultationsTable({
       ) : null}
 
       <div className={iconTools ? "space-y-3" : "space-y-3 md:hidden"}>
-        {initialData.length === 0 ? (
-          <div className={iconTools
-            ? "rounded-2xl bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#8b93ab] shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]"
-            : "rounded-3xl border border-[#eceef2] bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#9ca3af]"}>
+        {initialData.length === 0 && !iconTools ? (
+          <div className="rounded-3xl border border-[#eceef2] bg-white px-4 py-8 text-center text-sm font-medium leading-7 text-[#9ca3af]">
             {emptyMessage}
           </div>
         ) : iconTools ? (
-          initialData.map((row) => (
-            <ConsultantRequestCard key={row.id} row={row} basePath={basePath} canClaim={canClaim} contact={desk === "admin" ? "always" : "assigned"} />
-          ))
+          <div className="rounded-2xl bg-white shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 ring-[#eef0f6]">
+            <div className="border-b border-[#eef0f6] px-3.5 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <h1 className="min-w-0 text-lg font-bold leading-none text-[#3e4c86]">{heading}</h1>
+                <div ref={desk === "consultant" ? filterMenuRef : undefined} className="relative flex shrink-0 items-center gap-1">
+                  <ToolIconButton
+                    label="بحث"
+                    pressed={searchOpen}
+                    marked={Boolean(q.trim())}
+                    plain
+                    onClick={() => setSearchOpen((open) => !open)}
+                  >
+                    <SearchIcon />
+                  </ToolIconButton>
+                  <ToolIconButton
+                    label="تصفية"
+                    pressed={filtersOpen}
+                    marked={desk === "consultant" ? Boolean(scope || stage) : Boolean(status)}
+                    plain
+                    onClick={() => setFiltersOpen((open) => !open)}
+                  >
+                    <FilterIcon />
+                  </ToolIconButton>
+                  {desk === "consultant" && filtersOpen ? (
+                    <ConsultantFilterMenu
+                      scope={scope}
+                      stage={stage}
+                      counts={initialStats.segments}
+                      onScope={(id) => {
+                        const next = scope === id ? "" : id;
+                        setScope(next as "" | "mine" | "unassigned");
+                        applyFilters(1, { scope: next });
+                      }}
+                      onStage={(id) => {
+                        const next = stage === id ? "" : id;
+                        setStage(next as "" | "new" | "ongoing" | "closed");
+                        applyFilters(1, { stage: next });
+                      }}
+                      onClear={() => {
+                        setScope("");
+                        setStage("");
+                        applyFilters(1, { scope: "", stage: "" });
+                      }}
+                    />
+                  ) : null}
+                </div>
+              </div>
+              {desk === "consultant" && searchOpen ? (
+                <div className="mt-3">
+                  <label htmlFor="desk-search" className="sr-only">بحث</label>
+                  <input
+                    id="desk-search"
+                    className={staffInputClassName}
+                    placeholder="الرقم المرجعي، الاسم، أو الجوال"
+                    value={q}
+                    onChange={(event) => setQ(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") applyFilters(1);
+                    }}
+                  />
+                </div>
+              ) : null}
+              {desk !== "consultant" && (searchOpen || filtersOpen) ? (
+                <div className="mt-3 space-y-3">
+                  {searchOpen ? (
+                    <div>
+                      <label htmlFor="desk-search" className="sr-only">بحث</label>
+                      <input
+                        id="desk-search"
+                        className={staffInputClassName}
+                        placeholder="الرقم المرجعي، الاسم، أو الجوال"
+                        value={q}
+                        onChange={(event) => setQ(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") applyFilters(1);
+                        }}
+                      />
+                      <p className="mt-2 text-xs font-medium text-[#8b93ab]">اكتب ثم اضغط إدخال للبحث.</p>
+                    </div>
+                  ) : null}
+                  {filtersOpen ? (
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-[#3e4c86]">الحالة</p>
+                        {filtersActive ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQ("");
+                              setStatus("");
+                              router.push(basePath);
+                            }}
+                            className="text-sm font-semibold text-[#6d7588] underline"
+                          >
+                            إعادة ضبط
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <StatusChip
+                          label="الكل"
+                          active={!status}
+                          onClick={() => {
+                            setStatus("");
+                            applyFilters(1, { status: "" });
+                          }}
+                        />
+                        {ALL_STATUSES.map((item) => (
+                          <StatusChip
+                            key={item}
+                            label={STATUS_LABELS[item]}
+                            count={initialStats.byStatus[item] ?? 0}
+                            active={status === item}
+                            onClick={() => {
+                              setStatus(item);
+                              applyFilters(1, { status: item });
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+            {initialData.length === 0 ? (
+              <p className="overflow-hidden rounded-b-2xl px-4 py-8 text-center text-sm font-medium leading-7 text-[#8b93ab]">
+                {q.trim() || status || scope || stage ? "لا توجد استشارات مطابقة." : emptyMessage}
+              </p>
+            ) : (
+              <div className="divide-y divide-[#eef0f6] overflow-hidden rounded-b-2xl">
+                {initialData.map((row) => (
+                  <ConsultantRequestCard
+                    key={row.id}
+                    row={row}
+                    basePath={basePath}
+                    canClaim={canClaim}
+                    contact={desk === "admin" ? "always" : "assigned"}
+                    assignees={desk === "admin" ? assignees : []}
+                    tone={avatarTones.get(row.id) ?? AVATAR_TONES[0]}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           initialData.map((row) => (
             <article
@@ -374,80 +551,274 @@ export function ConsultationsTable({
   );
 }
 
+const AVATAR_TONES = [
+  "bg-[#eef1fb] text-[#3e4c86]",
+  "bg-[#eef8f3] text-[#1b7a4e]",
+  "bg-[#fff4e8] text-[#c26a12]",
+  "bg-[#f3eefe] text-[#6b3bb8]",
+  "bg-[#e8f6fb] text-[#0c7490]",
+  "bg-[#fdecef] text-[#c23b55]",
+  "bg-[#eef4ff] text-[#2f5fd0]",
+  "bg-[#f7f1e6] text-[#8d6824]",
+  "bg-[#eefaf4] text-[#0f766e]",
+  "bg-[#f8eef6] text-[#a33d78]",
+] as const;
+
+function avatarTonesFor(ids: string[]) {
+  const used = new Set<number>();
+  const tones = new Map<string, string>();
+  for (const id of ids) {
+    let hash = 0;
+    for (let index = 0; index < id.length; index += 1) {
+      hash = (hash * 31 + id.charCodeAt(index)) >>> 0;
+    }
+    let slot = hash % AVATAR_TONES.length;
+    if (used.size < AVATAR_TONES.length) {
+      while (used.has(slot)) slot = (slot + 1) % AVATAR_TONES.length;
+    }
+    used.add(slot);
+    tones.set(id, AVATAR_TONES[slot]);
+  }
+  return tones;
+}
+
+function consultationTypeIcon(label: string): LucideIcon {
+  switch (label) {
+    case "التحليل الإحصائي":
+      return BarChart3;
+    case "تنظيف البيانات وتجهيزها":
+      return Eraser;
+    case "لوحات المعلومات والتقارير":
+      return LayoutDashboard;
+    case "تصميم الاستبانات":
+      return ClipboardList;
+    case "اختيار الأداة المناسبة":
+      return Wrench;
+    case "تفسير النتائج":
+      return MessageSquareText;
+    case "منهجية المشروع وتحديد المشكلة":
+      return Compass;
+    default:
+      return CircleHelp;
+  }
+}
+
+function routingMeta(row: ConsultationListItem): { icon: LucideIcon; value: string } {
+  if (row.assignedTo) return { icon: UserCheck, value: `موجّهة إلى ${row.assignedTo.name}` };
+  if (row.preferredConsultantId === "NO_PREFERENCE") return { icon: Inbox, value: "تحتاج مستشار" };
+  return { icon: UserRound, value: `موجّهة إلى ${row.preferredConsultantLabel}` };
+}
+
+function compactDate(iso: string) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat("ar-SA", { day: "numeric", month: "short" }).format(date);
+}
+
 function ConsultantRequestCard({
   row,
   basePath,
   canClaim,
   contact = "assigned",
+  assignees = [],
+  tone,
 }: {
   row: ConsultationListItem;
   basePath: string;
   canClaim: boolean;
   contact?: "assigned" | "always";
+  assignees?: { id: string; name: string }[];
+  tone: string;
 }) {
   const collected = contact === "always" ? Boolean(row.phone) : Boolean(row.assignedTo && row.phone);
   const canTake = canClaim && row.preferredConsultantId === "NO_PREFERENCE" && !row.assignedTo;
   const closed = row.status === "CLOSED";
+  const TypeIcon = consultationTypeIcon(row.consultationTypeLabel);
+  const routing = routingMeta(row);
+  const RoutingIcon = routing.icon;
+  const teamName = row.projectOrTeamName?.trim() || row.fullName;
+  const quiet = closed ? "text-[#a8b0c2]" : "text-[#8b93ab]";
 
   return (
     <article
       className={clsx(
-        "flex min-w-0 items-center gap-3 rounded-2xl px-3.5 py-3.5 ring-1",
-        closed
-          ? "bg-[#eef0f4] shadow-none ring-[#e4e7ee]"
-          : "bg-white shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-[#eef0f6]",
+        "min-w-0 px-3.5 py-3.5 transition",
+        closed ? "bg-[#f7f8fb]" : "hover:bg-[#fafbfe]",
       )}
     >
-      <Link href={`${basePath}/consultations/${row.id}`} className="min-w-0 flex-1 text-start">
-        <h2
-          className={clsx("line-clamp-2 text-[15px] font-bold leading-6", closed ? "text-[#8b93ab]" : "text-[#3e4c86]")}
-          title={row.question}
-        >
-          {row.question}
-        </h2>
-        <p className={clsx("mt-1 truncate text-[13px] leading-5", closed ? "text-[#a8b0c2]" : "text-[#8b93ab]")}>
-          {row.fullName}
-        </p>
-        {row.projectOrTeamName ? (
-          <p className={clsx("mt-0.5 truncate text-[12px] leading-5", closed ? "text-[#a8b0c2]" : "text-[#8b93ab]")}>
-            {row.projectOrTeamName}
-          </p>
-        ) : null}
+      <Link href={`${basePath}/consultations/${row.id}`} className="block min-w-0 text-start">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className={clsx("inline-flex items-center gap-1 text-[10px] font-light leading-4", quiet)}>
+              <CalendarDays className="h-3 w-3 shrink-0" aria-hidden />
+              {compactDate(row.createdAt)}
+            </span>
+            <span className={clsx("inline-flex min-w-0 items-center gap-1 text-[10px] font-light leading-4", quiet)}>
+              <RoutingIcon className="h-3 w-3 shrink-0" aria-hidden />
+              <span className="truncate">{routing.value}</span>
+            </span>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {row.status === "NEW" ? (
+              <span className="inline-flex rounded-full bg-[#e8f8ee] px-1.5 py-0.5 text-[10px] font-medium leading-4 text-[#1b8a4b]">
+                {row.statusLabel}
+              </span>
+            ) : null}
+            <span dir="ltr" className={clsx("text-[10px] font-light leading-4 tracking-wide", quiet)}>
+              {row.referenceCode}
+            </span>
+          </div>
+        </div>
       </Link>
-      <div className="flex shrink-0 items-center gap-2">
-        {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" /> : null}
-        {collected ? (
-          <a
-            href={whatsappUrl(
-              row.phone,
-              consultationWhatsappMessage({
-                fullName: row.fullName,
-                consultantName: row.assignedTo?.name ?? "",
-                referenceCode: row.referenceCode,
-                question: row.question,
-                link: row.link,
-              }),
+      <div className="mt-2.5 flex items-center gap-3">
+        <Link href={`${basePath}/consultations/${row.id}`} className="flex min-w-0 flex-1 items-start gap-3 text-start">
+          <span
+            className={clsx(
+              "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+              tone,
             )}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="تواصل واتساب"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3dcb8c] text-white transition hover:bg-[#34b87e]"
           >
-            <WhatsAppIcon className="h-5 w-5" />
-          </a>
-        ) : null}
-        <Link
-          href={`${basePath}/consultations/${row.id}`}
-          aria-label="اطلع على التفاصيل"
-          className={clsx(
-            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white transition",
-            closed ? "bg-[#b7beca] hover:bg-[#a3abbb]" : "bg-[#3e4c86] hover:bg-[#354272]",
-          )}
-        >
-          <ArrowLeft className="h-5 w-5" aria-hidden />
+            <TypeIcon className="h-5 w-5" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className={clsx("truncate text-[15px] font-semibold leading-6", closed ? "text-[#8b93ab]" : "text-[#3e4c86]")} title={teamName}>
+              {teamName}
+            </p>
+            <p className={clsx("mt-0.5 line-clamp-2 text-[11px] font-normal leading-5", quiet)} title={row.question}>
+              {row.question}
+            </p>
+          </div>
         </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          {canTake ? <ClaimConsultationButton consultationId={row.id} variant="bar" size="sm" /> : null}
+          {collected ? (
+            <a
+              href={whatsappUrl(
+                row.phone,
+                consultationWhatsappMessage({
+                  fullName: row.fullName,
+                  consultantName: row.assignedTo?.name ?? "",
+                  referenceCode: row.referenceCode,
+                  question: row.question,
+                  link: row.link,
+                }),
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="تواصل واتساب"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#d7eadf] bg-[#f3faf6] text-[#1f7a4d] transition hover:bg-[#e7f6ee]"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+            </a>
+          ) : null}
+          <Link
+            href={`${basePath}/consultations/${row.id}`}
+            aria-label="اطلع على التفاصيل"
+            className={clsx(
+              "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition",
+              closed
+                ? "border-[#e4e7ee] bg-[#f4f5f8] text-[#8b93ab] hover:bg-[#eef0f4]"
+                : "border-[#e3e7f4] bg-[#f4f6fb] text-[#3e4c86] hover:bg-[#eef1fb]",
+            )}
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
       </div>
+      {assignees.length > 0 ? (
+        <AssignConsultationControl
+          consultationId={row.id}
+          assignees={assignees}
+          currentId={row.assignedTo?.id ?? ""}
+        />
+      ) : null}
     </article>
+  );
+}
+
+function AssignConsultationControl({
+  consultationId,
+  assignees,
+  currentId,
+}: {
+  consultationId: string;
+  assignees: { id: string; name: string }[];
+  currentId: string;
+}) {
+  const router = useRouter();
+  const [value, setValue] = useState(currentId);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ sent: boolean; message: string } | null>(null);
+
+  useEffect(() => {
+    setValue(currentId);
+  }, [currentId]);
+
+  async function assign() {
+    if (!value || value === currentId) return;
+    setSaving(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await fetch(`/api/admin/consultations/${consultationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedToId: value }),
+      });
+      const result = (await response.json()) as {
+        success?: boolean;
+        message?: string;
+        emailNotice?: { sent: boolean; message: string };
+      };
+      if (!response.ok || !result.success) {
+        setError(result.message ?? "تعذر الإسناد");
+        return;
+      }
+      if (result.emailNotice) setNotice(result.emailNotice);
+      router.refresh();
+    } catch {
+      setError("تعذر الاتصال بالخادم");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center gap-2">
+        <label className="sr-only" htmlFor={`assign-${consultationId}`}>
+          إسناد الاستشارة
+        </label>
+        <select
+          id={`assign-${consultationId}`}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          className="h-10 min-w-0 flex-1 appearance-none rounded-full border border-[#d5d9e8] bg-white px-3 text-[13px] font-semibold text-[#3e4c86] outline-none"
+        >
+          <option value="">إسناد إلى مستشار</option>
+          {assignees.map((assignee) => (
+            <option key={assignee.id} value={assignee.id}>
+              {assignee.name}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={assign}
+          disabled={saving || !value || value === currentId}
+          className="inline-flex h-10 shrink-0 items-center rounded-full bg-[#3e4c86] px-4 text-[13px] font-bold text-white transition hover:bg-[#354272] disabled:opacity-40"
+        >
+          {saving ? "جاري الإسناد..." : "إسناد"}
+        </button>
+      </div>
+      {error ? <p className="mt-2 text-xs font-medium text-[#b42318]">{error}</p> : null}
+      {notice ? (
+        <p className={clsx("mt-2 text-xs font-medium", notice.sent ? "text-[#067647]" : "text-[#b42318]")}>
+          {notice.message}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -563,12 +934,14 @@ function ToolIconButton({
   label,
   pressed,
   marked,
+  plain = false,
   onClick,
   children,
 }: {
   label: string;
   pressed: boolean;
   marked: boolean;
+  plain?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -579,10 +952,15 @@ function ToolIconButton({
       aria-pressed={pressed}
       onClick={onClick}
       className={clsx(
-        "relative inline-flex h-11 w-11 items-center justify-center rounded-xl shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1 transition",
+        "relative inline-flex items-center justify-center transition",
+        plain ? "h-8 w-8 rounded-lg" : "h-11 w-11 rounded-xl shadow-[0_6px_18px_rgba(62,76,134,0.06)] ring-1",
         pressed
-          ? "bg-[#f4f5f8] text-[#3e4c86] ring-[#e4e7f0]"
-          : "bg-white text-[#6d7588] ring-[#eef0f6] hover:bg-[#f7f8fb]",
+          ? plain
+            ? "bg-[#f4f6fb] text-[#3e4c86]"
+            : "bg-[#f4f5f8] text-[#3e4c86] ring-[#e4e7f0]"
+          : plain
+            ? "text-[#6d7588] hover:bg-[#f4f6fb] hover:text-[#3e4c86]"
+            : "bg-white text-[#6d7588] ring-[#eef0f6] hover:bg-[#f7f8fb]",
       )}
     >
       {children}
@@ -605,6 +983,105 @@ function FilterIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 6h16M7 12h10M10 18h4" />
     </svg>
+  );
+}
+
+function ConsultantFilterMenu({
+  scope,
+  stage,
+  counts,
+  onScope,
+  onStage,
+  onClear,
+}: {
+  scope: string;
+  stage: string;
+  counts?: Stats["segments"];
+  onScope: (id: string) => void;
+  onStage: (id: string) => void;
+  onClear: () => void;
+}) {
+  const assignment = [
+    { id: "mine", label: "استشاراتي", count: counts?.mine },
+    { id: "unassigned", label: "استشارات غير مسندة", count: counts?.unassigned },
+  ];
+  const stages = [
+    { id: "new", label: "جديد", count: counts?.new },
+    { id: "ongoing", label: "جاري", count: counts?.ongoing },
+    { id: "closed", label: "مغلق", count: counts?.closed },
+  ];
+
+  return (
+    <div
+      role="menu"
+      aria-label="تصفية الاستشارات"
+      className="absolute top-full left-0 z-30 mt-2 w-56 overflow-hidden rounded-xl bg-white py-1 text-start shadow-[0_12px_32px_rgba(62,76,134,0.14)] ring-1 ring-[#eef0f6]"
+    >
+      <p className="px-3 pt-2 pb-1 text-[11px] font-medium text-[#8b93ab]">الإسناد</p>
+      {assignment.map((option) => (
+        <FilterMenuItem
+          key={option.id}
+          label={option.label}
+          count={option.count}
+          active={scope === option.id}
+          onClick={() => onScope(option.id)}
+        />
+      ))}
+      <div className="my-1 h-px bg-[#eef0f6]" />
+      <p className="px-3 pt-1 pb-1 text-[11px] font-medium text-[#8b93ab]">الحالة</p>
+      {stages.map((option) => (
+        <FilterMenuItem
+          key={option.id}
+          label={option.label}
+          count={option.count}
+          active={stage === option.id}
+          onClick={() => onStage(option.id)}
+        />
+      ))}
+      {scope || stage ? (
+        <>
+          <div className="my-1 h-px bg-[#eef0f6]" />
+          <button
+            type="button"
+            onClick={onClear}
+            className="flex w-full items-center px-3 py-2 text-start text-[12px] font-semibold text-[#6d7588] transition hover:bg-[#f7f8fb]"
+          >
+            مسح التصفية
+          </button>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function FilterMenuItem({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count?: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitemcheckbox"
+      aria-checked={active}
+      onClick={onClick}
+      className={clsx(
+        "flex w-full items-center gap-2 px-3 py-2 text-start text-[13px] font-semibold transition",
+        active ? "bg-[#f4f6fb] text-[#3e4c86]" : "text-[#3e4c86] hover:bg-[#f7f8fb]",
+      )}
+    >
+      <span className="min-w-0 flex-1">
+        {label}
+        {typeof count === "number" ? <span className="ms-1.5 text-[11px] font-medium tabular-nums text-[#a8b0c2]">{count}</span> : null}
+      </span>
+      <Check className={clsx("h-3.5 w-3.5 shrink-0", active ? "text-[#1b8a4b]" : "invisible")} aria-hidden />
+    </button>
   );
 }
 

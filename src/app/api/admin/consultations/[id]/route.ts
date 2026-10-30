@@ -147,11 +147,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       return updated;
     });
 
+    let emailNotice: { sent: boolean; message: string } | undefined;
     if (
       parsed.data.assignedToId &&
       parsed.data.assignedToId !== existing.assignedToId
     ) {
-      await notifyConsultationAssigned({
+      const emailResult = await notifyConsultationAssigned({
         id: consultation.id,
         referenceCode: consultation.referenceCode,
         fullName: consultation.fullName,
@@ -159,7 +160,12 @@ export async function PATCH(request: Request, context: RouteContext) {
         consultationType: consultation.consultationType,
         preferredConsultant: consultation.preferredConsultant,
         assignedToId: parsed.data.assignedToId,
+        question: consultation.question,
       });
+      emailNotice = {
+        sent: emailResult.ok,
+        message: emailResult.ok ? "أُرسل إشعار بالبريد إلى المستشار" : emailResult.message,
+      };
     }
 
     if (parsed.data.status && parsed.data.status !== existing.status) {
@@ -180,6 +186,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({
       success: true,
       data: serializeConsultationDetail(consultation),
+      emailNotice,
     });
   } catch (error) {
     console.error("Failed to update consultation:", error);

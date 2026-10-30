@@ -15,12 +15,14 @@ type ConsultationDetailPanelProps = {
   initialData: ConsultationDetail;
   mode?: "admin" | "consultant";
   assignees?: { id: string; name: string }[];
+  viewerId?: string;
 };
 
 export function ConsultationDetailPanel({
   initialData,
   mode = "admin",
   assignees = [],
+  viewerId = "",
 }: ConsultationDetailPanelProps) {
   const router = useRouter();
   const [data, setData] = useState(initialData);
@@ -32,6 +34,9 @@ export function ConsultationDetailPanel({
   const [noteSaving, setNoteSaving] = useState(false);
   const [assigneeId, setAssigneeId] = useState(data.assignedTo?.id ?? "");
   const [assigning, setAssigning] = useState(false);
+  const [assignNotice, setAssignNotice] = useState<{ sent: boolean; message: string } | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     setData(initialData);
@@ -119,6 +124,7 @@ export function ConsultationDetailPanel({
     if (!assigneeId) return;
     setAssigning(true);
     setError(null);
+    setAssignNotice(null);
 
     try {
       const response = await fetch(`/api/admin/consultations/${data.id}`, {
@@ -130,6 +136,7 @@ export function ConsultationDetailPanel({
         success?: boolean;
         message?: string;
         data?: ConsultationDetail;
+        emailNotice?: { sent: boolean; message: string };
       };
 
       if (!response.ok || !result.success || !result.data) {
@@ -139,11 +146,38 @@ export function ConsultationDetailPanel({
 
       setData(result.data);
       setAssigneeId(result.data.assignedTo?.id ?? "");
+      if (result.emailNotice) setAssignNotice(result.emailNotice);
       router.refresh();
     } catch {
       setError("تعذر الاتصال بالخادم");
     } finally {
       setAssigning(false);
+    }
+  }
+
+  async function handleDeleteNote(noteId: string) {
+    setDeletingId(noteId);
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/consultations/${data.id}/notes/${noteId}`, {
+        method: "DELETE",
+      });
+      const result = (await response.json()) as {
+        success?: boolean;
+        message?: string;
+        data?: ConsultationDetail;
+      };
+      if (!response.ok || !result.success || !result.data) {
+        setError(result.message ?? "تعذر حذف التعليق");
+        return;
+      }
+      setData(result.data);
+      setPendingDeleteId(null);
+      router.refresh();
+    } catch {
+      setError("تعذر الاتصال بالخادم");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -154,9 +188,12 @@ export function ConsultationDetailPanel({
   const timeline = [
     ...data.notes.map((item) => ({
       id: `note-${item.id}`,
-      title: "تعليق",
+      noteId: item.id as string | undefined,
+      canDelete: mode === "admin" || item.adminUserId === viewerId,
+      title: item.adminName,
       detail: item.note,
       at: item.createdAt,
+      stamp: item.createdAtLabel as string | undefined,
     })),
     ...data.activityLogs
       .filter(
@@ -165,11 +202,22 @@ export function ConsultationDetailPanel({
       )
       .map((item) => ({
         id: `log-${item.id}`,
+        noteId: undefined as string | undefined,
+        canDelete: false,
         title: "تحديث",
         detail: item.description,
         at: item.createdAt,
+        stamp: undefined as string | undefined,
       })),
-    { id: "created", title: "تم إرسال الاستشارة", detail: "", at: data.createdAt },
+    {
+      id: "created",
+      noteId: undefined as string | undefined,
+      canDelete: false,
+      title: "تم إرسال الاستشارة",
+      detail: "",
+      at: data.createdAt,
+      stamp: undefined as string | undefined,
+    },
   ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
   return (
@@ -211,7 +259,7 @@ export function ConsultationDetailPanel({
         <h2 className="text-base font-bold text-[#3e4c86]">بيانات المستفيد</h2>
         <dl className="mt-4 space-y-3">
           <Info label="الاسم" value={data.fullName} />
-          {canContact ? <Info label="الجوال" value={data.phone} dir="ltr" /> : null}
+          <Info label="الجوال" value={data.phone || "—"} dir="ltr" />
           <Info label="البريد" value={data.email ?? "—"} dir="ltr" />
           <Info label="الجنس" value={data.genderLabel} />
           <Info label="الصفة" value={data.currentStageLabel} />
@@ -313,28 +361,38 @@ export function ConsultationDetailPanel({
               </button>
             </div>
           )}
+          {assignNotice ? (
+            <p className={`mt-2 text-xs font-medium ${assignNotice.sent ? "text-[#067647]" : "text-[#b42318]"}`}>
+              {assignNotice.message}
+            </p>
+          ) : null}
         </section>
       ) : null}
 
-      <form onSubmit={handleAddNote} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
-        <h2 className="shrink-0 text-sm font-bold text-[#3e4c86] sm:text-base">تعليقات داخلية</h2>
-        <input
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          disabled={claimable || noteSaving}
-          placeholder={claimable ? "بعد استلام الاستشارة" : "أضف تعليقاً"}
-          className="h-10 min-w-0 flex-1 rounded-full border-0 bg-[#eef1f8] px-4 text-sm text-[#3e4c86] outline-none placeholder:text-[#a3abc2] disabled:opacity-60"
-        />
-        <button
-          type="submit"
-          aria-label="إضافة تعليق"
-          disabled={claimable || noteSaving || !note.trim()}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#33406f] disabled:opacity-40"
-        >
-          <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
-            <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-        </button>
+      <form onSubmit={handleAddNote} className="rounded-2xl bg-white px-3 py-3 shadow-[0_8px_20px_rgba(62,76,134,0.05)] ring-1 ring-[#eef0f6]">
+        <div className="flex items-center gap-2">
+          <h2 className="shrink-0 text-sm font-bold text-[#3e4c86] sm:text-base">تعليقات داخلية</h2>
+          <input
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            disabled={claimable || noteSaving}
+            placeholder={claimable ? "بعد استلام الاستشارة" : "أضف تعليقاً"}
+            className="h-10 min-w-0 flex-1 rounded-full border-0 bg-[#eef1f8] px-4 text-sm text-[#3e4c86] outline-none placeholder:text-[#a3abc2] disabled:opacity-60"
+          />
+          <button
+            type="submit"
+            aria-label="إضافة تعليق"
+            disabled={claimable || noteSaving || !note.trim()}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3e4c86] text-white transition hover:bg-[#33406f] disabled:opacity-40"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5">
+              <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+        <p className="mt-2 px-1 text-[12px] font-medium leading-5 text-[#8b93ab]">
+          هذه الملاحظات تظهر للمستشارين فقط، وللتواصل مع المستفيد اضغط زر الواتساب.
+        </p>
       </form>
 
       {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
@@ -346,7 +404,31 @@ export function ConsultationDetailPanel({
               <p className="text-sm font-semibold leading-6 text-[#3e4c86]">{item.title}</p>
               {item.detail ? <p className="mt-0.5 text-[13px] leading-6 text-[#8b93ab]">{item.detail}</p> : null}
             </div>
-            <time className="shrink-0 pt-0.5 text-[13px] font-medium text-[#8b93ab]" dir="ltr">{clock(item.at)}</time>
+            <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5">
+              <time className="text-end text-[12px] font-normal leading-5 text-[#8b93ab]">
+                {item.stamp ?? clock(item.at)}
+              </time>
+              {item.canDelete && item.noteId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (pendingDeleteId === item.noteId) {
+                      void handleDeleteNote(item.noteId);
+                      return;
+                    }
+                    setPendingDeleteId(item.noteId);
+                  }}
+                  disabled={deletingId === item.noteId}
+                  className="text-[12px] font-medium text-[#b42318] disabled:opacity-40"
+                >
+                  {deletingId === item.noteId
+                    ? "جاري الحذف..."
+                    : pendingDeleteId === item.noteId
+                      ? "تأكيد الحذف"
+                      : "حذف"}
+                </button>
+              ) : null}
+            </div>
           </li>
         ))}
       </ul>

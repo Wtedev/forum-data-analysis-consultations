@@ -315,32 +315,42 @@ export async function notifyBeneficiaryConsultantAssigned(input: {
   }
 }
 
-export async function notifyConsultationAssigned(consultation: ConsultationMailContext) {
-  if (!consultation.assignedToId) return;
+export async function notifyConsultationAssigned(
+  consultation: ConsultationMailContext & { question?: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (!consultation.assignedToId) return { ok: false, message: "لم يُحدد مستشار" };
 
   try {
-    const recipients = await staffRecipients(consultation);
-    const assignee = recipients.find((recipient) => recipient.deskPath.startsWith("/consultant"));
-    if (!assignee) return;
+    const assignee = await getPrisma().adminUser.findFirst({
+      where: { id: consultation.assignedToId, role: "CONSULTANT" },
+      select: { email: true, name: true },
+    });
+    if (!assignee?.email) return { ok: false, message: "المستشار بلا بريد إلكتروني" };
 
-    await Promise.all([
-      sendEmail({
-        to: assignee.email,
-        subject: `أُسند إليك الطلب ${consultation.referenceCode}`,
-        html: layout(`<p>مرحباً ${escapeHtml(assignee.name)}،</p>
-        <p>أُسند إليك طلب ${escapeHtml(consultation.fullName)}، الرقم المرجعي ${escapeHtml(consultation.referenceCode)}.</p>
-        <p>لن يظهر هذا الطلب لبقية المستشارين.</p>
-        <p><a href="${escapeHtml(`${appUrl()}${assignee.deskPath}`)}">فتح الطلب</a></p>`),
-      }),
-      notifyBeneficiaryConsultantAssigned({
-        email: consultation.email,
-        fullName: consultation.fullName,
-        referenceCode: consultation.referenceCode,
-        consultantName: assignee.name,
-      }),
-    ]);
+    const typeLabel = TYPE_DB_LABELS[consultation.consultationType];
+    const deskUrl = `${appUrl()}/consultant/consultations/${consultation.id}`;
+    const question = consultation.question?.trim();
+    const result = await sendEmail({
+      to: assignee.email,
+      subject: `أُسندت إليك استشارة ${consultation.referenceCode}`,
+      html: layout(`<p>مرحباً ${escapeHtml(assignee.name)}،</p>
+        <p>أُسندت إليك استشارة جديدة، ولن تظهر لبقية المستشارين.</p>
+        <p>صاحب الطلب: ${escapeHtml(consultation.fullName)}<br>الرقم المرجعي: ${escapeHtml(consultation.referenceCode)}<br>نوع الاستشارة: ${escapeHtml(typeLabel)}</p>
+        ${question ? `<p>نص الاستشارة: ${escapeHtml(question)}</p>` : ""}
+        <p><a href="${escapeHtml(deskUrl)}">فتح الاستشارة</a></p>`),
+    });
+
+    await notifyBeneficiaryConsultantAssigned({
+      email: consultation.email,
+      fullName: consultation.fullName,
+      referenceCode: consultation.referenceCode,
+      consultantName: assignee.name,
+    });
+
+    return result;
   } catch (error) {
     console.error("Failed to send assignment email", error);
+    return { ok: false, message: "تعذر إرسال إشعار البريد" };
   }
 }
 
